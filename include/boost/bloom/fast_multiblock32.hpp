@@ -35,7 +35,7 @@ struct fast_multiblock32
 
   static BOOST_FORCEINLINE void mark(value_type& x,boost::uint64_t hash)
   {
-    for(int i=0;i<k/8;++i){
+    for(std::size_t i=0;i<k/8;++i){
       mark_m256i(x[i],hash,8);
       hash=detail::mulx64_mix(hash);
     }
@@ -46,7 +46,7 @@ struct fast_multiblock32
 
   static BOOST_FORCEINLINE bool check(const value_type& x,boost::uint64_t hash)
   {
-    for(int i=0;i<k/8;++i){
+    for(std::size_t i=0;i<k/8;++i){
       if(!check_m256i(x[i],hash,8))return false;
       hash=detail::mulx64_mix(hash);
     }
@@ -140,7 +140,7 @@ struct fast_multiblock32
 
   static BOOST_FORCEINLINE void mark(value_type& x,boost::uint64_t hash)
   {
-    for(int i=0;i<k/8;++i){
+    for(std::size_t i=0;i<k/8;++i){
       mark_uint32x4x2_t(x[i],hash,8);
       hash=detail::mulx64_mix(hash);
     }
@@ -151,7 +151,7 @@ struct fast_multiblock32
 
   static BOOST_FORCEINLINE bool check(const value_type& x,boost::uint64_t hash)
   {
-    for(int i=0;i<k/8;++i){
+    for(std::size_t i=0;i<k/8;++i){
       if(!check_uint32x4x2_t(x[i],hash,8))return false;
       hash=detail::mulx64_mix(hash);
     }
