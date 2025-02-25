@@ -13,6 +13,7 @@
 #include <boost/bloom/detail/neon.hpp>
 
 #if defined(BOOST_BLOOM_AVX2)
+
 #include <boost/bloom/detail/mulx64.hpp>
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
@@ -123,7 +124,9 @@ private:
 
 } /* namespace bloom */
 } /* namespace boost */
+
 #elif defined(BOOST_BLOOM_LITTLE_ENDIAN_NEON)
+
 #include <boost/bloom/detail/mulx64.hpp>
 #include <boost/cstdint.hpp>
 #include <cstddef>
@@ -191,8 +194,8 @@ private:
     h_lo=vmulq_u32(h_lo,rehash.val[0]);
     h_hi=vmulq_u32(h_hi,rehash.val[0]);
 
-    h_lo=vshrq_n_u32(h_lo,27);
-    h_hi=vshrq_n_u32(h_hi,27);
+    h_lo=vshrq_n_u32(h_lo,32-5);
+    h_hi=vshrq_n_u32(h_hi,32-5);
 
     return {
       vshlq_u32(ones[kp-1].val[0],vreinterpretq_s32_u32(h_lo)),
@@ -236,7 +239,9 @@ private:
 
 } /* namespace bloom */
 } /* namespace boost */
+
 #else /* fallback */
+
 #include <boost/bloom/multiblock.hpp>
 
 namespace boost{
@@ -247,6 +252,7 @@ using fast_multiblock32=multiblock<boost::uint32_t,K>;
 
 } /* namespace bloom */
 } /* namespace boost */
+
 #endif
 
 #endif
