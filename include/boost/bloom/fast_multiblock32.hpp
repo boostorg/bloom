@@ -100,7 +100,7 @@ private:
       return _mm256_testc_si256(x,h);
     }
     else{
-      const __m256i mask[7]={
+      const __m256i masks[7]={
         _mm256_set_epi32(-1,-1,-1,-1,-1,-1,-1, 0),
         _mm256_set_epi32(-1,-1,-1,-1,-1,-1, 0, 0),
         _mm256_set_epi32(-1,-1,-1,-1,-1, 0, 0, 0),
@@ -111,7 +111,7 @@ private:
       };
 
       __m256i h=make_m256i(hash,kp);
-      __m256i y=_mm256_or_si256(mask[kp-1],x);
+      __m256i y=_mm256_or_si256(masks[kp-1],x);
       return _mm256_testc_si256(y,h);
     }
   }
