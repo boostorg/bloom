@@ -165,19 +165,16 @@ private:
   static BOOST_FORCEINLINE uint32x4x2_t make_uint32x4x2_t(
     boost::uint64_t hash,std::size_t kp)
   {
-    static const boost::uint32_t ones_data[8][8]={
-      {1,0,0,0, 0,0,0,0},
-      {1,1,0,0, 0,0,0,0},
-      {1,1,1,0, 0,0,0,0},
-      {1,1,1,1, 0,0,0,0},
-      {1,1,1,1, 1,0,0,0},
-      {1,1,1,1, 1,1,0,0},
-      {1,1,1,1, 1,1,1,0},
-      {1,1,1,1, 1,1,1,1}
+    static const uint32x4x2_t ones[8]={
+      {{{1,0,0,0},{0,0,0,0}}},
+      {{{1,1,0,0},{0,0,0,0}}},
+      {{{1,1,1,0},{0,0,0,0}}},
+      {{{1,1,1,1},{0,0,0,0}}},
+      {{{1,1,1,1},{1,0,0,0}}},
+      {{{1,1,1,1},{1,1,0,0}}},
+      {{{1,1,1,1},{1,1,1,0}}},
+      {{{1,1,1,1},{1,1,1,1}}}
     };
-
-    uint32x4_t ones_lo=vld1q_u32(ones_data[kp-1]);
-    uint32x4_t ones_hi=vld1q_u32(ones_data[kp-1]+4);
 
     /* Same constants as src/kudu/util/block_bloom_filter.h in
      * https://github.com/apache/kudu
@@ -197,7 +194,10 @@ private:
     h_lo=vshrq_n_u32(h_lo,27);
     h_hi=vshrq_n_u32(h_hi,27);
 
-    return {vshlq_u32(ones_lo,h_lo),vshlq_u32(ones_hi,h_hi)};
+    return {
+      vshlq_u32(ones[kp-1].val[0],h_lo),
+      vshlq_u32(ones[kp-1].val[1],h_hi)
+    };
   }
 
   static BOOST_FORCEINLINE void mark_uint32x4x2_t(
@@ -217,13 +217,13 @@ private:
     if(kp!=8){
       static const boost::uint32_t out=0xFFFFFFFFu;
       static const uint32x4x2_t masks[7]={
-        {{{  0,out,out,out},{out,out,out,out}}},
-        {{{  0,  0,out,out},{out,out,out,out}}},
-        {{{  0,  0,  0,out},{out,out,out,out}}},
-        {{{  0,  0,  0,  0},{out,out,out,out}}},
-        {{{  0,  0,  0,  0},{  0,out,out,out}}},
-        {{{  0,  0,  0,  0},{  0,  0,out,out}}},
-        {{{  0,  0,  0,  0},{  0,  0,  0,out}}}
+        {{{ 0 ,out,out,out},{out,out,out,out}}},
+        {{{ 0 , 0 ,out,out},{out,out,out,out}}},
+        {{{ 0 , 0 , 0 ,out},{out,out,out,out}}},
+        {{{ 0 , 0 , 0 , 0 },{out,out,out,out}}},
+        {{{ 0 , 0 , 0 , 0 },{ 0 ,out,out,out}}},
+        {{{ 0 , 0 , 0 , 0 },{ 0 , 0 ,out,out}}},
+        {{{ 0 , 0 , 0 , 0 },{ 0 , 0 , 0 ,out}}}
       };
 
       lo=vorrq_u32(lo,masks[kp-1].val[0]);
