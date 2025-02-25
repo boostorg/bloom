@@ -124,9 +124,113 @@ private:
 } /* namespace bloom */
 } /* namespace boost */
 #elif defined(BOOST_BLOOM_LITTLE_ENDIAN_NEON)
+#include <boost/bloom/detail/mulx64.hpp>
+#include <boost/cstdint.hpp>
+#include <cstddef>
 
-#error Neon detected
+namespace boost{
+namespace bloom{
 
+template<std::size_t K>
+struct fast_multiblock32
+{
+  static constexpr std::size_t k=K;
+  using value_type=uint32x4x2_t[(k+7)/8];
+  static constexpr std::size_t used_value_size=sizeof(boost::uint32_t)*k;
+
+  static BOOST_FORCEINLINE void mark(value_type& x,boost::uint64_t hash)
+  {
+    for(int i=0;i<k/8;++i){
+      mark_uint32x4x2_t(x[i],hash,8);
+      hash=detail::mulx64_mix(hash);
+    }
+    if(k%8){
+      mark_uint32x4x2_t(x[k/8],hash,k%8);
+    }
+  }
+
+  static BOOST_FORCEINLINE bool check(const value_type& x,boost::uint64_t hash)
+  {
+    for(int i=0;i<k/8;++i){
+      if(!check_uint32x4x2_t(x[i],hash,8))return false;
+      hash=detail::mulx64_mix(hash);
+    }
+    if(k%8){
+      if(!check_uint32x4x2_t(x[k/8],hash,k%8))return false;
+    }
+    return true;
+  }
+
+private:
+  static BOOST_FORCEINLINE uint32x4x2_t make_uint32x4x2_t(
+    boost::uint64_t hash,std::size_t kp)
+  {
+    static const uint32_t ones_data[8][8]=
+    {
+      {1,0,0,0, 0,0,0,0},
+      {1,1,0,0, 0,0,0,0},
+      {1,1,1,0, 0,0,0,0},
+      {1,1,1,1, 0,0,0,0},
+      {1,1,1,1, 1,0,0,0},
+      {1,1,1,1, 1,1,0,0},
+      {1,1,1,1, 1,1,1,0},
+      {1,1,1,1, 1,1,1,1}
+    };
+
+    uint32x4_t ones_lo=vld1q_u32(ones_data[kp-1]);
+    uint32x4_t ones_hi=vld1q_u32(ones_data[kp-1]+4);
+
+    /* Same constants as src/kudu/util/block_bloom_filter.h in
+     * https://github.com/apache/kudu
+     */
+
+    static const uint32_t rehash_lo_data[4]=
+      {0x5c6bfb31,0x9efc4947,0x2df1424b,0x705495c7};
+    static const uint32_t rehash_hi_data[4]=
+      {0xa2b7289d,0x8824ad5b,0x44974d91,0x47b6137b};
+
+    uint32x4_t rehash_lo=vld1q_u32(rehash_lo_data);
+    uint32x4_t rehash_hi=vld1q_u32(rehash_hi_data);
+
+    uint32x4_t h_lo=vdupq_n_u32((boost::uint32_t)hash);
+    uint32x4_t h_hi=vdupq_n_u32((boost::uint32_t)(hash>>32));
+
+    uint32x4_t prod_lo=vmulq_u32(rehash_lo,h_lo);
+    uint32x4_t prod_hi=vmulq_u32(rehash_hi,h_hi);
+
+    uint32x4_t s_lo=vshrq_n_u32(prod_lo,27);
+    uint32x4_t s_hi=vshrq_n_u32(prod_hi,27);
+
+    int32x4_t s_lo_int=vreinterpretq_s32_u32(s_lo);
+    int32x4_t s_hi_int=vreinterpretq_s32_u32(s_hi);
+
+    uint32x4_t res_lo=vshlq_u32(ones_lo,s_lo_int);
+    uint32x4_t res_hi=vshlq_u32(ones_hi,s_hi_int);
+
+    return {res_lo,res_hi};
+  }
+
+  static BOOST_FORCEINLINE void mark_uint32x4x2_t(
+    uint32x4x2_t& x,boost::uint64_t hash,std::size_t kp)
+  {
+    uint32x4x2_t h=make_uint32x4x2_t(hash,kp);
+    x.val[0]=vorrq_u32(x.val[0],h.val[0]);
+    x.val[1]=vorrq_u32(x.val[1],h.val[1]);
+  }
+
+  static BOOST_FORCEINLINE bool check_uint32x4x2_t(
+    const uint32x4x2_t& x,boost::uint64_t hash,std::size_t kp)
+  {
+    uint32x4x2_t h=make_uint32x4x2_t(hash,kp);
+    uint32x4_t   t0=vtstq_u32(x.val[0],h.val[0]);
+    uint32x4_t   t1=vtstq_u32(x.val[1],h.val[1]);
+    int64x2_t    t=vreinterpretq_s64_u32(vandq_u32(t0, t1));
+    return (vgetq_lane_s64(t,0)&vgetq_lane_s64(t,1))==-1;
+  }
+};
+
+} /* namespace bloom */
+} /* namespace boost */
 #else /* fallback */
 #include <boost/bloom/multiblock.hpp>
 
