@@ -165,8 +165,7 @@ private:
   static BOOST_FORCEINLINE uint32x4x2_t make_uint32x4x2_t(
     boost::uint64_t hash,std::size_t kp)
   {
-    static const uint32_t ones_data[8][8]=
-    {
+    static const boost::uint32_t ones_data[8][8]={
       {1,0,0,0, 0,0,0,0},
       {1,1,0,0, 0,0,0,0},
       {1,1,1,0, 0,0,0,0},
@@ -224,7 +223,22 @@ private:
     uint32x4x2_t h=make_uint32x4x2_t(hash,kp);
     uint32x4_t   t0=vtstq_u32(x.val[0],h.val[0]);
     uint32x4_t   t1=vtstq_u32(x.val[1],h.val[1]);
-    int64x2_t    t=vreinterpretq_s64_u32(vandq_u32(t0, t1));
+    if(kp!=8){
+      static const boost::uint32_t set=0xFFFFFFFFu;
+      static const uint32x4x2_t masks[7]={
+        {{{set,  0,  0,  0},{  0,  0,  0,  0}}},
+        {{{set,set,  0,  0},{  0,  0,  0,  0}}},
+        {{{set,set,set,  0},{  0,  0,  0,  0}}},
+        {{{set,set,set,set},{  0,  0,  0,  0}}},
+        {{{set,set,set,set},{set,  0,  0,  0}}},
+        {{{set,set,set,set},{set,set,  0,  0}}},
+        {{{set,set,set,set},{set,set,set,  0}}}
+      };
+
+      t0=vorrq_u32(t0,masks[kp-1].val[0]);
+      t1=vorrq_u32(t1,masks[kp-1].val[1]);
+    }
+    int64x2_t t=vreinterpretq_s64_u32(vandq_u32(t0, t1));
     return (vgetq_lane_s64(t,0)&vgetq_lane_s64(t,1))==-1;
   }
 };
