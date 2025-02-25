@@ -195,8 +195,8 @@ private:
     h_hi=vshrq_n_u32(h_hi,27);
 
     return {
-      vshlq_u32(ones[kp-1].val[0],h_lo),
-      vshlq_u32(ones[kp-1].val[1],h_hi)
+      vshlq_u32(ones[kp-1].val[0],vreinterpretq_s32_u32(h_lo)),
+      vshlq_u32(ones[kp-1].val[1],vreinterpretq_s32_u32(h_hi))
     };
   }
 
