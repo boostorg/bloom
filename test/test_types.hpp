@@ -33,7 +33,7 @@ using test_types=boost::mp11::mp_list<
   >,
   boost::bloom::filter<
     unsigned char,boost::hash<unsigned char>,1,
-    boost::bloom::fast_multiblock32<5>,2
+    boost::bloom::fast_multiblock32<8>,2
   >
 >;
 
