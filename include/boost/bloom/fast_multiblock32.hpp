@@ -10,6 +10,7 @@
 #define BOOST_BLOOM_FAST_MULTIBLOCK32_HPP
 
 #include <boost/bloom/detail/avx2.hpp>
+#include <boost/bloom/detail/neon.hpp>
 
 #if defined(BOOST_BLOOM_AVX2)
 #include <boost/bloom/detail/mulx64.hpp>
@@ -122,6 +123,10 @@ private:
 
 } /* namespace bloom */
 } /* namespace boost */
+#elif defined(BOOST_BLOOM_LITTLE_ENDIAN_NEON)
+
+#error Neon detected
+
 #else /* fallback */
 #include <boost/bloom/multiblock.hpp>
 
