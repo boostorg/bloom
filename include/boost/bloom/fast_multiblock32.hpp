@@ -183,30 +183,21 @@ private:
      * https://github.com/apache/kudu
      */
 
-    static const uint32_t rehash_lo_data[4]=
-      {0x5c6bfb31,0x9efc4947,0x2df1424b,0x705495c7};
-    static const uint32_t rehash_hi_data[4]=
-      {0xa2b7289d,0x8824ad5b,0x44974d91,0x47b6137b};
-
-    uint32x4_t rehash_lo=vld1q_u32(rehash_lo_data);
-    uint32x4_t rehash_hi=vld1q_u32(rehash_hi_data);
+    static const uint32x4x2_t rehash={{
+      {0x5c6bfb31,0x9efc4947,0x2df1424b,0x705495c7},
+      {0xa2b7289d,0x8824ad5b,0x44974d91,0x47b6137b}
+    }};
 
     uint32x4_t h_lo=vdupq_n_u32((boost::uint32_t)hash);
     uint32x4_t h_hi=vdupq_n_u32((boost::uint32_t)(hash>>32));
 
-    uint32x4_t prod_lo=vmulq_u32(rehash_lo,h_lo);
-    uint32x4_t prod_hi=vmulq_u32(rehash_hi,h_hi);
+    h_lo=vmulq_u32(h_lo,rehash.val[0]);
+    h_hi=vmulq_u32(h_hi,rehash.val[0]);
 
-    uint32x4_t s_lo=vshrq_n_u32(prod_lo,27);
-    uint32x4_t s_hi=vshrq_n_u32(prod_hi,27);
+    h_lo=vshrq_n_u32(h_lo,27);
+    h_hi=vshrq_n_u32(h_hi,27);
 
-    int32x4_t s_lo_int=vreinterpretq_s32_u32(s_lo);
-    int32x4_t s_hi_int=vreinterpretq_s32_u32(s_hi);
-
-    uint32x4_t res_lo=vshlq_u32(ones_lo,s_lo_int);
-    uint32x4_t res_hi=vshlq_u32(ones_hi,s_hi_int);
-
-    return {res_lo,res_hi};
+    return {vshlq_u32(ones_lo,h_lo),vshlq_u32(ones_hi,h_hi)};
   }
 
   static BOOST_FORCEINLINE void mark_uint32x4x2_t(
@@ -221,8 +212,8 @@ private:
     const uint32x4x2_t& x,boost::uint64_t hash,std::size_t kp)
   {
     uint32x4x2_t h=make_uint32x4x2_t(hash,kp);
-    uint32x4_t   t0=vtstq_u32(x.val[0],h.val[0]);
-    uint32x4_t   t1=vtstq_u32(x.val[1],h.val[1]);
+    uint32x4_t   lo=vtstq_u32(x.val[0],h.val[0]);
+    uint32x4_t   hi=vtstq_u32(x.val[1],h.val[1]);
     if(kp!=8){
       static const boost::uint32_t out=0xFFFFFFFFu;
       static const uint32x4x2_t masks[7]={
@@ -235,11 +226,11 @@ private:
         {{{  0,  0,  0,  0},{  0,  0,  0,out}}}
       };
 
-      t0=vorrq_u32(t0,masks[kp-1].val[0]);
-      t1=vorrq_u32(t1,masks[kp-1].val[1]);
+      lo=vorrq_u32(lo,masks[kp-1].val[0]);
+      hi=vorrq_u32(hi,masks[kp-1].val[1]);
     }
-    int64x2_t t=vreinterpretq_s64_u32(vandq_u32(t0, t1));
-    return (vgetq_lane_s64(t,0)&vgetq_lane_s64(t,1))==-1;
+    int64x2_t res=vreinterpretq_s64_u32(vandq_u32(lo,hi));
+    return (vgetq_lane_s64(res,0)&vgetq_lane_s64(res,1))==-1;
   }
 };
 
