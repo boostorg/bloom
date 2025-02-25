@@ -224,15 +224,15 @@ private:
     uint32x4_t   t0=vtstq_u32(x.val[0],h.val[0]);
     uint32x4_t   t1=vtstq_u32(x.val[1],h.val[1]);
     if(kp!=8){
-      static const boost::uint32_t set=0xFFFFFFFFu;
+      static const boost::uint32_t out=0xFFFFFFFFu;
       static const uint32x4x2_t masks[7]={
-        {{{set,  0,  0,  0},{  0,  0,  0,  0}}},
-        {{{set,set,  0,  0},{  0,  0,  0,  0}}},
-        {{{set,set,set,  0},{  0,  0,  0,  0}}},
-        {{{set,set,set,set},{  0,  0,  0,  0}}},
-        {{{set,set,set,set},{set,  0,  0,  0}}},
-        {{{set,set,set,set},{set,set,  0,  0}}},
-        {{{set,set,set,set},{set,set,set,  0}}}
+        {{{  0,out,out,out},{out,out,out,out}}},
+        {{{  0,  0,out,out},{out,out,out,out}}},
+        {{{  0,  0,  0,out},{out,out,out,out}}},
+        {{{  0,  0,  0,  0},{out,out,out,out}}},
+        {{{  0,  0,  0,  0},{  0,out,out,out}}},
+        {{{  0,  0,  0,  0},{  0,  0,out,out}}},
+        {{{  0,  0,  0,  0},{  0,  0,  0,out}}}
       };
 
       t0=vorrq_u32(t0,masks[kp-1].val[0]);
