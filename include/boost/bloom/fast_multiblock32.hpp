@@ -188,11 +188,11 @@ private:
       {0xa2b7289d,0x8824ad5b,0x44974d91,0x47b6137b}
     }};
 
-    uint32x4_t h_lo=vdupq_n_u32((boost::uint32_t)hash);
-    uint32x4_t h_hi=vdupq_n_u32((boost::uint32_t)(hash>>32));
+    uint32x4_t h_lo=vreinterpretq_u32_u64(vdupq_n_u64(hash)),
+               h_hi=h_lo;
 
     h_lo=vmulq_u32(h_lo,rehash.val[0]);
-    h_hi=vmulq_u32(h_hi,rehash.val[0]);
+    h_hi=vmulq_u32(h_hi,rehash.val[1]);
 
     h_lo=vshrq_n_u32(h_lo,32-5);
     h_hi=vshrq_n_u32(h_hi,32-5);
