@@ -146,12 +146,27 @@ public:
     const allocator_type& al=allocator_type()):
     super{m,al},hash_base{empty_init,h}{}
 
+  explicit filter(
+    std::size_t n,double fpr,const hasher& h=hasher(),
+    const allocator_type& al=allocator_type()):
+    super{n,fpr,al},hash_base{empty_init,h}{}
+
   template<typename InputIterator>
   filter(
     InputIterator first,InputIterator last,
     std::size_t m,const hasher& h=hasher(),
     const allocator_type& al=allocator_type()):
     filter{m,h,al}
+  {
+    insert(first,last);
+  }
+
+  template<typename InputIterator>
+  filter(
+    InputIterator first,InputIterator last,
+    std::size_t n,double fpr,const hasher& h=hasher(),
+    const allocator_type& al=allocator_type()):
+    filter{n,fpr,h,al}
   {
     insert(first,last);
   }
@@ -164,6 +179,12 @@ public:
     InputIterator first,InputIterator last,
     std::size_t m,const allocator_type& al):
     filter{first,last,m,hasher(),al}{}
+
+  template<typename InputIterator>
+  filter(
+    InputIterator first,InputIterator last,
+    std::size_t n,double fpr,const allocator_type& al):
+    filter{first,last,n,fpr,hasher(),al}{}
 
   explicit filter(const allocator_type& al):filter{0,al}{}
 
@@ -179,13 +200,27 @@ public:
     const allocator_type& al=allocator_type()):
     filter{il.begin(),il.end(),m,h,al}{}
 
+  filter(
+    std::initializer_list<value_type> il,
+    std::size_t n,double fpr,const hasher& h=hasher(),
+    const allocator_type& al=allocator_type()):
+    filter{il.begin(),il.end(),n,fpr,h,al}{}
+
   filter(std::size_t m,const allocator_type& al):
     filter{m,hasher(),al}{}
+
+  filter(std::size_t n,double fpr,const allocator_type& al):
+    filter{n,fpr,hasher(),al}{}
 
   filter(
     std::initializer_list<value_type> il,
     std::size_t m,const allocator_type& al):
     filter{il.begin(),il.end(),m,hasher(),al}{}
+
+  filter(
+    std::initializer_list<value_type> il,
+    std::size_t n,double fpr,const allocator_type& al):
+    filter{il.begin(),il.end(),n,fpr,hasher(),al}{}
 
   filter& operator=(const filter& x)
   {

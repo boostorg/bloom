@@ -10,6 +10,7 @@
 #define BOOST_BLOOM_BLOCK_HPP
 
 #include <boost/bloom/detail/block_base.hpp>
+#include <boost/bloom/detail/block_fpr_base.hpp>
 #include <boost/cstdint.hpp>
 #include <cstddef>
 
@@ -17,7 +18,8 @@ namespace boost{
 namespace bloom{
 
 template<typename Block,std::size_t K>
-struct block:private detail::block_base<Block,K>
+struct block:
+  private detail::block_base<Block,K>,public detail::block_fpr_base<K>
 {
   static constexpr std::size_t k=K;
   using value_type=Block;

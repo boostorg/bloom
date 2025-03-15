@@ -10,6 +10,7 @@
 #define BOOST_BLOOM_DETAIL_FAST_MULTIBLOCK64_AVX2_HPP
 
 #include <boost/bloom/detail/avx2.hpp>
+#include <boost/bloom/detail/multiblock_fpr_base.hpp>
 #include <boost/bloom/detail/mulx64.hpp>
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
@@ -33,7 +34,7 @@ struct m256ix2
 } /* namespace detail */
 
 template<std::size_t K>
-struct fast_multiblock64
+struct fast_multiblock64:detail::multiblock_fpr_base<K>
 {
   static constexpr std::size_t k=K;
   using value_type=detail::m256ix2[(k+7)/8];

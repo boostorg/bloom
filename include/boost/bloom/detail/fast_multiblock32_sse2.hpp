@@ -9,6 +9,7 @@
 #ifndef BOOST_BLOOM_DETAIL_FAST_MULTIBLOCK32_SSE2_HPP
 #define BOOST_BLOOM_DETAIL_FAST_MULTIBLOCK32_SSE2_HPP
 
+#include <boost/bloom/detail/multiblock_fpr_base.hpp>
 #include <boost/bloom/detail/mulx64.hpp>
 #include <boost/bloom/detail/sse2.hpp>
 #include <boost/config.hpp>
@@ -46,7 +47,7 @@ static inline int mm_testc_si128(__m128i x,__m128i y)
 } /* namespace detail */
 
 template<std::size_t K>
-struct fast_multiblock32
+struct fast_multiblock32:detail::multiblock_fpr_base<K>
 {
   static constexpr std::size_t k=K;
   using value_type=detail::m128ix2[(k+7)/8];

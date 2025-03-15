@@ -9,6 +9,7 @@
 #ifndef BOOST_BLOOM_DETAIL_FAST_MULTIBLOCK32_NEON_HPP
 #define BOOST_BLOOM_DETAIL_FAST_MULTIBLOCK32_NEON_HPP
 
+#include <boost/bloom/detail/multiblock_fpr_base.hpp>
 #include <boost/bloom/detail/mulx64.hpp>
 #include <boost/bloom/detail/neon.hpp>
 #include <boost/config.hpp>
@@ -38,7 +39,7 @@ namespace bloom{
 {{BOOST_BLOOM_INIT_U32X4(w0,x0,y0,z0),BOOST_BLOOM_INIT_U32X4(w1,x1,y1,z1)}}
 
 template<std::size_t K>
-struct fast_multiblock32
+struct fast_multiblock32:detail::multiblock_fpr_base<K>
 {
   static constexpr std::size_t k=K;
   using value_type=uint32x4x2_t[(k+7)/8];

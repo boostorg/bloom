@@ -185,8 +185,20 @@ void test_construction()
     BOOST_TEST_EQ(f.get_allocator().state,0);
   }
   {
+    filter f(100,0.01);
+    BOOST_TEST_GE(f.capacity(),0);
+    BOOST_TEST_EQ(f.hash_function().state,0);
+    BOOST_TEST_EQ(f.get_allocator().state,0);
+  }
+  {
     filter f(1000,hasher{42});
     BOOST_TEST_GE(f.capacity(),1000);
+    BOOST_TEST_EQ(f.hash_function().state,42);
+    BOOST_TEST_EQ(f.get_allocator().state,0);
+  }
+  {
+    filter f(100,0.01,hasher{42});
+    BOOST_TEST_GE(f.capacity(),0);
     BOOST_TEST_EQ(f.hash_function().state,42);
     BOOST_TEST_EQ(f.get_allocator().state,0);
   }
@@ -197,8 +209,21 @@ void test_construction()
     BOOST_TEST_EQ(f.get_allocator().state,2025);
   }
   {
+    filter f(100,0.01,hasher{42},allocator_type{2025});
+    BOOST_TEST_GE(f.capacity(),0);
+    BOOST_TEST_EQ(f.hash_function().state,42);
+    BOOST_TEST_EQ(f.get_allocator().state,2025);
+  }
+  {
     filter f(input.begin(),input.end(),1000);
     BOOST_TEST_GE(f.capacity(),1000);
+    BOOST_TEST_EQ(f.hash_function().state,0);
+    BOOST_TEST_EQ(f.get_allocator().state,0);
+    BOOST_TEST(may_contain(f,input));
+  }
+  {
+    filter f(input.begin(),input.end(),100,0.01);
+    BOOST_TEST_GE(f.capacity(),0);
     BOOST_TEST_EQ(f.hash_function().state,0);
     BOOST_TEST_EQ(f.get_allocator().state,0);
     BOOST_TEST(may_contain(f,input));
@@ -211,8 +236,23 @@ void test_construction()
     BOOST_TEST(may_contain(f,input));
   }
   {
+    filter f(input.begin(),input.end(),100,0.01,hasher{42});
+    BOOST_TEST_GE(f.capacity(),0);
+    BOOST_TEST_EQ(f.hash_function().state,42);
+    BOOST_TEST_EQ(f.get_allocator().state,0);
+    BOOST_TEST(may_contain(f,input));
+  }
+  {
     filter f(input.begin(),input.end(),1000,hasher{42},allocator_type{2025});
     BOOST_TEST_GE(f.capacity(),1000);
+    BOOST_TEST_EQ(f.hash_function().state,42);
+    BOOST_TEST_EQ(f.get_allocator().state,2025);
+    BOOST_TEST(may_contain(f,input));
+  }
+  {
+    filter f(
+      input.begin(),input.end(),100,0.01,hasher{42},allocator_type{2025});
+    BOOST_TEST_GE(f.capacity(),0);
     BOOST_TEST_EQ(f.hash_function().state,42);
     BOOST_TEST_EQ(f.get_allocator().state,2025);
     BOOST_TEST(may_contain(f,input));
@@ -245,6 +285,13 @@ void test_construction()
   {
     filter f(input.begin(),input.end(),1000,allocator_type{2025});
     BOOST_TEST_GE(f.capacity(),1000);
+    BOOST_TEST_EQ(f.hash_function().state,0);
+    BOOST_TEST_EQ(f.get_allocator().state,2025);
+    BOOST_TEST(may_contain(f,input));
+  }
+  {
+    filter f(input.begin(),input.end(),100,0.01,allocator_type{2025});
+    BOOST_TEST_GE(f.capacity(),0);
     BOOST_TEST_EQ(f.hash_function().state,0);
     BOOST_TEST_EQ(f.get_allocator().state,2025);
     BOOST_TEST(may_contain(f,input));
@@ -303,8 +350,22 @@ void test_construction()
     BOOST_TEST(may_contain(f,il));
   }
   {
+    filter f(il,100,0.01);
+    BOOST_TEST_GE(f.capacity(),0);
+    BOOST_TEST_EQ(f.hash_function().state,0);
+    BOOST_TEST_EQ(f.get_allocator().state,0);
+    BOOST_TEST(may_contain(f,il));
+  }
+  {
     filter f(il,1000,hasher{42});
     BOOST_TEST_GE(f.capacity(),1000);
+    BOOST_TEST_EQ(f.hash_function().state,42);
+    BOOST_TEST_EQ(f.get_allocator().state,0);
+    BOOST_TEST(may_contain(f,il));
+  }
+  {
+    filter f(il,100,0.01,hasher{42});
+    BOOST_TEST_GE(f.capacity(),0);
     BOOST_TEST_EQ(f.hash_function().state,42);
     BOOST_TEST_EQ(f.get_allocator().state,0);
     BOOST_TEST(may_contain(f,il));
@@ -317,14 +378,34 @@ void test_construction()
     BOOST_TEST(may_contain(f,il));
   }
   {
+    filter f(il,100,0.01,hasher{42},allocator_type{2025});
+    BOOST_TEST_GE(f.capacity(),0);
+    BOOST_TEST_EQ(f.hash_function().state,42);
+    BOOST_TEST_EQ(f.get_allocator().state,2025);
+    BOOST_TEST(may_contain(f,il));
+  }
+  {
     filter f(1000,allocator_type{2025});
     BOOST_TEST_GE(f.capacity(),1000);
     BOOST_TEST_EQ(f.hash_function().state,0);
     BOOST_TEST_EQ(f.get_allocator().state,2025);
   }
   {
+    filter f(100,0.01,allocator_type{2025});
+    BOOST_TEST_GE(f.capacity(),0);
+    BOOST_TEST_EQ(f.hash_function().state,0);
+    BOOST_TEST_EQ(f.get_allocator().state,2025);
+  }
+  {
     filter f(il,1000,allocator_type{2025});
     BOOST_TEST_GE(f.capacity(),1000);
+    BOOST_TEST_EQ(f.hash_function().state,0);
+    BOOST_TEST_EQ(f.get_allocator().state,2025);
+    BOOST_TEST(may_contain(f,il));
+  }
+  {
+    filter f(il,100,0.01,allocator_type{2025});
+    BOOST_TEST_GE(f.capacity(),0);
     BOOST_TEST_EQ(f.hash_function().state,0);
     BOOST_TEST_EQ(f.get_allocator().state,2025);
     BOOST_TEST(may_contain(f,il));

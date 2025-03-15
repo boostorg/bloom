@@ -11,6 +11,7 @@
 #ifndef BOOST_BLOOM_DETAIL_CORE_HPP
 #define BOOST_BLOOM_DETAIL_CORE_HPP
 
+#include <algorithm>
 #include <boost/assert.hpp>
 #include <boost/bloom/detail/mulx64.hpp>
 #include <boost/bloom/detail/sse2.hpp>
@@ -19,7 +20,9 @@
 #include <boost/core/allocator_traits.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/throw_exception.hpp>
+#include <cmath>
 #include <cstring>
+#include <limits>
 #include <memory>
 #include <stdexcept>
 #include <tuple>
@@ -126,6 +129,13 @@ inline constexpr std::size_t gcd_pow2(std::size_t x,std::size_t p)
   return (x&(0-x))<p?(x&(0-x)):p;
 }
 
+/* std::ldexp is not constexpr in C++11 */
+
+inline constexpr double constexpr_ldexp_1_positive(int exp)
+{
+  return exp==0?1.0:2.0*constexpr_ldexp_1_positive(exp-1);
+}
+
 struct filter_array
 {
   unsigned char* data;
@@ -173,6 +183,8 @@ public:
   using subfilter=Subfilter;
 
 private:
+  static constexpr std::size_t kp=subfilter::k;
+  static constexpr std::size_t k_total=k*kp;
   using block_type=typename subfilter::value_type;
   static constexpr std::size_t block_size=sizeof(block_type);
   static constexpr std::size_t used_block_size=
@@ -213,6 +225,9 @@ public:
   {
     clear_bytes();
   }
+
+  filter_core(std::size_t n,double fpr,const allocator_type& al_):
+    filter_core(capacity_for(n,fpr),al_){}
 
   filter_core(const filter_core& x):
     filter_core{x,allocator_select_on_container_copy_construction(x.al())}{}
@@ -435,7 +450,10 @@ private:
       /* ensures filter_core{f.capacity()}.capacity()==f.capacity() */
       m-=(used_block_size-bucket_size)*CHAR_BIT;
     }
-    return (m+bucket_size*CHAR_BIT-1)/(bucket_size*CHAR_BIT);
+    return
+      (std::numeric_limits<std::size_t>::max)()-m>=bucket_size*CHAR_BIT-1?
+      (m+bucket_size*CHAR_BIT-1)/(bucket_size*CHAR_BIT):
+      m/(bucket_size*CHAR_BIT);
   }
 
   static filter_array new_array(allocator_type& al,std::size_t rng)
@@ -495,6 +513,96 @@ private:
   std::size_t used_array_size()const noexcept
   {
     return range()?range()*bucket_size+(used_block_size-bucket_size):0;
+  }
+
+  static std::size_t capacity_for(std::size_t n,double fpr)
+  {
+    using size_t_limits=std::numeric_limits<std::size_t>;
+    using double_limits=std::numeric_limits<double>;
+
+    BOOST_ASSERT(fpr>=0.0&&fpr<=1.0);
+    if(n==0)return 0;
+
+    constexpr double eps=1.0/(double)(std::numeric_limits<std::size_t>::max)();
+    constexpr double max_size_t_as_double=
+      size_t_limits::digits<=double_limits::digits?
+      (double)(size_t_limits::max)():
+      (double)(size_t_limits::max)()
+        /* ensure value is portably castable back to std::size_t */
+        -constexpr_ldexp_1_positive(
+          size_t_limits::digits-double_limits::digits);
+
+    const double c_max=max_size_t_as_double/n;
+
+    /* Capacity of a classical Bloom filter as a lower bound:
+     * c = k / -log(1 - fpr^(1/k)).
+     */
+    
+    double d=1.0-std::pow(fpr,1.0/k_total);
+    if(std::fpclassify(d)==FP_ZERO)return 0; /* fpr ~ 1 */
+    double l=std::log(d);
+    if(std::fpclassify(l)==FP_ZERO)return (std::size_t)(c_max*n); /* fpr ~ 0 */
+    double c0=(std::min)(k_total/-l,c_max);
+
+    /* bracket target fpr between c0 and c1 */
+
+    double c1=c0;
+    if(fpr_for(c1)>fpr){ /* expected case */
+      do{
+        double cn=c1*1.5;
+        if(cn>c_max)return (std::size_t)(c_max*n);
+        c0=c1;
+        c1=cn;
+      }while(fpr_for(c1)>fpr);
+    }
+    else{ /* c0 shouldn't overshoot ever, just in case */
+      do{
+        double cn=c0/1.5;
+        c1=c0;
+        c0=cn;
+      }while(fpr_for(c0)<fpr);
+    }
+
+    /* bisect */
+
+    double cm;
+    while((cm=c0+(c1-c0)/2)>c0 && cm<c1 && c1-c0>=eps){
+      if(fpr_for(cm)>fpr)c0=cm;
+      else               c1=cm;
+    }
+    return (std::size_t)(cm*n);
+  }
+
+  static double fpr_for(double c)
+  {
+    constexpr std::size_t w=(2*used_block_size-bucket_size)*CHAR_BIT;
+    const double          lambda=w*k/c;
+    const double          loglambda=std::log(lambda);
+    double                res=0.0;
+    double                deltap=0.0;
+    for(int i=0;i<1000;++i){
+      double poisson=std::exp(i*loglambda-lambda-std::lgamma(i+1));
+      double delta=poisson*subfilter::fpr(i,w);
+      double resn=res+delta;
+
+      /* The terms of this summation are unimodal, so we check we're on the
+       * descending slope before stopping.
+       */
+
+      if(delta<deltap&&resn==res)break;
+      deltap=delta;
+      res=resn;
+    }
+
+    /* For small values of c (high values of lambda), truncation errors,loop
+     * exhaustion and the use of Poisson instead of binomial may result in a
+     * calculated value less than the classical Bloom filter formula, which we
+     * know is always the minimum attainable.
+     */
+
+    return (std::max)(
+      std::pow((double)res,(double)k),
+      std::pow(1.0-std::exp(-(double)k_total/c),(double)k_total));
   }
 
   BOOST_FORCEINLINE bool get(const unsigned char* p,boost::uint64_t hash)const

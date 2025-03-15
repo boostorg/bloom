@@ -8,6 +8,7 @@
 
 #include <boost/core/lightweight_test.hpp>
 #include <boost/mp11/algorithm.hpp>
+#include <limits>
 #include <new>
 #include "test_types.hpp"
 #include "test_utilities.hpp"
@@ -27,6 +28,11 @@ struct counting_allocator
 
   T* allocate(std::size_t n)
   {
+    using limits=std::numeric_limits<std::size_t>;
+    static constexpr std::size_t alloc_limit=
+      limits::digits>=64?(limits::max)():(limits::max)()/256;
+
+    if(n>alloc_limit)throw std::bad_alloc{};
     ++num_allocations;
     return static_cast<T*>(::operator new(n*sizeof(T)));
   }
@@ -60,6 +66,11 @@ void test_capacity()
     filter f;
     BOOST_TEST_EQ(f.capacity(),0);
     BOOST_TEST_EQ(num_allocations,0);
+  }
+  {
+    BOOST_TEST_THROWS(
+      (void)filter((std::numeric_limits<std::size_t>::max)()),
+      std::bad_alloc);
   }
   {
     filter      f{{fac(),fac()},1000};
