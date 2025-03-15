@@ -76,7 +76,7 @@ void test_fpr()
   BOOST_TEST_EQ(filter(100,1.0).capacity(),0);
 
   {
-    static constexpr std::size_t max_fpr_exp=
+    static constexpr int max_fpr_exp=
       std::numeric_limits<std::size_t>::digits>=64?5:3;
 
     for(int i=1;i<=max_fpr_exp;++i){
