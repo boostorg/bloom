@@ -51,8 +51,8 @@ double measure_fpr(Filter&& f)
 
   value_factory<value_type> fac;
   std::size_t               res=0;
-  for(int i=0;i<N;++i)f.insert(fac());
-  for(int i=0;i<N;++i)res+=f.may_contain(fac());
+  for(std::size_t i=0;i<N;++i)f.insert(fac());
+  for(std::size_t i=0;i<N;++i)res+=f.may_contain(fac());
 
   return (double)res/N;
 }
