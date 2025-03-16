@@ -8,6 +8,7 @@
 
 #include <boost/core/lightweight_test.hpp>
 #include <boost/mp11/algorithm.hpp>
+#include <cmath>
 #include <limits>
 #include <new>
 #include "test_types.hpp"
@@ -101,6 +102,14 @@ void test_capacity()
     BOOST_TEST_EQ(num_allocations,1);
     BOOST_TEST_GE(f2.capacity(),c);
     BOOST_TEST(f1==f2);
+  }
+  {
+    for(int i=0;i<=5;++i){
+      double fpr=std::pow(10,(double)-i);
+      BOOST_TEST_EQ(
+        filter::capacity_for(100,fpr),
+        filter(100,fpr).capacity());
+    }
   }
 }
 

@@ -227,7 +227,7 @@ public:
   }
 
   filter_core(std::size_t n,double fpr,const allocator_type& al_):
-    filter_core(capacity_for(n,fpr),al_){}
+    filter_core(unadjusted_capacity_for(n,fpr),al_){}
 
   filter_core(const filter_core& x):
     filter_core{x,allocator_select_on_container_copy_construction(x.al())}{}
@@ -344,6 +344,14 @@ public:
   std::size_t capacity()const noexcept
   {
     return used_array_size()*CHAR_BIT;
+  }
+
+  static std::size_t capacity_for(std::size_t n,double fpr)
+  {
+    auto m=unadjusted_capacity_for(n,fpr);
+    if(m==0)return 0;
+    auto rng=hash_strategy{requested_range(m)}.range();
+    return used_array_size(rng)*CHAR_BIT;
   }
 
   BOOST_FORCEINLINE void insert(boost::uint64_t hash)
@@ -512,10 +520,15 @@ private:
 
   std::size_t used_array_size()const noexcept
   {
-    return range()?range()*bucket_size+(used_block_size-bucket_size):0;
+    return used_array_size(range());
   }
 
-  static std::size_t capacity_for(std::size_t n,double fpr)
+  static std::size_t used_array_size(std::size_t rng)noexcept
+  {
+    return rng?rng*bucket_size+(used_block_size-bucket_size):0;
+  }
+
+  static std::size_t unadjusted_capacity_for(std::size_t n,double fpr)
   {
     using size_t_limits=std::numeric_limits<std::size_t>;
     using double_limits=std::numeric_limits<double>;
