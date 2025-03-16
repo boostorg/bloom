@@ -9,6 +9,7 @@
 #include <boost/core/lightweight_test.hpp>
 #include <boost/mp11/algorithm.hpp>
 #include <limits>
+#include <new>
 #include "test_types.hpp"
 #include "test_utilities.hpp"
 
@@ -28,10 +29,10 @@ struct counting_allocator
   T* allocate(std::size_t n)
   {
     ++num_allocations;
-    return static_cast<T*>(restricted_new(n*sizeof(T)));
+    return static_cast<T*>(capped_new(n*sizeof(T)));
   }
 
-  void deallocate(T* p,std::size_t){restricted_delete(p);}
+  void deallocate(T* p,std::size_t){::operator delete(p);}
 
   bool operator==(const counting_allocator& x)const{return true;}
   bool operator!=(const counting_allocator& x)const{return false;}
