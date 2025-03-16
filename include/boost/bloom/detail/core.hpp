@@ -586,7 +586,7 @@ private:
     double cm;
     while((cm=c0+(c1-c0)/2)>c0 && cm<c1 && c1-c0>=eps){
       if(fpr_for_c(cm)>fpr)c0=cm;
-      else                c1=cm;
+      else                 c1=cm;
     }
     return (std::size_t)(cm*n);
   }
