@@ -10,7 +10,6 @@
 #include <boost/mp11/algorithm.hpp>
 #include <cmath>
 #include <limits>
-#include <new>
 #include <string>
 #include "test_types.hpp"
 #include "test_utilities.hpp"
@@ -31,7 +30,7 @@ struct throwing_allocator
     return static_cast<T*>(restricted_new(n*sizeof(T)));
   }
 
-  void deallocate(T* p,std::size_t){::operator delete(p);}
+  void deallocate(T* p,std::size_t){restricted_delete(p);}
 
   bool operator==(const throwing_allocator& x)const{return true;}
   bool operator!=(const throwing_allocator& x)const{return false;}
