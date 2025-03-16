@@ -536,7 +536,7 @@ private:
     BOOST_ASSERT(fpr>=0.0&&fpr<=1.0);
     if(n==0)return 0;
 
-    constexpr double eps=1.0/(double)(std::numeric_limits<std::size_t>::max)();
+    constexpr double eps=1.0/(double)(size_t_limits::max)();
     constexpr double max_size_t_as_double=
       size_t_limits::digits<=double_limits::digits?
       (double)(size_t_limits::max)():
