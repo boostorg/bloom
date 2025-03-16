@@ -81,12 +81,11 @@ struct realloc_filter_impl<boost::bloom::filter<T,K,S,B,H,A>,Allocator>
 template<typename Filter,typename Allocator>
 using realloc_filter=typename realloc_filter_impl<Filter,Allocator>::type;
 
-void* 
 #if defined(BOOST_GCC)||defined(BOOST_CLANG)
 /* AddressSanitizer: allocation-size-too-big */
 __attribute__((no_sanitize("address")))
 #endif
-restricted_new(std::size_t n)
+void* restricted_new(std::size_t n)
 {
   using limits=std::numeric_limits<std::size_t>;
   static constexpr std::size_t alloc_limit=
