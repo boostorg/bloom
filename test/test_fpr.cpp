@@ -28,12 +28,7 @@ struct throwing_allocator
 
   T* allocate(std::size_t n)
   {
-    using limits=std::numeric_limits<std::size_t>;
-    static constexpr std::size_t alloc_limit=
-      limits::digits>=64?(limits::max)():(limits::max)()/256;
-
-    if(n>alloc_limit)throw std::bad_alloc{};
-    return static_cast<T*>(::operator new(n*sizeof(T)));
+    return static_cast<T*>(restricted_new(n*sizeof(T)));
   }
 
   void deallocate(T* p,std::size_t){::operator delete(p);}

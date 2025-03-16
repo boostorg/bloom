@@ -10,7 +10,10 @@
 #define BOOST_BLOOM_TEST_TEST_UTILITIES_HPP
 
 #include <boost/bloom/filter.hpp>
+#include <boost/config.hpp>
 #include <boost/core/allocator_traits.hpp>
+#include <limits>
+#include <new>
 #include <string>
 
 namespace test_utilities{
@@ -77,6 +80,21 @@ struct realloc_filter_impl<boost::bloom::filter<T,K,S,B,H,A>,Allocator>
 
 template<typename Filter,typename Allocator>
 using realloc_filter=typename realloc_filter_impl<Filter,Allocator>::type;
+
+void* 
+#if defined(BOOST_GCC)||defined(BOOST_CLANG)
+/* AddressSanitizer: allocation-size-too-big */
+__attribute__((no_sanitize("address")))
+#endif
+restricted_new(std::size_t n)
+{
+  using limits=std::numeric_limits<std::size_t>;
+  static constexpr std::size_t alloc_limit=
+    limits::digits>=64?(limits::max)():(limits::max)()/256;
+
+  if(n>alloc_limit)throw std::bad_alloc{};
+  return ::operator new(n);
+}
 
 template<typename Filter,typename Input>
 bool may_contain(const Filter& f,const Input& input)
