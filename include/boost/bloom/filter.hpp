@@ -254,6 +254,7 @@ public:
   using super::get_allocator;
   using super::capacity;
   using super::capacity_for;
+  using super::fpr_for;
 
   template<typename... Args>
   BOOST_FORCEINLINE void emplace(Args&&... args)

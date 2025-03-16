@@ -354,6 +354,11 @@ public:
     return used_array_size(rng)*CHAR_BIT;
   }
 
+  static double fpr_for(std::size_t n,std::size_t m)
+  {
+    return n==0?0.0:m==0?1.0:fpr_for_c((double)m/n);
+  }
+
   BOOST_FORCEINLINE void insert(boost::uint64_t hash)
   {
     hs.prepare_hash(hash);
@@ -560,33 +565,33 @@ private:
     /* bracket target fpr between c0 and c1 */
 
     double c1=c0;
-    if(fpr_for(c1)>fpr){ /* expected case */
+    if(fpr_for_c(c1)>fpr){ /* expected case */
       do{
         double cn=c1*1.5;
         if(cn>c_max)return (std::size_t)(c_max*n);
         c0=c1;
         c1=cn;
-      }while(fpr_for(c1)>fpr);
+      }while(fpr_for_c(c1)>fpr);
     }
     else{ /* c0 shouldn't overshoot ever, just in case */
       do{
         double cn=c0/1.5;
         c1=c0;
         c0=cn;
-      }while(fpr_for(c0)<fpr);
+      }while(fpr_for_c(c0)<fpr);
     }
 
     /* bisect */
 
     double cm;
     while((cm=c0+(c1-c0)/2)>c0 && cm<c1 && c1-c0>=eps){
-      if(fpr_for(cm)>fpr)c0=cm;
-      else               c1=cm;
+      if(fpr_for_c(cm)>fpr)c0=cm;
+      else                c1=cm;
     }
     return (std::size_t)(cm*n);
   }
 
-  static double fpr_for(double c)
+  static double fpr_for_c(double c)
   {
     constexpr std::size_t w=(2*used_block_size-bucket_size)*CHAR_BIT;
     const double          lambda=w*k/c;

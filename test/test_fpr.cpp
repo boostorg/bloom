@@ -80,6 +80,25 @@ void test_fpr()
       BOOST_TEST_LE(err,2.5);
     }
   }
+
+  BOOST_TEST_EQ(filter::fpr_for(0,1),0.0);
+  BOOST_TEST_EQ(filter::fpr_for(0,0),0.0);
+  BOOST_TEST_EQ(filter::fpr_for(1,0),1.0);
+
+  {
+    for(int i=1;i<=5;++i){
+      double fpr1=std::pow(10.0,(double)-i);
+      double fpr2=filter::fpr_for(10000,filter::capacity_for(10000,fpr1));
+      BOOST_TEST_LE(std::abs((double)fpr2-fpr1)/fpr1,0.2);
+    }
+  }
+  {
+    for(int i=1;i<=5;++i){
+      std::size_t m1=(std::size_t)std::pow(10.0,(double)(i+4));
+      std::size_t m2=filter::capacity_for(10000,filter::fpr_for(10000,m1));
+      BOOST_TEST_LE(std::abs((double)m2-m1)/m1,0.05);
+    }
+  }
 }
 
 struct lambda
