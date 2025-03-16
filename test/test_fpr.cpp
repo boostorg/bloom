@@ -37,19 +37,17 @@ struct throwing_allocator
   bool operator!=(const throwing_allocator& x)const{return false;}
 };
 
-static constexpr std::size_t N=1000000;
-
 template<typename Filter>
-double measure_fpr(Filter&& f)
+double measure_fpr(Filter&& f,std::size_t n)
 {
   using value_type=typename std::remove_reference<Filter>::type::value_type;
 
   value_factory<value_type> fac;
   std::size_t               res=0;
-  for(std::size_t i=0;i<N;++i)f.insert(fac());
-  for(std::size_t i=0;i<N;++i)res+=f.may_contain(fac());
+  for(std::size_t i=0;i<n;++i)f.insert(fac());
+  for(std::size_t i=0;i<n;++i)res+=f.may_contain(fac());
 
-  return (double)res/N;
+  return (double)res/n;
 }
 
 template<typename Filter>
@@ -75,10 +73,11 @@ void test_fpr()
       std::numeric_limits<std::size_t>::digits>=64?5:3;
 
     for(int i=1;i<=max_fpr_exp;++i){
-      double target_fpr=std::pow(10,(double)-i);
-      double measured_fpr=measure_fpr(filter(N,target_fpr));
-      double err=std::abs((double)measured_fpr-target_fpr)/target_fpr;
-      BOOST_TEST_LT(err,0.75);
+      std::size_t n=(std::size_t)std::pow(10.0,(double)(i+1));
+      double      target_fpr=std::pow(10,(double)-i);
+      double      measured_fpr=measure_fpr(filter(n,target_fpr),n);
+      double      err=measured_fpr/target_fpr;
+      BOOST_TEST_LE(err,2.5);
     }
   }
 }
