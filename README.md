@@ -148,7 +148,7 @@ a classical Bloom filter.
 
 We don't know of any closed, simple formula for the FPR of block and multiblock filters when
 `Bucketsize` is not its "natural" size (`sizeof(Block)` for `block<Block, K'>`,
-`K'*sizeof(Block)` for `multiblock<Block, K'>`), that is, when subfilter values overlap.
+`sizeof(Block)*K'` for `multiblock<Block, K'>`), that is, when subfilter values overlap.
 We can use the following approximations ($$s$$ = `BucketSize` in bits):
 
 $$FPR_{\text{block}}(n,m,b,s,k,k')=\left(\sum_{i=0}^{\infty} \text{Pois}\left(i,\frac{n(2b-s)k}{m}\right) \cdot FPR(i,2b-s,k')\right)^{k},$$
