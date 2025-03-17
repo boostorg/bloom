@@ -151,7 +151,7 @@ We don't know of any closed, simple formula for the FPR of block and multiblock 
 `K'*sizeof(Block)` for `multiblock<Block, K'>`), that is, when subfilter values overlap.
 We use the following appoximation ($$s$$ = `BucketSize` in bits):
 
-$$FPR_{\text{block}}(n,m,b,s,k,k')=\left(\sum_{i=0}^{\infty} \text{Pois}\left(i,\frac{n(2b-s)k}{m}\right) \cdot FPR(i,2b-s,k'\right)^{k},$$
+$$FPR_{\text{block}}(n,m,b,s,k,k')=\left(\sum_{i=0}^{\infty} \text{Pois}\left(i,\frac{n(2b-s)k}{m}\right) \cdot FPR(i,2b-s,k')\right)^{k},$$
 $$FPR_\text{multiblock}(n,m,b,s,k,k')=\left(\sum_{i=0}^{\infty} \text{Pois}\left(i,\frac{n(2bk'-s)k}{m}\right) \cdot FPR\left(i,\frac{2bk'-s}{k'},1\right)^{k'}\right)^{k},$$
 
 where the replacement of $$b$$ with $$2b-s$$ (or $$bk'$$ with $$2bk'-s$$ for multiblock filters) accounts
