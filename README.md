@@ -143,23 +143,24 @@ set per insertion, but they will be much faster. We have the particular case
 
 $$FPR_{\text{block}}(n,m,b,k,1)=FPR_{\text{multiblock}}(n,m,b,k,1)=FPR(n,m,k),$$
 
-which follows simply from the fact that using `{block|multiblock}<Block, 1>` behaves exactly as
+which follows simply from the observation that using `{block|multiblock}<Block, 1>` behaves exactly as
 a classical Bloom filter.
 
 We don't know of any closed, simple formula for the FPR of block and multiblock filters when
 `Bucketsize` is not its "natural" size (`sizeof(Block)` for `block<Block, K'>`,
-`K'*sizeof(Block)` for `multiblock<Block, K'>`), that is, when subfilter values overlap,
-but empirical calculations show that $$FPR/FPR_\text{baseline}$$ improves (reduces) with smaller values of `BucketSize`
-and larger values of $$k$$, $$k'$$ and $$c=m/n$$. Some examples:
+`K'*sizeof(Block)` for `multiblock<Block, K'>`), that is, when subfilter values overlap.
+We use the following appoximation ($$s$$ = `BucketSize` in bits):
 
-* `filter<T, 1, multiblock<unsigned char, 9>, BucketSize>`:
-$$\frac{FPR(c=12,\texttt{BucketSize}=1)}{FPR(c=12,\texttt{BucketSize}=0)}=0.65$$
-* `filter<T, 1, multiblock<uint32_t, 9>, BucketSize>`: 
-$$\frac{FPR(c=12,\texttt{BucketSize}=1)}{FPR(c=12,\texttt{BucketSize}=0)}=0.80$$
-* `filter<T, 1, multiblock<uint64_t, 9>, BucketSize>`: 
-$$\frac{FPR(c=12,\texttt{BucketSize}=1)}{FPR(c=12,\texttt{BucketSize}=0)}=0.87$$
+$$FPR_{\text{block}}(n,m,b,s,k,k')=\left(\sum_{i=0}^{\infty} \text{Pois}\left(i,\frac{n(2b-s)k}{m}\right) \cdot FPR(i,2b-s,k'\right)^{k},$$
+$$FPR_\text{multiblock}(n,m,b,s,k,k')=\left(\sum_{i=0}^{\infty} \text{Pois}\left(i,\frac{n(2bk'-s)k}{m}\right) \cdot FPR\left(i,\frac{2bk'-s}{k'},1\right)^{k'}\right)^{k},$$
 
-(Remember that `BucketSize` = 0 selects the non-overlapping case.)
+where the replacement of $$b$$ with $$2b-s$$ (or $$bk'$$ with $$2bk'-s$$ for multiblock filters) accounts
+for the fact that the window of hashing positions affecting a particular bit spreads due to
+overlapping. Note that the formulas reduce to the non-ovelapping case when $$s$$ takes its
+default value ($$b$$ for block, $$bk´$$ for multiblock). These approximations are acceptable for
+low values of $$k'$$ but tend to underestimate the actual FPR as $$k'$$ grows.
+In general, the use of overlapping improves (decreases) FPR by a factor ranging from
+0.6 to 0.9 for typical filter configurations.
 
 ## Experimental results
 
