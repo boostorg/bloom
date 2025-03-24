@@ -146,7 +146,7 @@ public:
     const allocator_type& al=allocator_type()):
     super{m,al},hash_base{empty_init,h}{}
 
-  explicit filter(
+  filter(
     std::size_t n,double fpr,const hasher& h=hasher(),
     const allocator_type& al=allocator_type()):
     super{n,fpr,al},hash_base{empty_init,h}{}
