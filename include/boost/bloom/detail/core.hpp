@@ -356,7 +356,7 @@ public:
 
   static double fpr_for(std::size_t n,std::size_t m)
   {
-    return n==0?0.0:m==0?1.0:fpr_for_c((double)m/n);
+    return m==0?1.0:n==0?0.0:fpr_for_c((double)m/n);
   }
 
   BOOST_FORCEINLINE void insert(boost::uint64_t hash)
@@ -539,7 +539,7 @@ private:
     using double_limits=std::numeric_limits<double>;
 
     BOOST_ASSERT(fpr>=0.0&&fpr<=1.0);
-    if(n==0)return 0;
+    if(n==0)return fpr==1.0?0:1;
 
     constexpr double eps=1.0/(double)(size_t_limits::max)();
     constexpr double max_size_t_as_double=
