@@ -100,20 +100,20 @@ struct mcg_and_fastrange
   boost::uint64_t rng;
 };
 
-/* used_block_size<Subfilter>::value is Subfilter::used_value_size if it
+/* used_value_size<Subfilter>::value is Subfilter::used_value_size if it
  * exists, or sizeof(Subfilter::value_type) otherwise. This covers the
  * case where a subfilter only operates on the first bytes of its entire
  * value_type (e.g. fast_multiblock32<K> with K<8).
  */
 
 template<typename Subfilter,typename=void>
-struct used_block_size
+struct used_value_size
 {
   static constexpr std::size_t value=sizeof(typename Subfilter::value_type);
 };
 
 template<typename Subfilter>
-struct used_block_size<
+struct used_value_size<
   Subfilter,
   typename std::enable_if<Subfilter::used_value_size!=0>::type
 >
@@ -187,14 +187,14 @@ private:
   static constexpr std::size_t k_total=k*kp;
   using block_type=typename subfilter::value_type;
   static constexpr std::size_t block_size=sizeof(block_type);
-  static constexpr std::size_t used_block_size=
-    detail::used_block_size<subfilter>::value;
+  static constexpr std::size_t used_value_size=
+    detail::used_value_size<subfilter>::value;
 
 public:
   static constexpr std::size_t bucket_size=
-    BucketSize?BucketSize:used_block_size;
+    BucketSize?BucketSize:used_value_size;
   static_assert(
-    bucket_size<=used_block_size,"BucketSize can't exceed the block size");
+    bucket_size<=used_value_size,"BucketSize can't exceed the block size");
 
 private:
   static constexpr std::size_t tail_size=sizeof(block_type)-bucket_size;
@@ -459,9 +459,9 @@ private:
 
   static std::size_t requested_range(std::size_t m)
   {
-    if(m>(used_block_size-bucket_size)*CHAR_BIT){
+    if(m>(used_value_size-bucket_size)*CHAR_BIT){
       /* ensures filter_core{f.capacity()}.capacity()==f.capacity() */
-      m-=(used_block_size-bucket_size)*CHAR_BIT;
+      m-=(used_value_size-bucket_size)*CHAR_BIT;
     }
     return
       (std::numeric_limits<std::size_t>::max)()-m>=bucket_size*CHAR_BIT-1?
@@ -530,7 +530,7 @@ private:
 
   static std::size_t used_array_size(std::size_t rng)noexcept
   {
-    return rng?rng*bucket_size+(used_block_size-bucket_size):0;
+    return rng?rng*bucket_size+(used_value_size-bucket_size):0;
   }
 
   static std::size_t unadjusted_capacity_for(std::size_t n,double fpr)
@@ -593,7 +593,7 @@ private:
 
   static double fpr_for_c(double c)
   {
-    constexpr std::size_t w=(2*used_block_size-bucket_size)*CHAR_BIT;
+    constexpr std::size_t w=(2*used_value_size-bucket_size)*CHAR_BIT;
     const double          lambda=w*k/c;
     const double          loglambda=std::log(lambda);
     double                res=0.0;
