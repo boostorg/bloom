@@ -1,0 +1,204 @@
+[#tutorial]
+= Tutorial
+
+:idprefix: tutorial_
+
+== Filter Definition
+
+A `boost::bloom::filter` can be regarded as a bit array divided into _buckets_ that
+are selected pseudo-randomly (based on a hash function) upon insertion:
+each of the buckets is passed to a _subfilter_ that marks several of its bits according
+to some associated strategy.
+
+[listing,subs="+macros,+quotes"]
+-----
+template<
+  typename T, std::size_t K,
+  typename Subfilter = block<unsigned char, 1>, std::size_t BucketSize = 0,
+  typename Hash = boost::hash<T>, typename Allocator = std::allocator<T>  
+>
+class filter;
+-----
+
+* `T`: Type of the elements inserted.
+* `K`: Number of buckets marked per insertion.
+* `xref:tutorial_subfilter[Subfilter]`: Type of subfilter used.
+* `xref:tutorial_bucketsize[BucketSize`]: Size in bytes of the buckets.
+* `xref:tutorial_hash[Hash]`: A hash function for `T`.
+* `Allocator`: An allocator for `T`.
+
+=== `Subfilter`
+
+The following subfilters can be selected, offering different compromises
+between performance and _false positive rate_ (FPR).
+See the xref:primer_variations_on_the_classical_filter[Bloom Filter Primer]
+for a general explanation of block and multiblock filters.
+
+`block<Block, K'>`
+
+[.indent]
+Sets `K'` bits in an underlying value of the unsigned integral type `Block`
+(e.g. `unsigned char`, `uint32_t`, `uint64_t`). So,
+a `filter<T, K, block<Block, K'>>` will set `K * K'` bits per element.
+The tradeoff here is that insertion/lookup will be (much) faster than
+with `filter<T, K * K'>` while the FPR will be worse (larger).
+FPR is better the wider `Block` is.
+
+`multiblock<Block, K'>`
+
+[.indent]
+Instead of setting `K'` bits in a `Block` value, this subfilter sets
+one bit on each of the elements of a `Block[K']` subarray. This improves FPR
+but impacts performance with respect to `block<Block, K'>`, among other
+things because cacheline boundaries can be crossed when accessing the subarray.
+
+`fast_multiblock32<K'>`
+
+[.indent]
+Statistically equivalent to `multiblock<uint32_t, K'>`, but uses
+faster SIMD-based algorithms when SSE2, AVX2 or Neon are available.
+
+`fast_multiblock64<K'>`
+
+[.indent]
+Statistically equivalent to `multiblock<uint64_t, K'>`, but uses a
+faster SIMD-based algorithm when AVX2 is available.
+
+The default configuration with `block<unsigned char,1>` corresponds to a
+xref:primer[classical Bloom filter] setting `K` bits per elements uniformly
+distributed across the array.
+
+=== `BucketSize`
+
+When the default value 0 is used, buckets have the same size as
+the _subarrays_ subfilters operate on (non-overlapping case).
+Otherwise, bucket size is smaller and subarrays spill over adjacent buckets,
+which results in an improved (lower) FPR in exchange for a possibly
+worse performance due to memory unalignment.
+
+=== `Hash`
+
+By default, link:../../../container_hash/index.html[Boost.ContainerHash] is used.
+Consult this library's link:../../../container_hash/doc/html/hash.html#user[dedicated section]
+if you need to extend `boost::hash` for your own types.
+
+When the provided hash function is of sufficient quality, it is used
+as is; otherwise, a bit-mixing post-process is applied to hash values that improves
+their statistical properties so that the resulting FPR approaches its
+theoretical limit. The hash function is determined to be of high quality
+(more precisely, to have the so-called _avalanching_ property) via the
+`link:../../../unordered/doc/html/unordered/reference/hash_traits.html#hash_traits_hash_is_avalanching[boost::unordered::hash_is_avalanching]`
+trait.
+
+== Capacity
+
+The size of the filter's internal array is specified at construction time:
+
+[listing,subs="+macros,+quotes"]
+-----
+using filter = boost::bloom::filter<std::string, ...>;
+filter f(1'000'000); // array of 1'000'000 **bits**
+std::cout << f.capacity(); // >= 1'000'000
+-----
+
+Note that `boost::bloom::filter` default constructor specifies a capacity
+of zero, which in general won't be of much use -- the assigned array
+is null.
+
+Instead of specifying the array's capacity directly, we can let the library
+figure it out based on the number of elements we plan to insert and the
+desired FPR:
+
+[listing,subs="+macros,+quotes"]
+-----
+// we'll insert 100'000 elements and want a FPR ~ 1%
+filter f(100'000, 0.01);
+
+// this is equivalent
+filter f2(filter::capacity_for(100'000, 0.01));
+-----
+
+Once a filter is constructed, its array is fixed (for instance, it won't
+grow dynamically as elements are inserted). The only way to change it is
+by assignment/swapping from a different filter, or using `reset`:
+
+[listing,subs="+macros,+quotes"]
+-----
+f.reset(2'000'000); // change to 2'000'000 bits **and clears the filter**
+f.reset(100'000, 0.005); // equivalent to reset(filter::capacity_for(100'000, 0.005));
+f.reset(); // null array (capacity == 0)
+-----
+
+== Insertion and Lookup
+
+Insertion is done in much the same way as with a traditional container:
+
+[listing,subs="+macros,+quotes"]
+-----
+f.insert("hello");
+f.emplace(100, 'X'); // ~ insert(std::string(100, 'X'))
+f.insert(data.begin(), data.end());
+-----
+
+Of course, in this context "insertion" does not involve any actual
+storage of elements into the filter, but rather the setting of bits in the
+internal array based on the hash values of those elements.
+Lookup goes as follows:
+
+[listing,subs="+macros,+quotes"]
+-----
+bool b1 = f.may_contain("hello"); // b1 is true since we actually inserted "hello"
+bool b2 = f.may_contain("bye"); // b2 is most likely false
+-----
+
+As its name suggests, `may_contain` can return `true` even if the
+element has not been previously inserted, that is, it may yield false
+positives -- this is the essence of probabilistic data structures.
+`fpr_for` provides an estimation of the false positive rate:
+
+[listing,subs="+macros,+quotes"]
+-----
+// we have inserted 100 elements so far, what's our FPR?
+std::cout<< filter::fpr_for(100, f.capacity());
+-----
+
+Note that in the example we provided the number 100 externally:
+`boost::bloom::filter` does not keep track of the number of elements
+that have been inserted -- in other words, it does not have a `size`
+operation.
+
+Once inserted, there is no way to remove a specific element from the filter.
+We can only clear up the filter entirely:
+
+[listing,subs="+macros,+quotes"]
+-----
+f.clear(); // sets all the bits in the array to zero
+-----
+
+== Filter Combination
+
+`boost::bloom::filter`+++s+++ can be combined by doing the OR logical operation
+of the bits of their arrays:
+
+[listing,subs="+macros,+quotes"]
+-----
+filter f2=...;
+...
+f|=f2; // f and f2 must have exactly the same capacity
+-----
+
+The result is equivalent to a filter "containing" both the elements
+of `f` and `f2`. AND combination, on the other hand, results in a filter
+holding the _intersection_ of the elements:
+
+[listing,subs="+macros,+quotes"]
+-----
+filter f3=...;
+...
+f&=f3; // f and f3 must have exactly the same capacity
+-----
+
+For AND combination, be aware that the resulting FPR will be in general
+worse (higher) than if the filter had been constructed from scratch
+by inserting only the commom elements -- don't trust `fpr_for` in this
+case.

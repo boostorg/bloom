@@ -1,0 +1,49 @@
+[#intro]
+= Introduction
+
+:idprefix: intro_
+
+Boost.Bloom provides the class template `xref:tutorial[boost::bloom::filter]`
+that can be configured to implement a classical Bloom filter as well as
+variations discussed in the literature such as block filters, multiblock filters,
+and more.
+
+[listing,subs="+macros,+quotes"]
+-----
+#include <boost/bloom/filter.hpp>
+#include <cassert>
+#include <string>
+
+int main()
+{
+  // Bloom filter of strings with 5 bits set per insertion
+  using filter = boost::bloom::filter<std::string, 5>;
+
+  // create filter with a capacity of 1'000'000 **bits**
+  filter f(1'000'000);
+
+  // insert elements (they can't be erased, Bloom filters are insert-only)
+  f.insert("hello");
+  f.insert("Boost");
+  //...
+
+  // elements inserted are always correctly checked as such
+  assert(f.may_contain("hello") == true);
+
+  // elements not inserted may incorrectly be identified as such with a
+  // false positive rate (FPR) which is a function of the array capacity,
+  // the number of bits set per element and generally how the boost::bloom::filter
+  // was specified
+  if(f.may_contain("bye")) { // likely false
+    //...
+  }
+}
+-----
+
+The different filter variations supported are specified at compile time
+as part of the `boost::bloom::filter` instantiation definition.
+Boost.Bloom has been implemented with a focus on performance;
+SIMD technologies such as AVX2, Neon and SSE2 can be leveraged to speed up
+operations.
+
+Boost.Bloom is a header-only library. C++11 or later required.

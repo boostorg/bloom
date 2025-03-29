@@ -1,0 +1,35 @@
+= Boost.Bloom
+:toc: left
+:toclevels: 3
+:idprefix:
+:docinfo: private-footer
+:source-highlighter: rouge
+:source-language: c++
+:nofooter:
+:sectlinks:
+:leveloffset: +1
+:imagesdir: ../img
+:stem: latexmath
+:small: pass:[<font style="font-size:90%">]
+:small-end: pass:[</font>]
+
+++++
+<style>
+  .imageblock > .title {
+    text-align: inherit;
+  }
+</style>
+<style>
+.indent {
+    padding-left: 2rem;
+}
+</style>
+++++
+
+include::bloom/intro.adoc[]
+include::bloom/primer.adoc[]
+include::bloom/tutorial.adoc[]
+include::bloom/fpr_estimation.adoc[]
+include::bloom/reference.adoc[]
+include::bloom/release_notes.adoc[]
+include::bloom/copyright.adoc[]
