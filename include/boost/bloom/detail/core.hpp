@@ -410,6 +410,11 @@ public:
     clear_bytes();
   }
 
+  void reset(std::size_t n,double fpr)
+  {
+    reset(capacity_for(n,fpr));
+  }
+
   filter_core& operator&=(const filter_core& x)
   {
     combine(x,[](unsigned char& a,unsigned char b){a&=b;});

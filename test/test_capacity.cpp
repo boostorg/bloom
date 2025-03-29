@@ -86,6 +86,14 @@ void test_capacity()
     BOOST_TEST(f==filter{});
   }
   {
+    filter f{{fac(),fac()},1000};
+    num_allocations=0;
+    f.reset(0,1.0);
+    BOOST_TEST_EQ(num_allocations,0);
+    BOOST_TEST_EQ(f.capacity(),0);
+    BOOST_TEST(f==filter{});
+  }
+  {
     filter      f{{fac(),fac()},1000};
     std::size_t c=f.capacity();
     num_allocations=0;
@@ -93,6 +101,14 @@ void test_capacity()
     BOOST_TEST_EQ(num_allocations,1);
     BOOST_TEST_GE(f.capacity(),c+1);
     BOOST_TEST(f==filter{f.capacity()});
+  }
+  {
+    filter      f;
+    std::size_t c=filter::capacity_for(100,0.1);
+    num_allocations=0;
+    f.reset(100,0.1);
+    BOOST_TEST_EQ(num_allocations,1);
+    BOOST_TEST_EQ(f.capacity(),c);
   }
   {
     filter      f1{{fac(),fac()},1000},f2;
