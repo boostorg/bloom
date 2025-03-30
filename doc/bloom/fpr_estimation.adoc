@@ -1,5 +1,5 @@
 [#fpr_estimation]
-= FPR Estimation
+= Appendix A: FPR Estimation
 
 :idprefix: fpr_estimation_
 

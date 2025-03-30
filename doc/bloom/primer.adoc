@@ -41,7 +41,7 @@ For given values of _n_ and _m_, the optimum _k_ is the integer closest to
 {small}stem:[k_{\text{opt}}=\displaystyle\frac{m\cdot\ln2}{n}]{small-end}
 
 for a minimum FPR of
-{small}stem:[1/2^{k_{\text{opt}}} \approx 0.6185^{m/n}]{small-end}. See the section
+{small}stem:[1/2^{k_{\text{opt}}} \approx 0.6185^{m/n}]{small-end}. See the appendix
 on xref:fpr_estimation[FPR estimation] for mode details.
 
 == Variations on the Classical Filter
@@ -50,7 +50,7 @@ on xref:fpr_estimation[FPR estimation] for mode details.
 
 An operation on a Bloom filter involves accessing _k_ different positions in memory,
 which, for large arrays, results in _k_ CPU cache misses and affects the
-operation performance. A variation on the classical approach called a
+operation's performance. A variation on the classical approach called a
 _block filter_ seeks to minimize cache misses by concentrating all bit
 setting/checking in a small block of _b_ bits pseudorandomly selected from the
 entire array. If the block is small enough, it will fit in a CPU cacheline,
