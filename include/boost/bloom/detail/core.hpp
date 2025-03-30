@@ -60,9 +60,9 @@ namespace detail{
 #endif
 
 /*  mcg_and_fastrange produces (pos,hash') from hash, where
- *   - x=mulx64(hash,range), mulx64 denotes extended multiplication
- *   - pos=high(x)
- *   - hash'=low(x)
+ *   - m=mulx64(hash,range), mulx64 denotes extended multiplication
+ *   - pos=high(m)
+ *   - hash'=low(m)
  *  pos is uniformly distributed in [0,range) (see
  *  https://arxiv.org/pdf/1805.10941), whereas hash'<-hash is a multiplicative
  *  congruential generator of the form hash'<-hash*rng mod 2^64. This MCG
