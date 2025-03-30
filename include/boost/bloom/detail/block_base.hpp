@@ -32,6 +32,9 @@ struct block_base
   static constexpr std::size_t k=K;
   static constexpr std::size_t hash_width=sizeof(boost::uint64_t)*CHAR_BIT;
   static constexpr std::size_t block_width=sizeof(Block)*CHAR_BIT;
+  static_assert(
+    (block_width&(block_width-1))==0,
+    "Block's size in bits must be a power of two");
   static constexpr std::size_t mask=block_width-1;
   static constexpr std::size_t shift=constexpr_bit_width(mask);
   static constexpr std::size_t rehash_k=(hash_width-shift)/shift;
