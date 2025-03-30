@@ -15,13 +15,16 @@
 
 ++++
 <style>
-  .imageblock > .title {
-    text-align: inherit;
-  }
-</style>
-<style>
+.imageblock > .title {
+  text-align: inherit;
+}
+
 .indent {
-    padding-left: 2rem;
+  padding-left: 2rem;
+}
+
+.bordered_table th, .bordered_table td {
+  border: 1px solid lightgray
 }
 </style>
 ++++
@@ -29,6 +32,7 @@
 include::bloom/intro.adoc[]
 include::bloom/primer.adoc[]
 include::bloom/tutorial.adoc[]
+include::bloom/benchmarks.adoc[]
 include::bloom/reference.adoc[]
 include::bloom/fpr_estimation.adoc[]
 include::bloom/implementation_notes.adoc[]
