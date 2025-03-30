@@ -188,13 +188,14 @@ provided allocator. `value_type` construction/destruction (which only happens in
 `std::allocator_traits<Allocator>::construct`/`destroy`.
 
 If `link:../../../unordered/doc/html/unordered/reference/hash_traits.html#hash_traits_hash_is_avalanching[boost::unordered::hash_is_avalanching]<Hash>::value`
-is `true`, the hash function is used as-is; otherwise, a bit-mixing post-processing stage
+is `true` and `sizeof(std::size_t) >= 8`, 
+the hash function is used as-is; otherwise, a bit-mixing post-processing stage
 is added to increase the quality of hashing at the expense of extra computational cost.
 
 === Types and Constants
 
 [[filter_bucket_size]]
-[source,c++,subs=+quotes]
+[listing,subs="+macros,+quotes"]
 ----
 static constexpr std::size_t bucket_size;
 ----
