@@ -53,7 +53,7 @@ and {small}stem:[r]{small-end} is the number of buckets in the filter.
 
 To produce a location (i.e. a number {small}stem:[p]{small-end} in {small}stem:[[0,r)]{small-end}) from
 {small}stem:[h_{i-1}]{small-end}, instead of the straightforward but costly
-formula {small}stem:[p=h_{i-1}\bmod r]{small-end} we resort to
+procedure {small}stem:[p\leftarrow h_{i-1}\bmod r]{small-end} we resort to
 Lemire's https://arxiv.org/pdf/1805.10941[fastrange technique^]. Moreover,
 we combine this calculation with the production of {small}stem:[h_{i}]{small-end}
 from {small}stem:[h_{i-1}]{small-end} as follows:
@@ -92,11 +92,10 @@ xref:implementation_notes_hash_mixing[already described].
 
 === `fast_multiblock32`
 
-When using AVX2, we set/check up to 8 bits at a time by creating
+When using AVX2, we select up to 8 bits at a time by creating
 a `+++__+++m256i` of 32-bit values {small}stem:[(x_0,x_1,...,x_7)]{small-end}
 where each {small}stem:[x_i]{small-end} is constructed from
-a different portion of the hash value and is in the range
-{small}stem:[[0,32)]{small-end}, and from this we generate
+a different 5-bit portion of the hash value, and calculating from this
 the `+++__+++m256i` {small}stem:[(2^{x_0},2^{x_1},...,2^{x_7})]{small-end}
 with https://www.intel.com/content/www/us/en/docs/cpp-compiler/developer-guide-reference/2021-10/mm256-sllv-epi32-64.html[`+++_+++mm256_sllv_epi32`^].
 If more bits are needed, we generate a new hash value as
