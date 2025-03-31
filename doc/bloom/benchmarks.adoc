@@ -18,7 +18,7 @@ Filters are constructed with a capacity `c * N` (bits), so `c` is the number of
 bits used per element. For each combination of `c` and a given filter configuration, we have
 selected the optimum value of `K` (that yielding the minimum FPR).
 Standard release-mode settings are used; AVX2 is indicated for Visual Studio builds
-(`/arch:AVX2`) and 64-bit GCC/Clang builds (`-mavx2`), which causes
+(`/arch:AVX2`) and GCC/Clang builds (`-mavx2`), which causes
 `fast_multiblock32` and `fast_multiblock64` to use their AVX2 variant.
 
 == GCC 14, x64

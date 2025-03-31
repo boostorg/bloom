@@ -15,7 +15,7 @@ of this formula). For a given inverse load factor {small}stem:[c=m/n]{small-end}
 the integer closest to:
 
 [.text-center]
-{small}stem:[k_{\text{opt}}=c\cdot\ln2]{small-end},
+{small}stem:[k_{\text{opt}}=c\cdot\ln2,]{small-end}
 
 yielding a minimum attainable FPR of {small}stem:[1/2^{k_{\text{opt}}} \approx 0.6185^{c}]{small-end}.
 
@@ -24,7 +24,7 @@ the approach from https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi
 to derive the (approximate but very precise) formula:
 
 [.text-center]
-{small}stem:[\text{FPR}_{\text{block}}(n,m,b,k,k')=\left(\displaystyle\sum_{i=0}^{\infty} \text{Pois}(i,nbk/m) \cdot \text{FPR}(i,b,k')\right)^{k}]{small-end},
+{small}stem:[\text{FPR}_{\text{block}}(n,m,b,k,k')=\left(\displaystyle\sum_{i=0}^{\infty} \text{Pois}(i,nbk/m) \cdot \text{FPR}(i,b,k')\right)^{k},]{small-end}
 
 where
 
@@ -35,18 +35,18 @@ is the probability mass function of a https://en.wikipedia.org/wiki/Poisson_dist
 with mean {small}stem:[\lambda]{small-end}, and {small}stem:[b]{small-end} is the size of `Block` in bits. If we're using `multiblock<Block,K'>`, we have
 
 [.text-center]
-{small}stem:[\text{FPR}_\text{multiblock}(n,m,b,k,k')=\left(\displaystyle\sum_{i=0}^{\infty} \text{Pois}(i,nbkk'/m) \cdot \text{FPR}(i,b,1)^{k'}\right)^{k}]{small-end}.
+{small}stem:[\text{FPR}_\text{multiblock}(n,m,b,k,k')=\left(\displaystyle\sum_{i=0}^{\infty} \text{Pois}(i,nbkk'/m) \cdot \text{FPR}(i,b,1)^{k'}\right)^{k}.]{small-end}
 
 As we have commented xref:primer_multiblock_filters[before], in general 
 
 [.text-center]
-{small}stem:[\text{FPR}_\text{block}(n,m,b,k,k') \geq \text{FPR}_\text{multiblock}(n,m,b,k,k') \geq \text{FPR}(n,m,kk')]{small-end},
+{small}stem:[\text{FPR}_\text{block}(n,m,b,k,k') \geq \text{FPR}_\text{multiblock}(n,m,b,k,k') \geq \text{FPR}(n,m,kk'),]{small-end}
 
 that is, block and multiblock filters have worse FPR than the classical filter for the same number of bits
 set per insertion, but they will be faster. We have the particular case
 
 [.text-center]
-{small}stem:[\text{FPR}_{\text{block}}(n,m,b,k,1)=\text{FPR}_{\text{multiblock}}(n,m,b,k,1)=\text{FPR}(n,m,k)]{small-end},
+{small}stem:[\text{FPR}_{\text{block}}(n,m,b,k,1)=\text{FPR}_{\text{multiblock}}(n,m,b,k,1)=\text{FPR}(n,m,k),]{small-end}
 
 which follows simply from the observation that using `{block|multiblock}<Block, 1>` behaves exactly as
 a classical Bloom filter.
@@ -57,8 +57,8 @@ that is, when subfilter subarrays overlap.
 We can use the following approximations ({small}stem:[s]{small-end} = `BucketSize` in bits):
 
 [.text-center]
-{small}stem:[\text{FPR}_{\text{block}}(n,m,b,s,k,k')=\left(\displaystyle\sum_{i=0}^{\infty} \text{Pois}\left(i,\frac{n(2b-s)k}{m}\right) \cdot \text{FPR}(i,2b-s,k')\right)^{k}]{small-end}, +
-{small}stem:[\text{FPR}_\text{multiblock}(n,m,b,s,k,k')=\left(\displaystyle\sum_{i=0}^{\infty} \text{Pois}\left(i,\frac{n(2bk'-s)k}{m}\right) \cdot \text{FPR}\left(i,\frac{2bk'-s}{k'},1\right)^{k'}\right)^{k}]{small-end},
+{small}stem:[\text{FPR}_{\text{block}}(n,m,b,s,k,k')=\left(\displaystyle\sum_{i=0}^{\infty} \text{Pois}\left(i,\frac{n(2b-s)k}{m}\right) \cdot \text{FPR}(i,2b-s,k')\right)^{k},]{small-end} +
+{small}stem:[\text{FPR}_\text{multiblock}(n,m,b,s,k,k')=\left(\displaystyle\sum_{i=0}^{\infty} \text{Pois}\left(i,\frac{n(2bk'-s)k}{m}\right) \cdot \text{FPR}\left(i,\frac{2bk'-s}{k'},1\right)^{k'}\right)^{k},]{small-end}
 
 where the replacement of {small}stem:[b]{small-end} with {small}stem:[2b-s]{small-end} 
 (or {small}stem:[bk']{small-end} with {small}stem:[2bk'-s]{small-end} for multiblock filters) accounts

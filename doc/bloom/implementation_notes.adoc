@@ -38,7 +38,7 @@ show how to relax this requirement down to two different hash functions
 combined as
 
 [.text-center]
-{small}stem:[g_i(x)=h_1(x)+ih_2(x)]{small-end}.
+{small}stem:[g_i(x)=h_1(x)+ih_2(x).]{small-end}
 
 Without formal justification, we have relaxed this even further to just one
 initial hash value {small}stem:[h_0=h_0(x)]{small-end}, where new values
@@ -59,9 +59,9 @@ we combine this calculation with the production of {small}stem:[h_{i}]{small-end
 from {small}stem:[h_{i-1}]{small-end} as follows:
 
 [.text-center]
-{small}stem:[m\leftarrow\text{mulx}(h_{i-1},r)]{small-end}, +
-{small}stem:[p\leftarrow\lfloor m/2^{64} \rfloor=\text{high}(m)]{small-end}, +
-{small}stem:[h_i\leftarrow m \bmod 2^{64}=\text{low}(m)]{small-end}.
+{small}stem:[m\leftarrow\text{mulx}(h_{i-1},r),]{small-end} +
+{small}stem:[p\leftarrow\lfloor m/2^{64} \rfloor=\text{high}(m),]{small-end} +
+{small}stem:[h_i\leftarrow m \bmod 2^{64}=\text{low}(m).]{small-end}
 
 The transformation {small}stem:[h_{i-1} \rightarrow h_i]{small-end} is
 a simple https://en.wikipedia.org/wiki/Linear_congruential_generator[multiplicative congruential generator^]
@@ -107,18 +107,17 @@ are carried out with two `uint32x4_t`+++s+++ in parallel as Neon does not have
 
 In the case of SSE2, we don't have the 128-bit equivalent of
 `+++_+++mm256_sllv_epi32`, so we use the following, mildly interesting
-technique: 
-A `+++__+++m128i` of the form
+technique: a `+++__+++m128i` of the form
 
 [.text-center]
-{small}stem:[((x_0+127)\cdot 2^{23},(x_1+127)\cdot 2^{23},(x_2+127)\cdot 2^{23},(x_3+127)\cdot 2^{23})]{small-end},
+{small}stem:[((x_0+127)\cdot 2^{23},(x_1+127)\cdot 2^{23},(x_2+127)\cdot 2^{23},(x_3+127)\cdot 2^{23}),]{small-end}
 
 where each {small}stem:[x_i]{small-end} is in {small}stem:[[0,32)]{small-end},
 can be `reinterpret_cast`+++ed+++ to (i.e., has the same binary representation as)
 the `+++__+++m128` (register of `float`+++s+++)
 
 [.text-center]
-{small}stem:[(2^{x_0},2^{x_1},2^{x_2},2^{x_3})]{small-end},
+{small}stem:[(2^{x_0},2^{x_1},2^{x_2},2^{x_3}),]{small-end}
 
 from which our desired `+++__+++m128i` of shifted 1s can be obtained
 with https://www.intel.com/content/www/us/en/docs/cpp-compiler/developer-guide-reference/2021-10/conversion-intrinsics-003.html#GUID-B1CFE576-21E9-4E70-BE5E-B9B18D598C12[`+++_+++mm_cvttps_epi32`^].

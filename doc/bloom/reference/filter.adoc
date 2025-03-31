@@ -591,9 +591,9 @@ void reset(size_type m = 0);
 void reset(size_type n, double fpr);
 ----
 
-(First overload.) Replaces the internal array if the resulting capacity calculated from `m` is not
+First overload: Replaces the internal array if the resulting capacity calculated from `m` is not
 equal to `capacity()`, and clears the filter. +
-(Second overload.) Equivalent to `reset(capacity_for(n, fpr))`.
+Second overload: Equivalent to `reset(capacity_for(n, fpr))`.
 
 [horizontal]
 Postconditions:;; In general, `capacity() >= m`. +
@@ -606,7 +606,7 @@ If `m == 0` or `m == capacity()` or `m == capacity_for(n, fpr)` for some `n` and
 filter& operator&=(const filter& x);
 ----
 
-If `capacity() != x.capacity()`, throws an `std::invalid_argument` exception;
+If `capacity() != x.capacity()`, throws a `std::invalid_argument` exception;
 otherwise, changes the value of each bit in the internal array with the result of
 doing a logical AND operation of that bit and the corresponding one in `x`.
 

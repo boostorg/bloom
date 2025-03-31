@@ -65,7 +65,7 @@ Statistically equivalent to `multiblock<uint64_t, K'>`, but uses a
 faster SIMD-based algorithm when AVX2 is available.
 
 The default configuration with `block<unsigned char,1>` corresponds to a
-xref:primer[classical Bloom filter] setting `K` bits per elements uniformly
+xref:primer[classical Bloom filter] setting `K` bits per element uniformly
 distributed across the array.
 
 === `BucketSize`
