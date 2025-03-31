@@ -24,7 +24,7 @@
 }
 
 .bordered_table th, .bordered_table td {
-  border: 1px solid lightgray
+  border: 1px solid lightgray;
 }
 </style>
 ++++
@@ -32,6 +32,7 @@
 include::bloom/intro.adoc[]
 include::bloom/primer.adoc[]
 include::bloom/tutorial.adoc[]
+include::bloom/configuration.adoc[]
 include::bloom/benchmarks.adoc[]
 include::bloom/reference.adoc[]
 include::bloom/fpr_estimation.adoc[]
