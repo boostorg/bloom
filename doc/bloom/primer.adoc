@@ -70,7 +70,7 @@ with _k'_ bits set on each. This, again, will have a worse FPR than a classical
 filter with _k&middot;k'_ bits per operation, but improves on a plain
 _k&middot;k'_ block filter.
 
-image::block_multiinsertion.png[align=center, title="Block filter with multiinsertion."]
+image::block_multi_insertion.png[align=center, title="Block filter with multi-insertion."]
 
 === Multiblock Filters
 
@@ -82,11 +82,11 @@ are more spread out across the array.
 
 image::multiblock_insertion.png[align=center, title="Multiblock filter."]
 
-Multiblock filters can also be combined with multiinsertion. In general,
+Multiblock filters can also be combined with multi-insertion. In general,
 for the same number of bits per operation and equal values of _n_ and _m_,
 a classical Bloom filter will have the better (lower) FPR, followed by
 multiblock filters and then block filters. Execution speed will roughly go
 in the reverse order. When considering block/multiblock filters with
-multiinsertion, the number of available configurations grows quickly and
+multi-insertion, the number of available configurations grows quickly and
 you will need to do some experimenting to locate your preferred point in the
 (FPR, capacity, speed) tradeoff space.
