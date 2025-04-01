@@ -68,22 +68,22 @@ Let's see how this can be used by way of an example. Suppose we plan to insert 1
 and want to keep the FPR at 10^-4^. The chart gives us five possibilities:
 
 * `filter<K>` -> _c_ &cong; 19 bits per element
-* `filter<1,multiblock<uint32_t,K>,1>` -> _c_ &cong; 20 bits per element
-* `filter<1,multiblock<uint64_t,K>>` -> _c_ &cong; 21 bits per element
-* `filter<1,multiblock<uint32_t,K>,1>` -> _c_ &cong; 21.5 bits per element
-* `filter<1,multiblock<uint32_t,K>>` -> _c_ &cong; 23 bits per element
+* `filter<1, multiblock<uint32_t, K>, 1>` -> _c_ &cong; 20 bits per element
+* `filter<1, multiblock<uint64_t, K>>` -> _c_ &cong; 21 bits per element
+* `filter<1, multiblock<uint32_t, K>, 1>` -> _c_ &cong; 21.5 bits per element
+* `filter<1, multiblock<uint32_t, K>>` -> _c_ &cong; 23 bits per element
 
 These options have different tradeoffs in terms of space used and performance. If
-we choose `filter<1,multiblock<uint32_t,K>,1>` as a compromise (or better yet,
-`filter<1,fast_multiblock32<K>,1>`), the only remaining step is to consult the
-value of `K` in the table for `c` = 21 or 22, and we get our final configuration:
+we choose `filter<1, multiblock<uint32_t, K>, 1>` as a compromise (or better yet,
+`filter<1, fast_multiblock32<K>, 1>`), the only remaining step is to consult the
+value of `K` in the table for _c_ = 21 or 22, and we get our final configuration:
 
 [listing,subs="+macros,+quotes"]
 -----
-using my_filter=filter<std::string, 1, fast_multiblock32<14>, 1>;
+using my_filter=filter<std::string, 1, fast_multiblock32<**14**>, 1>;
 -----
 
-which will be constructed in any of the following manners:
+The resulting filter can be constructed in any of the following ways:
 
 [listing,subs="+macros,+quotes"]
 -----
