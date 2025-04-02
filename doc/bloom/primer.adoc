@@ -10,6 +10,32 @@ that Bloom filters occupy much less space than traditional non-probabilistic con
 (typically, around 8-20 bits per element) for an acceptably low FPR. The greater
 the filter's _capacity_ (its size in bits), the lower the resulting FPR.
 
+One prime application of Bloom filters and similar data structures is for the prevention
+of expensive disk/network accesses when these would fail to retrieve a given piece of
+information.
+For instance, suppose we are developing a frontend for a database with access time
+10 ms and we know 50% of the requests are negative (the record does not exist).
+Inserting a Bloom filter with lookup time 200 ns and a FPR of 0.5% will reduce the
+average response time of the system from 10 ms to
+
+[.text-center]
+(10 + 0.0002) &times; 50.25% + 0.0002 &times; 49.75% &cong; 5.03 ms, 
+
+that is, we get a &times;1.99 overall speedup. If the database holds 1 billion records,
+an in-memory filter with say 8 bits per element will occupy 0.93 GB,
+which is perfectly realizable.
+
+image::db_speedup.png[align=center, title="Improving DB negative access time with a Bloom filter."]
+
+In general, Bloom filters are useful to prevent/mitigate queries against large data sets
+when exact retrieval is costly and/or can't be made in main memory.
+Applications have been described in the areas of web caching,
+dictionary compression, network routing and genomics, among others.
+https://www.eecs.harvard.edu/~michaelm/postscripts/im2005b.pdf[Broder and Mitzenmacher^]
+provide a rather extensive review of use cases with a focus on networking.
+
+== Implementation
+
 The implementation of a Bloom filter consists of an array of _m_ bits, initially set to zero.
 Inserting an element _x_ reduces to selecting _k_ positions pseudorandomly (with the help
 of _k_ independent hash functions) and setting them to one.
