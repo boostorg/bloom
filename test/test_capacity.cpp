@@ -8,6 +8,7 @@
 
 #include <boost/core/lightweight_test.hpp>
 #include <boost/mp11/algorithm.hpp>
+#include <climits>
 #include <cmath>
 #include <limits>
 #include <new>
@@ -52,6 +53,7 @@ void test_capacity()
     for(std::size_t n=0;n<10000;++n){
       const filter f{n};
       std::size_t  c=f.capacity();
+      BOOST_TEST_EQ(c%CHAR_BIT,0);
       if(n==0)BOOST_TEST_EQ(c,0);
       else    BOOST_TEST_GE(c,n);
       BOOST_TEST_EQ(filter{c}.capacity(),c);

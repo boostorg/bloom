@@ -252,6 +252,7 @@ public:
   }
 
   using super::get_allocator;
+  using super::data;
   using super::capacity;
   using super::capacity_for;
   using super::fpr_for;

@@ -341,6 +341,16 @@ public:
     return al();
   }
 
+  unsigned char* data()noexcept
+  {
+    return ar.data?ar.buckets:nullptr;
+  }
+
+  const unsigned char* data()const noexcept
+  {
+    return ar.data?ar.buckets:nullptr;
+  }
+
   std::size_t capacity()const noexcept
   {
     return used_array_size()*CHAR_BIT;

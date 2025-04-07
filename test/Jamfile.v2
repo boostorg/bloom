@@ -20,9 +20,10 @@ project
 
 test-suite "bloom" :
     [ run test_capacity.cpp     ]
-    [ run test_construction.cpp ]
     [ run test_combination.cpp  ]
     [ run test_comparison.cpp   ]
+    [ run test_construction.cpp ]
+    [ run test_data.cpp         ]
     [ run test_fpr.cpp          ]
     [ run test_insertion.cpp    ]
     ;

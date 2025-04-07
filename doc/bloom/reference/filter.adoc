@@ -115,6 +115,10 @@ public:
   static size_type xref:#filter_capacity_estimation[capacity_for](size_type n, double fpr);
   static double xref:#filter_fpr_estimation[fpr_for](size_type n,size_type m)
 
+  // data access
+  unsigned char*       xref:#filter_data[data]() noexcept;
+  const unsigned char* xref:#filter_data[data]() const noexcept;
+
   // modifiers
   template<typename... Args>
     void xref:#filter_emplace[emplace](Args&&... args);
@@ -468,6 +472,7 @@ size_type capacity() const noexcept;
 ----
 
 [horizontal]
+Postconditions:;; `capacity()` is a multiple of `CHAR_BIT`.
 Returns:;; The size in bits of the internal array.
 
 ==== Capacity Estimation
@@ -498,6 +503,20 @@ Postconditions:;; `fpr_for(n, m)` is between 0.0 and 1.0. +
 Returns:;; An estimation of the resulting false positive rate when
 `n` distinct elements have been inserted into a `filter`
 with capacity `m`.
+
+=== Data Access
+
+==== Data
+
+[listing,subs="+macros,+quotes"]
+----
+unsigned char*       data() noexcept;
+const unsigned char* data() const noexcept;
+----
+
+[horizontal]
+Postconditions:;; [`data()`, `data() + capacity() / CHAR_BIT`) is a valid range.
+Returns:;; A pointer to the internal array.
 
 === Modifiers
 

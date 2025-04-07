@@ -202,3 +202,34 @@ For AND combination, be aware that the resulting FPR will be in general
 worse (higher) than if the filter had been constructed from scratch
 by inserting only the commom elements -- don't trust `fpr_for` in this
 case.
+
+== Direct Access to the Array
+
+The contents of the bit array can be accessed directly with the `data`
+member function, which can be leveraged for filter serialization:
+
+[listing,subs="+macros,+quotes"]
+-----
+filter f1=...;
+...
+
+// save filter
+std::ofstream out("filter.bin", std::ios::binary);
+std::size_t c1=f1.capacity();
+out.pass:[write((]const char*) &c1, sizeof(c1)); // save capacity (bits)
+out.pass:[write((]const char*) f1.data(), c1 / CHAR_BIT); // save array
+out.close();
+
+// load filter
+filter f2;
+std::ifstream in("filter.bin", std::ios::binary);
+std::size_t c2;
+in.pass:[read((]char*) &c2, sizeof(c2));
+f2.reset(c2); // restore capacity
+in.pass:[read((]char*) f2.data(), c2 / CHAR_BIT); // load array
+in.close();
+-----
+
+Note that capacities are measured in bits whereas `data()` is an array
+of `unsigned char`+++s+++, so its size is `capacity() / CHAR_BIT`.
+
