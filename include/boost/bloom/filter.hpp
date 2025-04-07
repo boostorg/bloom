@@ -255,7 +255,7 @@ public:
   using super::capacity;
   using super::capacity_for;
   using super::fpr_for;
-  using super::data;
+  using super::array;
 
   template<typename... Args>
   BOOST_FORCEINLINE void emplace(Args&&... args)

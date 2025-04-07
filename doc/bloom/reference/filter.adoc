@@ -116,8 +116,8 @@ public:
   static double xref:#filter_fpr_estimation[fpr_for](size_type n,size_type m)
 
   // data access
-  unsigned char*       xref:#filter_data[data]() noexcept;
-  const unsigned char* xref:#filter_data[data]() const noexcept;
+  boost::span<unsigned char>       xref:#filter_array[array]() noexcept;
+  boost::span<const unsigned char> xref:#filter_array[array]() const noexcept;
 
   // modifiers
   template<typename... Args>
@@ -506,17 +506,17 @@ with capacity `m`.
 
 === Data Access
 
-==== Data
+==== Array
 
 [listing,subs="+macros,+quotes"]
 ----
-unsigned char*       data() noexcept;
-const unsigned char* data() const noexcept;
+boost::span<unsigned char>       array() noexcept;
+boost::span<const unsigned char> array() const noexcept;
 ----
 
 [horizontal]
-Postconditions:;; [`data()`, `data() + capacity() / CHAR_BIT`) is a valid range.
-Returns:;; A pointer to the internal array.
+Postconditions:;; `array().size() == capacity() / CHAR_BIT`.
+Returns:;; A span over the internal array.
 
 === Modifiers
 

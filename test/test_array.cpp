@@ -16,7 +16,7 @@
 using namespace test_utilities;
 
 template<typename Filter,typename ValueFactory>
-void test_data()
+void test_array()
 {
   using filter=Filter;
 
@@ -25,19 +25,23 @@ void test_data()
   {
     filter        f;
     const filter& cf=f;
-    BOOST_TEST_EQ(f.data(),cf.data());
+    BOOST_TEST_EQ(f.array().size(),0);
+    BOOST_TEST_EQ(f.array().data(),cf.array().data());
+    BOOST_TEST_EQ(f.array().size(),cf.array().size());
   }
   {
     filter        f(1000);
     const filter& cf=f;
-    BOOST_TEST_NE(f.data(),nullptr);
-    BOOST_TEST_EQ(f.data(),cf.data());
+    BOOST_TEST_NE(f.array().data(),nullptr);
+    BOOST_TEST_EQ(f.array().size(),f.capacity()/CHAR_BIT);
+    BOOST_TEST_EQ(f.array().data(),cf.array().data());
+    BOOST_TEST_EQ(f.array().size(),cf.array().size());
   }
   {
     filter f1(1000),f2(1000);
     for(int i=0;i<10;++i)f1.insert(fac());
-    std::memcpy(f2.data(),f1.data(),f1.capacity()/CHAR_BIT);
-    BOOST_TEST_NE(f1.data(),f2.data());
+    std::memcpy(f2.array().data(),f1.array().data(),f1.array().size());
+    BOOST_TEST_NE(f1.array().data(),f2.array().data());
     BOOST_TEST(f1==f2);
   }
 }
@@ -50,7 +54,7 @@ struct lambda
     using filter=typename T::type;
     using value_type=typename filter::value_type;
 
-    test_data<filter,value_factory<value_type>>();
+    test_array<filter,value_factory<value_type>>();
   }
 };
 

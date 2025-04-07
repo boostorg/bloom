@@ -205,7 +205,7 @@ case.
 
 == Direct Access to the Array
 
-The contents of the bit array can be accessed directly with the `data`
+The contents of the bit array can be accessed directly with the `array`
 member function, which can be leveraged for filter serialization:
 
 [listing,subs="+macros,+quotes"]
@@ -217,7 +217,8 @@ filter f1=...;
 std::ofstream out("filter.bin", std::ios::binary);
 std::size_t c1=f1.capacity();
 out.pass:[write((]const char*) &c1, sizeof(c1)); // save capacity (bits)
-out.pass:[write((]const char*) f1.data(), c1 / CHAR_BIT); // save array
+boost::span<const unsigned char> s1 = f1.array();
+out.pass:[write((]const char*) s1.data(), s1.size()); // save array
 out.close();
 
 // load filter
@@ -226,10 +227,12 @@ std::ifstream in("filter.bin", std::ios::binary);
 std::size_t c2;
 in.pass:[read((]char*) &c2, sizeof(c2));
 f2.reset(c2); // restore capacity
-in.pass:[read((]char*) f2.data(), c2 / CHAR_BIT); // load array
+boost::span<unsigned char> s2 = f2.array();
+in.pass:[read((]char*) s2.data(), s2.size()); // load array
 in.close();
 -----
 
-Note that capacities are measured in bits whereas `data()` is an array
-of `unsigned char`+++s+++, so its size is `capacity() / CHAR_BIT`.
+Note that `array()` is a span over `unsigned char`+++s+++ whereas
+capacities are measured in bits, so `array.size()` is
+`capacity() / CHAR_BIT`.
 

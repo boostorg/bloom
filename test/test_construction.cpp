@@ -112,7 +112,7 @@ void test_pocxx()
   }
   {
     filter f1(input.begin(),input.end(),1000,hasher{42},allocator_type{2025});
-    auto pd=f1.data();
+    auto s=f1.array();
     auto p1=f1.get_allocator().last_allocation;
     filter f2(0,hasher{24},allocator_type{1492});
     f2=std::move(f1);
@@ -123,15 +123,18 @@ void test_pocxx()
     BOOST_TEST_EQ(f2.hash_function().state,42);
     BOOST_TEST_EQ(f2.get_allocator().state,propagate?2025:1492);
     if(propagate){
-      BOOST_TEST_EQ(f2.data(),pd);
+      BOOST_TEST_EQ(f2.array().data(),s.data());
+      BOOST_TEST_EQ(f2.array().size(),s.size());
       BOOST_TEST_EQ(f2.get_allocator().last_allocation,p1);
     }
     else if(always_equal){
-      BOOST_TEST_EQ(f2.data(),pd);
+      BOOST_TEST_EQ(f2.array().data(),s.data());
+      BOOST_TEST_EQ(f2.array().size(),s.size());
       BOOST_TEST_EQ(f2.get_allocator().last_allocation,nullptr);
     }
     else{
-      BOOST_TEST_NE(f2.data(),pd);
+      BOOST_TEST_NE(f2.array().data(),s.data());
+      BOOST_TEST_EQ(f2.array().size(),s.size());
       BOOST_TEST_NE(f2.get_allocator().last_allocation,nullptr);
       BOOST_TEST_NE(f2.get_allocator().last_allocation,p1);
     }
@@ -139,7 +142,7 @@ void test_pocxx()
   }
   if(propagate||always_equal){
     filter f1(input.begin(),input.end(),1000,hasher{42},allocator_type{2025});
-    auto pd=f1.data();
+    auto s=f1.array();
     auto p1=f1.get_allocator().last_allocation;
     filter f2(0,hasher{24},allocator_type{1492});
     if(propagate){ /* just a way to test member and non-member swap */
@@ -153,7 +156,8 @@ void test_pocxx()
     BOOST_TEST_EQ(f1.hash_function().state,24);
     BOOST_TEST_EQ(f1.get_allocator().state,propagate?1492:2025);
     BOOST_TEST_EQ(f1.get_allocator().last_allocation,propagate?nullptr:p1);
-    BOOST_TEST_EQ(f2.data(),pd);
+    BOOST_TEST_EQ(f2.array().data(),s.data());
+    BOOST_TEST_EQ(f2.array().size(),s.size());
     BOOST_TEST_GE(f2.capacity(),1000u);
     BOOST_TEST_EQ(f2.hash_function().state,42);
     BOOST_TEST_EQ(f2.get_allocator().state,propagate?2025:1492);
@@ -278,12 +282,13 @@ void test_construction()
   {
     filter f1(1000,hasher{42},allocator_type{2025});
     f1.insert(input.begin(),input.end());
-    auto pd=f1.data();
+    auto s=f1.array();
     auto p1=f1.get_allocator().last_allocation;
     filter f2(std::move(f1));
     BOOST_TEST_EQ(f1.capacity(),0);
     BOOST_TEST_EQ(f1.hash_function().state,-1);
-    BOOST_TEST_EQ(f2.data(),pd);
+    BOOST_TEST_EQ(f2.array().data(),s.data());
+    BOOST_TEST_EQ(f2.array().size(),s.size());
     BOOST_TEST_GE(f2.capacity(),1000u);
     BOOST_TEST_EQ(f2.hash_function().state,42);
     BOOST_TEST_EQ(f2.get_allocator().state,2025);
@@ -326,13 +331,14 @@ void test_construction()
   {
     filter f1(1000,hasher{42},allocator_type{2025});
     f1.insert(input.begin(),input.end());
-    auto pd1=f1.data();
+    auto s1=f1.array();
     auto p1=f1.get_allocator().last_allocation;
     filter f2(std::move(f1),allocator_type{1492});
     BOOST_TEST_EQ(f1.capacity(),0);
     BOOST_TEST_EQ(f1.hash_function().state,-1);
     BOOST_TEST_EQ(f1.get_allocator().state,2025);
-    BOOST_TEST_NE(f2.data(),pd1);
+    BOOST_TEST_NE(f2.array().data(),s1.data());
+    BOOST_TEST_EQ(f2.array().size(),s1.size());
     BOOST_TEST_GE(f2.capacity(),1000u);
     BOOST_TEST_EQ(f2.hash_function().state,42);
     BOOST_TEST_EQ(f2.get_allocator().state,1492);
@@ -342,12 +348,13 @@ void test_construction()
 
     filter f3(1000,hasher{42},allocator_type{2025});
     f3.insert(input.begin(),input.end());
-    auto pd3=f3.data();
+    auto s3=f3.array();
     filter f4(std::move(f3),allocator_type{2025});
     BOOST_TEST_EQ(f3.capacity(),0);
     BOOST_TEST_EQ(f3.hash_function().state,-1);
     BOOST_TEST_EQ(f3.get_allocator().state,2025);
-    BOOST_TEST_EQ(f4.data(),pd3);
+    BOOST_TEST_EQ(f4.array().data(),s3.data());
+    BOOST_TEST_EQ(f4.array().size(),s3.size());
     BOOST_TEST_GE(f4.capacity(),1000u);
     BOOST_TEST_EQ(f4.hash_function().state,42);
     BOOST_TEST_EQ(f4.get_allocator().state,2025);
