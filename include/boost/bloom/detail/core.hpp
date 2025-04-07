@@ -341,16 +341,6 @@ public:
     return al();
   }
 
-  unsigned char* data()noexcept
-  {
-    return ar.data?ar.buckets:nullptr;
-  }
-
-  const unsigned char* data()const noexcept
-  {
-    return ar.data?ar.buckets:nullptr;
-  }
-
   std::size_t capacity()const noexcept
   {
     return used_array_size()*CHAR_BIT;
@@ -367,6 +357,16 @@ public:
   static double fpr_for(std::size_t n,std::size_t m)
   {
     return m==0?1.0:n==0?0.0:fpr_for_c((double)m/n);
+  }
+
+  unsigned char* data()noexcept
+  {
+    return ar.data?ar.buckets:nullptr;
+  }
+
+  const unsigned char* data()const noexcept
+  {
+    return ar.data?ar.buckets:nullptr;
   }
 
   BOOST_FORCEINLINE void insert(boost::uint64_t hash)
