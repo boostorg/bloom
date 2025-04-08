@@ -208,7 +208,7 @@ case.
 The contents of the bit array can be accessed directly with the `array`
 member function, which can be leveraged for filter serialization:
 
-[listing,subs="+macros,+quotes"]
+[listing,subs="+quotes"]
 -----
 filter f1=...;
 ...
@@ -216,19 +216,19 @@ filter f1=...;
 // save filter
 std::ofstream out("filter.bin", std::ios::binary);
 std::size_t c1=f1.capacity();
-out.pass:[write((]const char*) &c1, sizeof(c1)); // save capacity (bits)
+out.write((const char*) &c1, sizeof(c1)); // save capacity (bits)
 boost::span<const unsigned char> s1 = f1.array();
-out.pass:[write((]const char*) s1.data(), s1.size()); // save array
+out.write((const char*) s1.data(), s1.size()); // save array
 out.close();
 
 // load filter
 filter f2;
 std::ifstream in("filter.bin", std::ios::binary);
 std::size_t c2;
-in.pass:[read((]char*) &c2, sizeof(c2));
+in.read((char*) &c2, sizeof(c2));
 f2.reset(c2); // restore capacity
 boost::span<unsigned char> s2 = f2.array();
-in.pass:[read((]char*) s2.data(), s2.size()); // load array
+in.read((char*) s2.data(), s2.size()); // load array
 in.close();
 -----
 
