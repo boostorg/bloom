@@ -182,9 +182,9 @@ of the bits of their arrays:
 
 [listing,subs="+macros,+quotes"]
 -----
-filter f2=...;
+filter f2 = ...;
 ...
-f|=f2; // f and f2 must have exactly the same capacity
+f |= f2; // f and f2 must have exactly the same capacity
 -----
 
 The result is equivalent to a filter "containing" both the elements
@@ -193,9 +193,9 @@ holding the _intersection_ of the elements:
 
 [listing,subs="+macros,+quotes"]
 -----
-filter f3=...;
+filter f3 = ...;
 ...
-f&=f3; // f and f3 must have exactly the same capacity
+f &= f3; // f and f3 must have exactly the same capacity
 -----
 
 For AND combination, be aware that the resulting FPR will be in general
@@ -210,7 +210,7 @@ member function, which can be leveraged for filter serialization:
 
 [listing,subs="+quotes"]
 -----
-filter f1=...;
+filter f1 = ...;
 ...
 
 // save filter

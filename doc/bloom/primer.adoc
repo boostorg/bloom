@@ -68,7 +68,7 @@ For given values of _n_ and _m_, the optimum _k_ is the integer closest to
 
 for a minimum FPR of
 {small}stem:[1/2^{k_{\text{opt}}} \approx 0.6185^{m/n}]{small-end}. See the appendix
-on xref:fpr_estimation[FPR estimation] for mode details.
+on xref:fpr_estimation[FPR estimation] for more details.
 
 == Variations on the Classical Filter
 
