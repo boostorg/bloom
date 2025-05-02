@@ -236,3 +236,12 @@ Note that `array()` is a span over `unsigned char`+++s+++ whereas
 capacities are measured in bits, so `array.size()` is
 `capacity() / CHAR_BIT`.
 
+== Debugging
+
+=== Visual Studio Natvis
+
+Add the link:../../extra/boost_bloom.natvis[`boost_bloom.natvis`^] visualizer
+to your project to allow for user-friendly inspection of `boost::bloom::filter`+++s+++.
+
+image::natvis.png[align=center, title="View of a `boost::bloom::filter` with `boost_bloom.natvis`."]
+

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright 2025 Joaquin M Lopez Munoz.
+Distributed under the Boost Software License, Version 1.0. (See accompanying
+file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+See https://www.boost.org/libs/bloom for library home page. 
+-->
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+<Type Name="boost::bloom::filter&lt;*&gt;" Inheritable="false">
+	<Intrinsic Name="core" Expression="*static_cast&lt;super*&gt;(this)"  />
+	<Intrinsic Name="has_array" Expression="core().ar.data!=nullptr" />
+	<Intrinsic
+		Name="capacity" 
+		Expression="
+			has_array()?
+				(core().hs.rng*super::bucket_size+(super::used_value_size-super::bucket_size))*8:
+				0"
+	/>
+	<DisplayString>{{ capacity={capacity()} }}</DisplayString>
+	<Expand>
+		<Item Name="[hash_function]" ExcludeView="simple">
+			*reinterpret_cast&lt;hasher*&gt;(static_cast&lt;hash_base*&gt;(this))
+		</Item>
+		<Item Name="[allocator]" ExcludeView="simple">
+			*reinterpret_cast&lt;allocator_type*&gt;(static_cast&lt;super::allocator_base*&gt;(this))
+		</Item>
+		<Item Name="[data]" ExcludeView="simple">
+			has_array()?core().ar.buckets:nullptr
+		</Item>
+	</Expand>
+</Type>
+
+</AutoVisualizer>
