@@ -28,7 +28,7 @@ See https://www.boost.org/libs/bloom for library home page.
 			*reinterpret_cast&lt;hasher*&gt;(static_cast&lt;hash_base*&gt;(this))
 		</Item>
 		<Item Name="[allocator]">
-			*reinterpret_cast&lt;allocator_type*&gt;(static_cast&lt;super::allocator_base*&gt;(this))
+			*reinterpret_cast&lt;super::allocator_type*&gt;(static_cast&lt;super::allocator_base*&gt;(this))
 		</Item>
 		<Item Name="[capacity]">
 			capacity()
