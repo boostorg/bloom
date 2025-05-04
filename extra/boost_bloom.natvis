@@ -21,13 +21,13 @@ See https://www.boost.org/libs/bloom for library home page.
 	/>
 	<DisplayString>{{ capacity={capacity()} }}</DisplayString>
 	<Expand>
-		<Item Name="[hash_function]" ExcludeView="simple">
+		<Item Name="[hash_function]">
 			*reinterpret_cast&lt;hasher*&gt;(static_cast&lt;hash_base*&gt;(this))
 		</Item>
-		<Item Name="[allocator]" ExcludeView="simple">
+		<Item Name="[allocator]">
 			*reinterpret_cast&lt;allocator_type*&gt;(static_cast&lt;super::allocator_base*&gt;(this))
 		</Item>
-		<Item Name="[data]" ExcludeView="simple">
+		<Item Name="[data]">
 			has_array()?core().ar.buckets:nullptr
 		</Item>
 	</Expand>
