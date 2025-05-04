@@ -8,17 +8,20 @@ See https://www.boost.org/libs/bloom for library home page.
 -->
 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
-
-<Type Name="boost::bloom::filter&lt;*&gt;" Inheritable="false">
-	<Intrinsic Name="core" Expression="*static_cast&lt;super*&gt;(this)"  />
+	
+<Type Name="boost::bloom::filter&lt;*&gt;" Inheritable="true">
+	<Intrinsic Name="core" Expression="*static_cast&lt;super*&gt;(this)" />
 	<Intrinsic Name="has_array" Expression="core().ar.data!=nullptr" />
+	<Intrinsic Name="data" Expression="has_array()?core().ar.buckets:nullptr" />
 	<Intrinsic
-		Name="capacity" 
+		Name="array_size" 
 		Expression="
 			has_array()?
-				(core().hs.rng*super::bucket_size+(super::used_value_size-super::bucket_size))*8:
+				core().hs.rng*super::bucket_size+(super::used_value_size-super::bucket_size):
 				0"
 	/>
+	<Intrinsic Name="capacity" Expression="array_size()*8" />
+	
 	<DisplayString>{{ capacity={capacity()} }}</DisplayString>
 	<Expand>
 		<Item Name="[hash_function]">
@@ -27,9 +30,22 @@ See https://www.boost.org/libs/bloom for library home page.
 		<Item Name="[allocator]">
 			*reinterpret_cast&lt;allocator_type*&gt;(static_cast&lt;super::allocator_base*&gt;(this))
 		</Item>
-		<Item Name="[data]">
-			has_array()?core().ar.buckets:nullptr
+		<Item Name="[capacity]">
+			capacity()
 		</Item>
+		<Item Name="[array]">
+			*this,view(ArrayView)
+		</Item>
+	</Expand>
+</Type>
+
+<Type Name="boost::bloom::filter&lt;*&gt;" Inheritable="false" IncludeView="ArrayView">
+	<DisplayString>{{ data={(void*)data()} size={array_size()} }}</DisplayString>
+	<Expand>
+		<ArrayItems>
+			<Size>array_size()</Size>
+			<ValuePointer>data()</ValuePointer>
+		</ArrayItems>
 	</Expand>
 </Type>
 
