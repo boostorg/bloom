@@ -9,7 +9,7 @@ See https://www.boost.org/libs/bloom for library home page.
 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 	
-<Type Name="boost::bloom::filter&lt;*&gt;" Inheritable="true">
+<Type Name="boost::bloom::filter&lt;*&gt;" Inheritable="false">
 	<Intrinsic Name="core" Expression="*static_cast&lt;super*&gt;(this)" />
 	<Intrinsic Name="has_array" Expression="core().ar.data!=nullptr" />
 	<Intrinsic Name="data" Expression="has_array()?core().ar.buckets:nullptr" />
@@ -33,19 +33,15 @@ See https://www.boost.org/libs/bloom for library home page.
 		<Item Name="[capacity]">
 			capacity()
 		</Item>
-		<Item Name="[array]">
-			*this,view(ArrayView)
-		</Item>
-	</Expand>
-</Type>
-
-<Type Name="boost::bloom::filter&lt;*&gt;" Inheritable="false" IncludeView="ArrayView">
-	<DisplayString>{{ data={(void*)data()} size={array_size()} }}</DisplayString>
-	<Expand>
-		<ArrayItems>
-			<Size>array_size()</Size>
-			<ValuePointer>data()</ValuePointer>
-		</ArrayItems>
+		<Synthetic Name="[array]">
+			<DisplayString>{{ data={(void*)data()} size={array_size()} }}</DisplayString>
+			<Expand>
+				<ArrayItems>
+					<Size>array_size()</Size>
+					<ValuePointer>data()</ValuePointer>
+				</ArrayItems>
+			</Expand>
+		</Synthetic>
 	</Expand>
 </Type>
 
