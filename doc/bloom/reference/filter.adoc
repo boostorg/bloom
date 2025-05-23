@@ -196,6 +196,17 @@ is `true` and `sizeof(std::size_t) >= 8`,
 the hash function is used as-is; otherwise, a bit-mixing post-processing stage
 is added to increase the quality of hashing at the expense of extra computational cost.
 
+*Exception Safety Guarantees*
+
+Except when explicitly noted, all non-const member functions and associated functions taking
+`boost::bloom::filter` by non-const reference provide the
+https://en.cppreference.com/w/cpp/language/exceptions#Exception_safety[basic exception guarantee^],
+whereas all const member functions and associated functions taking
+`boost::bloom::filter` by const reference provide the 
+https://en.cppreference.com/w/cpp/language/exceptions#Exception_safety[strong exception guarantee^].
+No operation throws an exception unless that exception is thrown by the filter's
+`Hash` or `Allocator` object (if any).
+
 === Types and Constants
 
 [[filter_bucket_size]]
@@ -236,6 +247,7 @@ filter(
 Constructs an empty filter using copies of `h` and `al` as the hash function and allocator, respectively.
 
 [horizontal]
+Preconditions:;; `fpr` is between 0.0 and 1.0.
 Postconditions:;; `capacity() == 0` if `m == 0`, `capacity() >= m` otherwise (first overload). +
 `capacity() == capacity_for(n, fpr)` (second overload).
 
@@ -259,7 +271,8 @@ and inserts the values from `[first, last)` into it.
 
 [horizontal]
 Preconditions:;; `InputIterator` is a https://en.cppreference.com/w/cpp/named_req/InputIterator[LegacyInputIterator^] referring to `value_type`. +
-`[first, last)` is a valid range.
+`[first, last)` is a valid range. +
+`fpr` is between 0.0 and 1.0.
 Postconditions:;; `capacity() == 0` if `m == 0`, `capacity() >= m` otherwise (first overload). +
 `capacity() == capacity_for(n, fpr)` (second overload). +
 `may_contain(x)` for all values `x` from `[first, last)`.
@@ -366,7 +379,6 @@ filter(
 Equivalent to `xref:#filter_iterator_range_constructor[filter](il.begin(), il.end(), m, h, al)` (first overload)
 or `xref:#filter_iterator_range_constructor[filter](il.begin(), il.end(), n, fpr, h, al)` (second overload).
 
-
 ==== Capacity Constructor with Allocator
 
 [listing,subs="+macros,+quotes"]
@@ -377,7 +389,6 @@ filter(size_type n, double fpr, const allocator_type& al);
 
 Equivalent to `xref:#filter_capacity_constructor[filter](m, hasher(), al)` (first overload)
 or `xref:#filter_capacity_constructor[filter](n, fpr, hasher(), al)` (second overload).
-
 
 ==== Initializer List Constructor with Allocator
 
@@ -425,6 +436,7 @@ Preconditions:;; If `pocca`,
 `hasher` is nothrow https://en.cppreference.com/w/cpp/named_req/Swappable[Swappable^].
 Postconditions:;; `*this == x`.
 Returns:;; `*this`.
+Exception Safety:;; Strong.
 
 ==== Move Assignment
 
@@ -449,6 +461,7 @@ Preconditions:;; If `pocma`,
 `hasher` is nothrow https://en.cppreference.com/w/cpp/named_req/Swappable[Swappable^].
 Postconditions:;; `x.capacity() == 0`.
 Returns:;; `*this`.
+Exception Safety:;; Nothrow as indicated, otherwise strong.
 
 ==== Initializer List Assignment
 
@@ -533,6 +546,7 @@ Inserts an element constructed from `std::forward<Args>(args)+++...+++`.
 Preconditions:;; `value_type` is https://en.cppreference.com/w/cpp/named_req/EmplaceConstructible[EmplaceConstructible^]
 into `filter` from `std::forward<Args>(args)+++...+++`. +
 `value_type` is https://en.cppreference.com/w/cpp/named_req/Erasable[Erasable^] from `filter`.
+Exception Safety:;; Strong.
 
 ==== Insert
 
@@ -548,6 +562,7 @@ bits of the internal array deterministically selected from the value
 
 [horizontal]
 Postconditions:;; `may_contain(x)`.
+Exception Safety:;; Strong.
 Notes:;; The second overload only participates in overload resolution if
 `hasher::is_transparent` is a valid member typedef.
 
@@ -591,7 +606,7 @@ If `pocs`, swaps the internal allocator with that of `x`.
 Preconditions:;; `pocs || get_allocator() == x.get_allocator()`. +
 If `pocs`, `Allocator` is nothrow https://en.cppreference.com/w/cpp/named_req/Swappable[Swappable^]. +
 `hasher` is nothrow https://en.cppreference.com/w/cpp/named_req/Swappable[Swappable^].
-
+Exception Safety:;; Nothrow.
 
 ==== Clear
 
@@ -615,8 +630,10 @@ equal to `capacity()`, and clears the filter. +
 Second overload: Equivalent to `reset(capacity_for(n, fpr))`.
 
 [horizontal]
+Preconditions:;; `fpr` is between 0.0 and 1.0.
 Postconditions:;; In general, `capacity() >= m`. +
 If `m == 0` or `m == capacity()` or `m == capacity_for(n, fpr)` for some `n` and `fpr`, then `capacity() == m`.
+Exception Safety:;; If `m == 0` or `capacity_for(n, fpr) == 0`, nothrow, otherwise strong.
 
 ==== Combine with AND
 
