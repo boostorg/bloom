@@ -17,7 +17,7 @@ namespace detail{
 
 /* boost::core::bit_width is not always C++11 constexpr */
 
-inline constexpr std::size_t constexpr_bit_width(std::size_t x) 
+constexpr std::size_t constexpr_bit_width(std::size_t x) 
 {
   return x?1+constexpr_bit_width(x>>1):0;
 }
