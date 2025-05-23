@@ -630,6 +630,7 @@ otherwise, changes the value of each bit in the internal array with the result o
 doing a logical AND operation of that bit and the corresponding one in `x`.
 
 [horizontal]
+Preconditions:;; `x.hash_function()` and `y.hash_function()` are equivalent.
 Returns:;; `*this`;
 
 ==== Combine with OR
@@ -644,6 +645,7 @@ otherwise, changes the value of each bit in the internal array with the result o
 doing a logical OR operation of that bit and the corresponding one in `x`.
 
 [horizontal]
+Preconditions:;; `x.hash_function()` and `y.hash_function()` are equivalent.
 Returns:;; `*this`;
 
 === Observers
