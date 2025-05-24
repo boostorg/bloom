@@ -197,7 +197,7 @@ filter f2 = ...;
 f |= f2; // f and f2 must have exactly the same capacity
 -----
 
-The result is equivalent to a filter "containing" both the elements
+The result is equivalent to a filter "containing" the set union of the elements
 of `f` and `f2`. AND combination, on the other hand, results in a filter
 holding the _intersection_ of the elements:
 
