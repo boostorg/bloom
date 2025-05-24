@@ -54,3 +54,10 @@ which can be used for the implementation of a member function
 `estimated_size`. As of this writing, we don't know how to extend the
 formula to the case of block and multiblock filters. Any help on this
 problem is much appreciated.
+
+== Alternative filters
+
+We can consider adding additional data structures such as
+https://en.wikipedia.org/wiki/Cuckoo_filter[cuckoo^] and
+https://arxiv.org/pdf/1912.08258[xor^] filters, which are more
+space efficient and potentially faster.
