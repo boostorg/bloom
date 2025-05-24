@@ -250,7 +250,11 @@ in.close();
 
 Note that `array()` is a span over `unsigned char`+++s+++ whereas
 capacities are measured in bits, so `array.size()` is
-`capacity() / CHAR_BIT`.
+`capacity() / CHAR_BIT`. If you load a serialized filter in a computer
+other than the one where it was saved, take into account that
+the CPU architectures at each end must have the same
+https://es.wikipedia.org/wiki/Endianness[endianness^] for the
+reconstruction to work.
 
 == Debugging
 
