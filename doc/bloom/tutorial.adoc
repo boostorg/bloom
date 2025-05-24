@@ -96,7 +96,7 @@ The size of the filter's internal array is specified at construction time:
 
 [listing,subs="+macros,+quotes"]
 -----
-using filter = boost::bloom::filter<std::string, ...>;
+using filter = boost::bloom::filter<std::string, 8>;
 filter f(1'000'000); // array of 1'000'000 **bits**
 std::cout << f.capacity(); // >= 1'000'000
 -----
@@ -116,6 +116,15 @@ filter f(100'000, 0.01);
 
 // this is equivalent
 filter f2(filter::capacity_for(100'000, 0.01));
+-----
+
+Be careful when the FPR specified is very small, as the resulting capacity
+may be too large to fit in memory:
+
+[listing,subs="+macros,+quotes"]
+-----
+// resulting capacity ~ 1.4E12, out of memory std::bad_alloc is thrown
+filter f3(100'000, 1E-50);
 -----
 
 Once a filter is constructed, its array is fixed (for instance, it won't
