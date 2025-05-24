@@ -204,8 +204,9 @@ https://en.cppreference.com/w/cpp/language/exceptions#Exception_safety[basic exc
 whereas all const member functions and associated functions taking
 `boost::bloom::filter` by const reference provide the 
 https://en.cppreference.com/w/cpp/language/exceptions#Exception_safety[strong exception guarantee^].
-No operation throws an exception unless that exception is thrown by the filter's
-`Hash` or `Allocator` object (if any).
+
+Except when explicitly noted, no operation throws an exception unless that exception
+is thrown by the filter's `Hash` or `Allocator` object (if any).
 
 === Types and Constants
 
@@ -649,6 +650,7 @@ doing a logical AND operation of that bit and the corresponding one in `x`.
 [horizontal]
 Preconditions:;; The `Hash` objects of `x` and `y` are equivalent.
 Returns:;; `*this`;
+Exception Safety:;; Strong.
 
 ==== Combine with OR
 
@@ -664,6 +666,7 @@ doing a logical OR operation of that bit and the corresponding one in `x`.
 [horizontal]
 Preconditions:;; The `Hash` objects of `x` and `y` are equivalent.
 Returns:;; `*this`;
+Exception Safety:;; Strong.
 
 === Observers
 
