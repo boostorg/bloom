@@ -65,7 +65,8 @@ as shown in the table below.
 +++
 
 Let's see how this can be used by way of an example. Suppose we plan to insert 10M elements
-and want to keep the FPR at 10^&minus;4^. The chart gives us five possibilities:
+and want to keep the FPR at 10^&minus;4^. The chart gives us five different
+values of _c_ (the array capacity divided by the number of elements, in our case 10M):
 
 * `filter<K>` -> _c_ &cong; 19 bits per element
 * `filter<1, multiblock<uint64_t, K>, 1>` -> _c_ &cong; 20 bits per element
