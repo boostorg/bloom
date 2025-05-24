@@ -40,3 +40,17 @@ single operation:
 -----
 bool res = f.try_insert(x); // returns true if x was not present
 -----
+
+== Estimation of number of elements inserted
+
+For a classical Bloom filter, the number of elements actually inserted
+can be estimated from the number {small}stem:[B]{small-end} of bits set
+to one in the array as
+
+[.text-center]
+{small}stem:[n\approx-\displaystyle\frac{m}{k}\ln\left(1-\displaystyle\frac{B}{m}\right),]{small-end}
+
+which can be used for the implementation of a member function
+`estimated_size`. As of this writing, we don't know how to extend the
+formula to the case of block and multiblock filters. Any help on this
+problem is much appreciated.
