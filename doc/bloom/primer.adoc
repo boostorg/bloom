@@ -3,12 +3,13 @@
 
 :idprefix: primer_
 
-A Bloom filter is a probabilistic data structure where inserted elements can be looked up
-with 100% accuracy, whereas looking up for a non-inserted element may fail with
-some probability called the filter's _false positive rate_ or FPR. The tradeoff here is
-that Bloom filters occupy much less space than traditional non-probabilistic containers
-(typically, around 8-20 bits per element) for an acceptably low FPR. The greater
-the filter's _capacity_ (its size in bits), the lower the resulting FPR.
+A Bloom filter (named after its inventor Burton Howard Bloom) is a probabilistic data
+structure where inserted elements can be looked up with 100% accuracy, whereas looking
+up for a non-inserted element may fail with some probability called the filter's
+_false positive rate_ or FPR. The tradeoff here is that Bloom filters occupy much less
+space than traditional non-probabilistic containers (typically, around 8-20 bits per
+element) for an acceptably low FPR. The greater the filter's _capacity_ (its size in bits),
+the lower the resulting FPR.
 
 One prime application of Bloom filters and similar data structures is for the prevention
 of expensive disk/network accesses when these would fail to retrieve a given piece of
