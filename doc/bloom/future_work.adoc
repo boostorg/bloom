@@ -20,6 +20,23 @@ for this functionality could be as follows:
 -----
 f.insert(first1, last1);
 f.may_contain(first2, last2, [] (const value_type& x, bool res) {
-  /* x is (likely) in the filter if res == true */ 
+  // x is (likely) in the filter if res == true
 });
+-----
+
+== `try_insert`
+
+To avoid inserting an already present element, we now have to do:
+
+[listing,subs="+macros,+quotes"]
+-----
+if(!f.may_contain(x)) f.insert(x);
+-----
+
+These two calls can be combined in a potentially faster,
+single operation:
+
+[listing,subs="+macros,+quotes"]
+-----
+bool res = f.try_insert(x); // returns true if x was not present
 -----
