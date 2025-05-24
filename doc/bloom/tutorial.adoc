@@ -56,13 +56,14 @@ things because cacheline boundaries can be crossed when accessing the subarray.
 
 [.indent]
 Statistically equivalent to `multiblock<uint32_t, K'>`, but uses
-faster SIMD-based algorithms when SSE2, AVX2 or Neon are available.
+faster SIMD-based algorithms when SSE2, AVX2 or Neon are enabled at
+compile time.
 
 `fast_multiblock64<K'>`
 
 [.indent]
 Statistically equivalent to `multiblock<uint64_t, K'>`, but uses a
-faster SIMD-based algorithm when AVX2 is available.
+faster SIMD-based algorithm when AVX2 is enabled at compile time.
 
 The default configuration with `block<unsigned char,1>` corresponds to a
 xref:primer[classical Bloom filter] setting `K` bits per element uniformly
