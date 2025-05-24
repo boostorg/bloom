@@ -127,7 +127,7 @@ struct used_value_size<
 
 /* GCD with x,p > 1, p a power of two */
 
-inline constexpr std::size_t gcd_pow2(std::size_t x,std::size_t p)
+constexpr std::size_t gcd_pow2(std::size_t x,std::size_t p)
 {
   /* x&-x: maximum power of two dividing x */
   return (x&(0-x))<p?(x&(0-x)):p;
@@ -135,7 +135,7 @@ inline constexpr std::size_t gcd_pow2(std::size_t x,std::size_t p)
 
 /* std::ldexp is not constexpr in C++11 */
 
-inline constexpr double constexpr_ldexp_1_positive(int exp)
+constexpr double constexpr_ldexp_1_positive(int exp)
 {
   return exp==0?1.0:2.0*constexpr_ldexp_1_positive(exp-1);
 }
