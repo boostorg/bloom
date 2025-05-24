@@ -24,12 +24,14 @@ struct multiblock:
   static constexpr std::size_t k=K;
   using value_type=Block[k];
 
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   static inline void mark(value_type& x,boost::uint64_t hash)
   {
     std::size_t i=0;
     loop(hash,[&](boost::uint64_t h){x[i++]|=Block(1)<<(h&mask);});
   }
 
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   static inline bool check(const value_type& x,boost::uint64_t hash)
   {
     Block res=1;

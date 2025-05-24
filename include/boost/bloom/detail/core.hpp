@@ -84,13 +84,16 @@ struct mcg_and_fastrange
     }
     {}
 
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   inline constexpr std::size_t range()const noexcept{return (std::size_t)rng;}
 
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   inline void prepare_hash(boost::uint64_t& hash)const noexcept
   {
     hash|=1u;
   }
 
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   inline std::size_t next_position(boost::uint64_t& hash)const noexcept
   {
     boost::uint64_t hi;

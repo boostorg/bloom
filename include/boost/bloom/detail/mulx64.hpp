@@ -41,6 +41,7 @@ __forceinline boost::uint64_t umul128(
 
 #elif defined(__SIZEOF_INT128__)
 
+/* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
 inline boost::uint64_t umul128(
   boost::uint64_t x,boost::uint64_t y,boost::uint64_t& hi)
 {
@@ -51,6 +52,7 @@ inline boost::uint64_t umul128(
 
 #else
 
+/* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
 inline boost::uint64_t umul128(
   boost::uint64_t x,boost::uint64_t y,boost::uint64_t& hi)
 {
@@ -83,6 +85,7 @@ inline boost::uint64_t umul128(
 
 #endif
 
+/* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
 inline boost::uint64_t mulx64(boost::uint64_t x)noexcept
 {
   /* multiplier is 2^64/phi */

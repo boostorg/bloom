@@ -43,6 +43,7 @@ namespace detail{
 struct no_mix_policy
 {
   template<typename Hash,typename T>
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   static inline boost::uint64_t mix(const Hash& h,const T& x)
   {
     return (boost::uint64_t)h(x);
@@ -52,6 +53,7 @@ struct no_mix_policy
 struct mulx64_mix_policy
 {
   template<typename Hash,typename T>
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   static inline boost::uint64_t mix(const Hash& h,const T& x)
   {
     return mulx64((boost::uint64_t)h(x));
@@ -357,6 +359,7 @@ private:
   Hash& h(){return hash_base::get();}
 
   template<typename U>
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   inline boost::uint64_t hash_for(const U& x)const
   {
     return mix_policy::mix(h(),x);

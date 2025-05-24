@@ -35,6 +35,7 @@ struct m128ix2
   __m128i lo,hi;
 };
 
+/* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
 static inline int mm_testc_si128(__m128i x,__m128i y)
 {
 #ifdef __SSE4_1__
