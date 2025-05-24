@@ -11,8 +11,8 @@
 
 #include <boost/bloom/detail/block_base.hpp>
 #include <boost/bloom/detail/block_fpr_base.hpp>
-#include <boost/cstdint.hpp>
 #include <cstddef>
+#include <cstdint>
 
 namespace boost{
 namespace bloom{
@@ -25,13 +25,13 @@ struct block:
   using value_type=Block;
 
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline void mark(value_type& x,boost::uint64_t hash)
+  static inline void mark(value_type& x,std::uint64_t hash)
   {
-    loop(hash,[&](boost::uint64_t h){x|=Block(1)<<(h&mask);});
+    loop(hash,[&](std::uint64_t h){x|=Block(1)<<(h&mask);});
   }
 
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline bool check(const value_type& x,boost::uint64_t hash)
+  static inline bool check(const value_type& x,std::uint64_t hash)
   {
     Block fp=0;
     mark(fp,hash);

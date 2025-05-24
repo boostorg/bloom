@@ -19,8 +19,8 @@
 #include <boost/container_hash/hash.hpp>
 #include <boost/core/allocator_traits.hpp>
 #include <boost/core/empty_value.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/unordered/hash_traits.hpp> // TODO: internalize?
+#include <cstdint>
 #include <initializer_list>
 #include <memory>
 #include <type_traits>
@@ -37,16 +37,16 @@ namespace detail{
  * filter mixes hash results with mulx64 if the hash is not marked as
  * avalanching, i.e. it's not of good quality (see
  * <boost/unordered/hash_traits.hpp>), or if std::size_t is less than 64 bits
- * (mixing policies promote to boost::uint64_t).
+ * (mixing policies promote to std::uint64_t).
  */
 
 struct no_mix_policy
 {
   template<typename Hash,typename T>
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline boost::uint64_t mix(const Hash& h,const T& x)
+  static inline std::uint64_t mix(const Hash& h,const T& x)
   {
-    return (boost::uint64_t)h(x);
+    return (std::uint64_t)h(x);
   }
 };
 
@@ -54,9 +54,9 @@ struct mulx64_mix_policy
 {
   template<typename Hash,typename T>
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline boost::uint64_t mix(const Hash& h,const T& x)
+  static inline std::uint64_t mix(const Hash& h,const T& x)
   {
-    return mulx64((boost::uint64_t)h(x));
+    return mulx64((std::uint64_t)h(x));
   }
 };
 
@@ -123,7 +123,7 @@ filter:
   >;
   using mix_policy=typename std::conditional<
     unordered::hash_is_avalanching<Hash>::value&&
-    sizeof(std::size_t)>=sizeof(boost::uint64_t),
+    sizeof(std::size_t)>=sizeof(std::uint64_t),
     detail::no_mix_policy,
     detail::mulx64_mix_policy
   >::type;
@@ -360,7 +360,7 @@ private:
 
   template<typename U>
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  inline boost::uint64_t hash_for(const U& x)const
+  inline std::uint64_t hash_for(const U& x)const
   {
     return mix_policy::mix(h(),x);
   }

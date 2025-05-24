@@ -15,14 +15,14 @@
 #include <boost/bloom/detail/fast_multiblock64_avx2.hpp>
 #else /* fallback */
 #include <boost/bloom/multiblock.hpp>
-#include <boost/cstdint.hpp>
 #include <cstddef>
+#include <cstdint>
 
 namespace boost{
 namespace bloom{
 
 template<std::size_t K>
-using fast_multiblock64=multiblock<boost::uint64_t,K>;
+using fast_multiblock64=multiblock<std::uint64_t,K>;
 
 } /* namespace bloom */
 } /* namespace boost */

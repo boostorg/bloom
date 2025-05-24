@@ -19,9 +19,9 @@
 #include <boost/core/allocator_traits.hpp>
 #include <boost/core/empty_value.hpp>
 #include <boost/core/span.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/throw_exception.hpp>
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <limits>
 #include <memory>
@@ -88,20 +88,20 @@ struct mcg_and_fastrange
   inline constexpr std::size_t range()const noexcept{return (std::size_t)rng;}
 
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  inline void prepare_hash(boost::uint64_t& hash)const noexcept
+  inline void prepare_hash(std::uint64_t& hash)const noexcept
   {
     hash|=1u;
   }
 
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  inline std::size_t next_position(boost::uint64_t& hash)const noexcept
+  inline std::size_t next_position(std::uint64_t& hash)const noexcept
   {
-    boost::uint64_t hi;
+    std::uint64_t hi;
     hash=umul128(hash,rng,hi);
     return (std::size_t)hi;
   }
 
-  boost::uint64_t rng;
+  std::uint64_t rng;
 };
 
 /* used_value_size<Subfilter>::value is Subfilter::used_value_size if it
@@ -373,7 +373,7 @@ public:
     return {ar.data?ar.buckets:nullptr,capacity()/CHAR_BIT};
   }
 
-  BOOST_FORCEINLINE void insert(boost::uint64_t hash)
+  BOOST_FORCEINLINE void insert(std::uint64_t hash)
   {
     hs.prepare_hash(hash);
     for(auto n=k;n--;){
@@ -441,7 +441,7 @@ public:
     return *this;
   }
 
-  BOOST_FORCEINLINE bool may_contain(boost::uint64_t hash)const
+  BOOST_FORCEINLINE bool may_contain(std::uint64_t hash)const
   {
     hs.prepare_hash(hash);
 #if 1
@@ -538,8 +538,8 @@ private:
   static unsigned char* buckets_for(unsigned char* p)noexcept
   {
     return p+
-      (boost::uintptr_t(initial_alignment)-
-       boost::uintptr_t(p))%initial_alignment;
+      (std::uintptr_t(initial_alignment)-
+       std::uintptr_t(p))%initial_alignment;
   }
 
   std::size_t used_array_size()const noexcept
@@ -642,20 +642,20 @@ private:
       std::pow(1.0-std::exp(-(double)k_total/c),(double)k_total));
   }
 
-  BOOST_FORCEINLINE bool get(const unsigned char* p,boost::uint64_t hash)const
+  BOOST_FORCEINLINE bool get(const unsigned char* p,std::uint64_t hash)const
   {
     return get(p,hash,std::integral_constant<bool,are_blocks_aligned>{});
   }
 
   BOOST_FORCEINLINE bool get(
-    const unsigned char* p,boost::uint64_t hash,
+    const unsigned char* p,std::uint64_t hash,
     std::true_type /* blocks aligned */)const
   {
     return subfilter::check(*reinterpret_cast<const block_type*>(p),hash);
   }
 
   BOOST_FORCEINLINE bool get(
-    const unsigned char* p,boost::uint64_t hash,
+    const unsigned char* p,std::uint64_t hash,
     std::false_type /* blocks not aligned */)const
   {
     block_type x;
@@ -663,20 +663,20 @@ private:
     return subfilter::check(x,hash);
   }
 
-  BOOST_FORCEINLINE void set(unsigned char* p,boost::uint64_t hash)
+  BOOST_FORCEINLINE void set(unsigned char* p,std::uint64_t hash)
   {
     return set(p,hash,std::integral_constant<bool,are_blocks_aligned>{});
   }
 
   BOOST_FORCEINLINE void set(
-    unsigned char* p,boost::uint64_t hash,
+    unsigned char* p,std::uint64_t hash,
     std::true_type /* blocks aligned */)
   {
     subfilter::mark(*reinterpret_cast<block_type*>(p),hash);
   }
 
   BOOST_FORCEINLINE void set(
-    unsigned char* p,boost::uint64_t hash,
+    unsigned char* p,std::uint64_t hash,
     std::false_type /* blocks not aligned */)
   {
     block_type x;
@@ -686,7 +686,7 @@ private:
   }
 
   BOOST_FORCEINLINE 
-  unsigned char* next_element(boost::uint64_t& h)noexcept
+  unsigned char* next_element(std::uint64_t& h)noexcept
   {
     auto p=ar.buckets+hs.next_position(h)*bucket_size;
     for(std::size_t i=0;i<prefetched_cachelines;++i){
@@ -696,7 +696,7 @@ private:
   }
 
   BOOST_FORCEINLINE
-  const unsigned char* next_element(boost::uint64_t& h)const noexcept
+  const unsigned char* next_element(std::uint64_t& h)const noexcept
   {
     auto p=ar.buckets+hs.next_position(h)*bucket_size;
     for(std::size_t i=0;i<prefetched_cachelines;++i){

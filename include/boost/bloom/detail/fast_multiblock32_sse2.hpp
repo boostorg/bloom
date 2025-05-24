@@ -13,8 +13,8 @@
 #include <boost/bloom/detail/mulx64.hpp>
 #include <boost/bloom/detail/sse2.hpp>
 #include <boost/config.hpp>
-#include <boost/cstdint.hpp>
 #include <cstddef>
+#include <cstdint>
 
 #ifdef __SSE4_1__
 #include <smmintrin.h>
@@ -52,9 +52,9 @@ struct fast_multiblock32:detail::multiblock_fpr_base<K>
 {
   static constexpr std::size_t k=K;
   using value_type=detail::m128ix2[(k+7)/8];
-  static constexpr std::size_t used_value_size=sizeof(boost::uint32_t)*k;
+  static constexpr std::size_t used_value_size=sizeof(std::uint32_t)*k;
 
-  static BOOST_FORCEINLINE void mark(value_type& x,boost::uint64_t hash)
+  static BOOST_FORCEINLINE void mark(value_type& x,std::uint64_t hash)
   {
     for(std::size_t i=0;i<k/8;++i){
       mark_m128ix2(x[i],hash,8);
@@ -65,7 +65,7 @@ struct fast_multiblock32:detail::multiblock_fpr_base<K>
     }
   }
 
-  static BOOST_FORCEINLINE bool check(const value_type& x,boost::uint64_t hash)
+  static BOOST_FORCEINLINE bool check(const value_type& x,std::uint64_t hash)
   {
     for(std::size_t i=0;i<k/8;++i){
       if(!check_m128ix2(x[i],hash,8))return false;
@@ -79,10 +79,10 @@ struct fast_multiblock32:detail::multiblock_fpr_base<K>
 
 private:
   static BOOST_FORCEINLINE detail::m128ix2 make_m128ix2(
-    boost::uint64_t hash,std::size_t kp)
+    std::uint64_t hash,std::size_t kp)
   {
-    const boost::uint32_t mask=boost::uint32_t(31)<<23,
-                          exp=boost::uint32_t(127)<<23;
+    const std::uint32_t mask=std::uint32_t(31)<<23,
+                          exp=std::uint32_t(127)<<23;
     const __m128i exps[4]={
       _mm_set_epi32( 0 , 0 , 0 ,exp),
       _mm_set_epi32( 0 , 0 ,exp,exp),
@@ -114,7 +114,7 @@ private:
   }
 
   static BOOST_FORCEINLINE void mark_m128ix2(
-    detail::m128ix2& x,boost::uint64_t hash,std::size_t kp)
+    detail::m128ix2& x,std::uint64_t hash,std::size_t kp)
   {
     detail::m128ix2 h=make_m128ix2(hash,kp);
     x.lo=_mm_or_si128(x.lo,h.lo);
@@ -122,7 +122,7 @@ private:
   }
 
   static BOOST_FORCEINLINE bool check_m128ix2(
-    const detail::m128ix2& x,boost::uint64_t hash,std::size_t kp)
+    const detail::m128ix2& x,std::uint64_t hash,std::size_t kp)
   {
     detail::m128ix2 h=make_m128ix2(hash,kp);
     auto res=detail::mm_testc_si128(x.lo,h.lo);

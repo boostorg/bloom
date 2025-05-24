@@ -13,8 +13,8 @@
 #include <boost/bloom/detail/multiblock_fpr_base.hpp>
 #include <boost/bloom/detail/mulx64.hpp>
 #include <boost/config.hpp>
-#include <boost/cstdint.hpp>
 #include <cstddef>
+#include <cstdint>
 
 namespace boost{
 namespace bloom{
@@ -29,9 +29,9 @@ struct fast_multiblock32:detail::multiblock_fpr_base<K>
 {
   static constexpr std::size_t k=K;
   using value_type=__m256i[(k+7)/8];
-  static constexpr std::size_t used_value_size=sizeof(boost::uint32_t)*k;
+  static constexpr std::size_t used_value_size=sizeof(std::uint32_t)*k;
 
-  static BOOST_FORCEINLINE void mark(value_type& x,boost::uint64_t hash)
+  static BOOST_FORCEINLINE void mark(value_type& x,std::uint64_t hash)
   {
     for(std::size_t i=0;i<k/8;++i){
       mark_m256i(x[i],hash,8);
@@ -42,7 +42,7 @@ struct fast_multiblock32:detail::multiblock_fpr_base<K>
     }
   }
 
-  static BOOST_FORCEINLINE bool check(const value_type& x,boost::uint64_t hash)
+  static BOOST_FORCEINLINE bool check(const value_type& x,std::uint64_t hash)
   {
     for(std::size_t i=0;i<k/8;++i){
       if(!check_m256i(x[i],hash,8))return false;
@@ -56,7 +56,7 @@ struct fast_multiblock32:detail::multiblock_fpr_base<K>
 
 private:
   static BOOST_FORCEINLINE __m256i make_m256i(
-    boost::uint64_t hash,std::size_t kp)
+    std::uint64_t hash,std::size_t kp)
   {
     const __m256i ones[8]={
       _mm256_set_epi32(0,0,0,0,0,0,0,1),
@@ -76,14 +76,14 @@ private:
   }
 
   static BOOST_FORCEINLINE void mark_m256i(
-    __m256i& x,boost::uint64_t hash,std::size_t kp)
+    __m256i& x,std::uint64_t hash,std::size_t kp)
   {
     __m256i h=make_m256i(hash,kp);
     x=_mm256_or_si256(x,h);
   }
 
   static BOOST_FORCEINLINE bool check_m256i(
-    const __m256i& x,boost::uint64_t hash,std::size_t kp)
+    const __m256i& x,std::uint64_t hash,std::size_t kp)
   {
     __m256i h=make_m256i(hash,kp);
     return _mm256_testc_si256(x,h);

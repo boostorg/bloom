@@ -11,8 +11,8 @@
 #include <boost/bloom/filter.hpp>
 #include <boost/bloom/multiblock.hpp>
 #include <boost/core/detail/splitmix64.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/uuid/uuid.hpp>
+#include <cstdint>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -24,7 +24,7 @@ struct uuid_generator
   boost::uuids::uuid operator()()
   {
     std::uint8_t    data[16];
-    boost::uint64_t x = rng();
+    std::uint64_t x = rng();
     std::memcpy(&data[0], &x, sizeof(x));
     x = rng();
     std::memcpy(&data[8], &x, sizeof(x));
@@ -36,7 +36,7 @@ struct uuid_generator
 };
 
 using filter = boost::bloom::filter<
-  boost::uuids::uuid, 1, boost::bloom::multiblock<boost::uint64_t, 8> >;
+  boost::uuids::uuid, 1, boost::bloom::multiblock<std::uint64_t, 8> >;
 
 static constexpr std::size_t num_elements = 10000;
 

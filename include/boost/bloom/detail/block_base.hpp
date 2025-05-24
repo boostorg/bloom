@@ -12,8 +12,8 @@
 #include <boost/config.hpp>
 #include <boost/bloom/detail/constexpr_bit_width.hpp>
 #include <boost/bloom/detail/mulx64.hpp>
-#include <boost/cstdint.hpp>
 #include <cstddef>
+#include <cstdint>
 
 namespace boost{
 namespace bloom{
@@ -30,7 +30,7 @@ template<typename Block,std::size_t K>
 struct block_base
 {
   static constexpr std::size_t k=K;
-  static constexpr std::size_t hash_width=sizeof(boost::uint64_t)*CHAR_BIT;
+  static constexpr std::size_t hash_width=sizeof(std::uint64_t)*CHAR_BIT;
   static constexpr std::size_t block_width=sizeof(Block)*CHAR_BIT;
   static_assert(
     (block_width&(block_width-1))==0,
@@ -40,7 +40,7 @@ struct block_base
   static constexpr std::size_t rehash_k=(hash_width-shift)/shift;
 
   template<typename F>
-  static BOOST_FORCEINLINE void loop(boost::uint64_t hash,F f)
+  static BOOST_FORCEINLINE void loop(std::uint64_t hash,F f)
   {
     for(std::size_t i=0;i<k/rehash_k;++i){
       auto h=hash;

@@ -13,8 +13,8 @@
 #include <boost/bloom/detail/multiblock_fpr_base.hpp>
 #include <boost/bloom/detail/mulx64.hpp>
 #include <boost/config.hpp>
-#include <boost/cstdint.hpp>
 #include <cstddef>
+#include <cstdint>
 
 namespace boost{
 namespace bloom{
@@ -38,9 +38,9 @@ struct fast_multiblock64:detail::multiblock_fpr_base<K>
 {
   static constexpr std::size_t k=K;
   using value_type=detail::m256ix2[(k+7)/8];
-  static constexpr std::size_t used_value_size=sizeof(boost::uint64_t)*k;
+  static constexpr std::size_t used_value_size=sizeof(std::uint64_t)*k;
 
-  static BOOST_FORCEINLINE void mark(value_type& x,boost::uint64_t hash)
+  static BOOST_FORCEINLINE void mark(value_type& x,std::uint64_t hash)
   {
     for(int i=0;i<k/8;++i){
       mark_m256ix2(x[i],hash,8);
@@ -51,7 +51,7 @@ struct fast_multiblock64:detail::multiblock_fpr_base<K>
     }
   }
 
-  static BOOST_FORCEINLINE bool check(const value_type& x,boost::uint64_t hash)
+  static BOOST_FORCEINLINE bool check(const value_type& x,std::uint64_t hash)
   {
     for(int i=0;i<k/8;++i){
       if(!check_m256ix2(x[i],hash,8))return false;
@@ -65,7 +65,7 @@ struct fast_multiblock64:detail::multiblock_fpr_base<K>
 
 private:
   static BOOST_FORCEINLINE detail::m256ix2 make_m256ix2(
-    boost::uint64_t hash,std::size_t kp)
+    std::uint64_t hash,std::size_t kp)
   {
     const detail::m256ix2 ones[8]={
       {_mm256_set_epi64x(0,0,0,1),_mm256_set_epi64x(0,0,0,0)},
@@ -92,7 +92,7 @@ private:
   }
 
   static BOOST_FORCEINLINE void mark_m256ix2(
-    detail::m256ix2& x,boost::uint64_t hash,std::size_t kp)
+    detail::m256ix2& x,std::uint64_t hash,std::size_t kp)
   {
     detail::m256ix2 h=make_m256ix2(hash,kp);
     x.lo=_mm256_or_si256(x.lo,h.lo);
@@ -100,7 +100,7 @@ private:
   }
 
   static BOOST_FORCEINLINE bool check_m256ix2(
-    const detail::m256ix2& x,boost::uint64_t hash,std::size_t kp)
+    const detail::m256ix2& x,std::uint64_t hash,std::size_t kp)
   {
     detail::m256ix2 h=make_m256ix2(hash,kp);
     auto res=_mm256_testc_si256(x.lo,h.lo);

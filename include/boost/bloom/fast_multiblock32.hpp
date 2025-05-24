@@ -21,14 +21,14 @@
 #include <boost/bloom/detail/fast_multiblock32_neon.hpp>
 #else /* fallback */
 #include <boost/bloom/multiblock.hpp>
-#include <boost/cstdint.hpp>
 #include <cstddef>
+#include <cstdint>
 
 namespace boost{
 namespace bloom{
 
 template<std::size_t K>
-using fast_multiblock32=multiblock<boost::uint32_t,K>;
+using fast_multiblock32=multiblock<std::uint32_t,K>;
 
 } /* namespace bloom */
 } /* namespace boost */

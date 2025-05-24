@@ -11,8 +11,8 @@
 #include <array>
 #include <boost/bloom/filter.hpp>
 #include <boost/bloom/fast_multiblock32.hpp>
-#include <boost/cstdint.hpp>
 #include <cassert>
+#include <cstdint>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -29,7 +29,7 @@ struct k_mer
 {
   static_assert(
     K >= 0 &&
-    2 * K <= sizeof(boost::uint64_t) * CHAR_BIT);
+    2 * K <= sizeof(std::uint64_t) * CHAR_BIT);
 
   static constexpr std::size_t size()
   {
@@ -45,8 +45,8 @@ struct k_mer
 
   k_mer& operator+=(char n)
   {
-    static constexpr boost::uint64_t mask=
-      (((boost::uint64_t)1) << (2 * size())) - 1;
+    static constexpr std::uint64_t mask=
+      (((std::uint64_t)1) << (2 * size())) - 1;
 
     data <<= 2;
     data &= mask;
@@ -54,7 +54,7 @@ struct k_mer
     return *this;
   }
 
-  boost::uint64_t data = 0;
+  std::uint64_t data = 0;
 
   using table_type=std::array<unsigned char, UCHAR_MAX>;
 
@@ -71,7 +71,7 @@ struct k_mer
 template<std::size_t N>
 std::size_t hash_value(const k_mer<N>& km)
 {
-  if constexpr (sizeof(std::size_t) >= sizeof(boost::uint64_t)) {
+  if constexpr (sizeof(std::size_t) >= sizeof(std::uint64_t)) {
     return (std::size_t)km.data;
   }
   else{

@@ -13,8 +13,8 @@
 #include <boost/bloom/detail/mulx64.hpp>
 #include <boost/bloom/detail/neon.hpp>
 #include <boost/config.hpp>
-#include <boost/cstdint.hpp>
 #include <cstddef>
+#include <cstdint>
 
 namespace boost{
 namespace bloom{
@@ -28,11 +28,11 @@ namespace bloom{
 
 #ifdef _MSC_VER
 #define BOOST_BLOOM_INIT_U32X4(w,x,y,z)            \
-{(boost::uint32_t(w)+(unsigned long long(x)<<32)), \
- (boost::uint32_t(y)+(unsigned long long(z)<<32))}
+{(std::uint32_t(w)+(unsigned long long(x)<<32)), \
+ (std::uint32_t(y)+(unsigned long long(z)<<32))}
 #else
 #define BOOST_BLOOM_INIT_U32X4(w,x,y,z) \
-{boost::uint32_t(w),boost::uint32_t(x),boost::uint32_t(y),boost::uint32_t(z)}
+{std::uint32_t(w),std::uint32_t(x),std::uint32_t(y),std::uint32_t(z)}
 #endif
 
 #define BOOST_BLOOM_INIT_U32X4X2(w0,x0,y0,z0,w1,x1,y1,z1) \
@@ -43,9 +43,9 @@ struct fast_multiblock32:detail::multiblock_fpr_base<K>
 {
   static constexpr std::size_t k=K;
   using value_type=uint32x4x2_t[(k+7)/8];
-  static constexpr std::size_t used_value_size=sizeof(boost::uint32_t)*k;
+  static constexpr std::size_t used_value_size=sizeof(std::uint32_t)*k;
 
-  static BOOST_FORCEINLINE void mark(value_type& x,boost::uint64_t hash)
+  static BOOST_FORCEINLINE void mark(value_type& x,std::uint64_t hash)
   {
     for(std::size_t i=0;i<k/8;++i){
       mark_uint32x4x2_t(x[i],hash,8);
@@ -56,7 +56,7 @@ struct fast_multiblock32:detail::multiblock_fpr_base<K>
     }
   }
 
-  static BOOST_FORCEINLINE bool check(const value_type& x,boost::uint64_t hash)
+  static BOOST_FORCEINLINE bool check(const value_type& x,std::uint64_t hash)
   {
     for(std::size_t i=0;i<k/8;++i){
       if(!check_uint32x4x2_t(x[i],hash,8))return false;
@@ -70,7 +70,7 @@ struct fast_multiblock32:detail::multiblock_fpr_base<K>
 
 private:
   static BOOST_FORCEINLINE uint32x4x2_t make_uint32x4x2_t(
-    boost::uint64_t hash,std::size_t kp)
+    std::uint64_t hash,std::size_t kp)
   {
     static const uint32x4x2_t ones[8]={
       BOOST_BLOOM_INIT_U32X4X2(1,0,0,0,0,0,0,0),
@@ -101,7 +101,7 @@ private:
   }
 
   static BOOST_FORCEINLINE void mark_uint32x4x2_t(
-    uint32x4x2_t& x,boost::uint64_t hash,std::size_t kp)
+    uint32x4x2_t& x,std::uint64_t hash,std::size_t kp)
   {
     uint32x4x2_t h=make_uint32x4x2_t(hash,kp);
     x.val[0]=vorrq_u32(x.val[0],h.val[0]);
@@ -109,7 +109,7 @@ private:
   }
 
   static BOOST_FORCEINLINE bool check_uint32x4x2_t(
-    const uint32x4x2_t& x,boost::uint64_t hash,std::size_t kp)
+    const uint32x4x2_t& x,std::uint64_t hash,std::size_t kp)
   {
     uint32x4x2_t h=make_uint32x4x2_t(hash,kp);
     uint32x4_t   lo=vtstq_u32(x.val[0],h.val[0]);

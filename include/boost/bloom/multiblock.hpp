@@ -11,8 +11,8 @@
 
 #include <boost/bloom/detail/block_base.hpp>
 #include <boost/bloom/detail/multiblock_fpr_base.hpp>
-#include <boost/cstdint.hpp>
 #include <cstddef>
+#include <cstdint>
 
 namespace boost{
 namespace bloom{
@@ -25,18 +25,18 @@ struct multiblock:
   using value_type=Block[k];
 
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline void mark(value_type& x,boost::uint64_t hash)
+  static inline void mark(value_type& x,std::uint64_t hash)
   {
     std::size_t i=0;
-    loop(hash,[&](boost::uint64_t h){x[i++]|=Block(1)<<(h&mask);});
+    loop(hash,[&](std::uint64_t h){x[i++]|=Block(1)<<(h&mask);});
   }
 
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline bool check(const value_type& x,boost::uint64_t hash)
+  static inline bool check(const value_type& x,std::uint64_t hash)
   {
     Block res=1;
     std::size_t i=0;
-    loop(hash,[&](boost::uint64_t h){res&=(x[i++]>>(h&mask));});
+    loop(hash,[&](std::uint64_t h){res&=(x[i++]>>(h&mask));});
     return res;
   }
 

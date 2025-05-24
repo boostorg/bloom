@@ -212,14 +212,14 @@ using namespace boost::bloom;
 template<std::size_t K1,std::size_t K2,std::size_t K3>
 using filters1=boost::mp11::mp_list<
   filter<int,K1>,
-  filter<int,1,block<boost::uint64_t,K2>>,
-  filter<int,1,block<boost::uint64_t,K3>,1>
+  filter<int,1,block<std::uint64_t,K2>>,
+  filter<int,1,block<std::uint64_t,K3>,1>
 >;
 
 template<std::size_t K1,std::size_t K2,std::size_t K3>
 using filters2=boost::mp11::mp_list<
-  filter<int,1,multiblock<boost::uint64_t,K1>>,
-  filter<int,1,multiblock<boost::uint64_t,K2>,1>,
+  filter<int,1,multiblock<std::uint64_t,K1>>,
+  filter<int,1,multiblock<std::uint64_t,K2>,1>,
   filter<int,1,fast_multiblock32<K3>>
 >;
 

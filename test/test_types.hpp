@@ -14,10 +14,10 @@
 #include <boost/bloom/fast_multiblock64.hpp>
 #include <boost/bloom/filter.hpp>
 #include <boost/bloom/multiblock.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/mp11/algorithm.hpp>
 #include <boost/mp11/list.hpp>
 #include <boost/mp11/utility.hpp>
+#include <cstdint>
 #include <string>
 
 using test_types=boost::mp11::mp_list<
@@ -25,10 +25,10 @@ using test_types=boost::mp11::mp_list<
     int,2
   >,
   boost::bloom::filter<
-   std::string,1,boost::bloom::block<boost::uint16_t,3>,1
+   std::string,1,boost::bloom::block<std::uint16_t,3>,1
   >,
   boost::bloom::filter<
-    std::size_t,1,boost::bloom::multiblock<boost::uint64_t,3>
+    std::size_t,1,boost::bloom::multiblock<std::uint64_t,3>
   >,
   boost::bloom::filter<
     unsigned char,1,boost::bloom::fast_multiblock32<5>,2
