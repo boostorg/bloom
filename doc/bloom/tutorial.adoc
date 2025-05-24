@@ -3,12 +3,18 @@
 
 :idprefix: tutorial_
 
-== Filter Definition
-
 A `boost::bloom::filter` can be regarded as a bit array divided into _buckets_ that
 are selected pseudo-randomly (based on a hash function) upon insertion:
 each of the buckets is passed to a _subfilter_ that marks several of its bits according
 to some associated strategy.
+
+Note that although `boost::bloom::filter` mimics the interface of a container
+and provides operations such as `insert`, it is actually _not_ a
+container: for instance, insertion does not involve the actual storage
+of the element in the data stucture, but merely sets some bits in the internal
+array based on the hash value of the element.
+
+== Filter Definition
 
 [listing,subs="+macros,+quotes"]
 -----
