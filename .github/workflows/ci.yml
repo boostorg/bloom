@@ -234,7 +234,6 @@ jobs:
           python3 tools/boostdep/depinst/depinst.py -I example --git_args "--jobs 3" $LIBRARY
           ./bootstrap.sh
           ./b2 -d0 headers
-          cp -r $GITHUB_WORKSPACE/include/boost/* boost # remove when/if the library makes it into Boost
 
       - name: Create user-config.jam
         if: matrix.compiler
