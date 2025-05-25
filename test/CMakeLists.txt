@@ -8,7 +8,6 @@ include(BoostTestJamfile OPTIONAL RESULT_VARIABLE HAVE_BOOST_TEST)
 if(HAVE_BOOST_TEST)
 
 boost_test_jamfile(FILE Jamfile.v2
-  LINK_LIBRARIES Boost::bloom Boost::assert Boost::config Boost::container_hash Boost::core
-                 Boost::throw_exception Boost::type_traits Boost::unordered)
+  LINK_LIBRARIES Boost::bloom Boost::core Boost::mp11)
 
 endif()
