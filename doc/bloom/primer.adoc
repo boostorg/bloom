@@ -62,12 +62,14 @@ thus a smaller proportions of set bits.
 
 image::fpr_n_k.png[align=center, title="FPR vs. number of inserted elements for two filters with _m_ = 10^5^ bits."]
 
-For given values of _n_ and _m_, the optimum _k_ is the integer closest to
+For given values of _n_ and _m_, the optimum _k_ is
+{small}stem:[\lfloor k_{\text{opt}}\rfloor]{small-end} or
+{small}stem:[\lceil k_{\text{opt}}\rceil]{small-end}, with
 
 [.text-center]
-{small}stem:[k_{\text{opt}}=\displaystyle\frac{m\cdot\ln2}{n}]{small-end}
+{small}stem:[k_{\text{opt}}=\displaystyle\frac{m\cdot\ln2}{n},]{small-end}
 
-for a minimum FPR of
+for a minimum FPR close to
 {small}stem:[1/2^{k_{\text{opt}}} \approx 0.6185^{m/n}]{small-end}. See the appendix
 on xref:fpr_estimation[FPR estimation] for more details.
 

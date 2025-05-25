@@ -11,13 +11,18 @@ is given by
 
 where {small}stem:[n]{small-end} is the number of elements inserted in the filter, {small}stem:[m]{small-end} its capacity in bits and {small}stem:[k]{small-end} the
 number of bits set per insertion (see a https://en.wikipedia.org/wiki/Bloom_filter#Probability_of_false_positives[derivation^]
-of this formula). For a given inverse load factor {small}stem:[c=m/n]{small-end}, the optimum {small}stem:[k]{small-end} is
-the integer closest to:
+of this formula). For a fixed inverse load factor {small}stem:[c=m/n]{small-end}, 
+the expression reaches at
 
 [.text-center]
-{small}stem:[k_{\text{opt}}=c\cdot\ln2,]{small-end}
+{small}stem:[k_{\text{opt}}=c\cdot\ln2]{small-end}
 
-yielding a minimum attainable FPR of {small}stem:[1/2^{k_{\text{opt}}} \approx 0.6185^{c}]{small-end}.
+its minimum value
+{small}stem:[1/2^{k_{\text{opt}}} \approx 0.6185^{c}]{small-end}.
+The optimum {small}stem:[k]{small-end}, which must be an integer,
+is either
+{small}stem:[\lfloor k_{\text{opt}}\rfloor]{small-end} or
+{small}stem:[\lceil k_{\text{opt}}\rceil]{small-end}.
 
 In the case of filter of the form `boost::bloom::filter<T, K, block<Block, K'>>`, we can extend
 the approach from https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=f376ff09a64b388bfcde2f5353e9ddb44033aac8[Putze et al.^]
