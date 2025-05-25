@@ -55,6 +55,14 @@ which can be used for the implementation of a member function
 formula to the case of block and multiblock filters. Any help on this
 problem is much appreciated.
 
+== Run-time specification of _k_
+
+Currently, the number _k_ of bits set per operation is configured at compile time.
+A variation of (or extension to) `boost::bloom::filter` can be provided
+where the value of _k_ is specified at run-time, the tradeoff being that
+its performance will be worse than the static case (preliminary experiments
+show an increase in execution time of around 10-20%).
+
 == Alternative filters
 
 We can consider adding additional data structures such as
