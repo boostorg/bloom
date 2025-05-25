@@ -18,12 +18,10 @@ project
       <toolset>msvc:<cxxflags>-D_SCL_SECURE_NO_WARNINGS
     ;
 
-test-suite "bloom" :
-    [ run test_array.cpp        ]
-    [ run test_capacity.cpp     ]
-    [ run test_combination.cpp  ]
-    [ run test_comparison.cpp   ]
-    [ run test_construction.cpp ]
-    [ run test_fpr.cpp          ]
-    [ run test_insertion.cpp    ]
-    ;
+run test_array.cpp ;
+run test_capacity.cpp ;
+run test_combination.cpp ;
+run test_comparison.cpp ;
+run test_construction.cpp ;
+run test_fpr.cpp ;
+run test_insertion.cpp ;
