@@ -278,6 +278,9 @@ jobs:
         if: matrix.coverage
         run: ci/codecov.sh "upload"
         env:
+          B2_TOOLSET: ${{matrix.toolset}}
+          B2_CXXSTD: ${{matrix.cxxstd}}
+          B2_ADDRESS_MODEL: ${{matrix.addrmd}}
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   windows:
