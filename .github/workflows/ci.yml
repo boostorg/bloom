@@ -281,6 +281,7 @@ jobs:
           B2_TOOLSET: ${{matrix.toolset}}
           B2_CXXSTD: ${{matrix.cxxstd}}
           B2_ADDRESS_MODEL: ${{matrix.addrmd}}
+          BOOST_CI_SRC_FOLDER: $(pwd)
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   windows:
