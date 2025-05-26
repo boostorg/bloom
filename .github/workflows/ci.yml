@@ -79,6 +79,12 @@ jobs:
             os: ubuntu-24.04
             install: g++-14-multilib
             address-model: 32,64
+          - toolset: gcc-14
+            coverage: true
+            cxxstd: "20"
+            os: ubuntu-24.04
+            install: g++-14-multilib
+            address-model: 32,64
           - toolset: clang
             compiler: clang++-3.9
             cxxstd: "11,14"
@@ -240,11 +246,29 @@ jobs:
         run: |
           echo "using ${{matrix.toolset}} : : ${{matrix.compiler}} ;" > ~/user-config.jam
 
+      - name: Setup coverage collection
+        if: matrix.coverage
+        run: ci/github/codecov.sh "setup"
+
       - name: Run tests
+        if: '!matrix.coverity'
         run: |
           cd ../boost-root
           export ADDRMD=${{matrix.address-model}}
           ./b2 -j3 libs/$LIBRARY/test toolset=${{matrix.toolset}} cxxstd=${{matrix.cxxstd}} ${ADDRMD:+address-model=$ADDRMD} variant=debug,release
+
+      - name: Upload coverage
+        if: matrix.coverage
+        run: ci/codecov.sh "upload"
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Run coverity
+        if: matrix.coverity && github.event_name == 'push' # && (github.ref_name == 'develop' || github.ref_name == 'master')
+        run: ci/github/coverity.sh
+        env:
+          COVERITY_SCAN_NOTIFICATION_EMAIL: ${{ secrets.COVERITY_SCAN_NOTIFICATION_EMAIL }}
+          COVERITY_SCAN_TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
 
   windows:
     strategy:
