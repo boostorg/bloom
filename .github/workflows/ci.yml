@@ -276,12 +276,13 @@ jobs:
 
       - name: Upload coverage
         if: matrix.coverage
-        run: ci/codecov.sh "upload"
+        run: |
+          export BOOST_CI_SRC_FOLDER=$(pwd)
+          ci/codecov.sh "upload"
         env:
           B2_TOOLSET: ${{matrix.toolset}}
           B2_CXXSTD: ${{matrix.cxxstd}}
           B2_ADDRESS_MODEL: ${{matrix.addrmd}}
-          BOOST_CI_SRC_FOLDER: $(pwd)
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   windows:
