@@ -263,6 +263,10 @@ jobs:
       - name: Setup coverage collection
         if: matrix.coverage
         run: ci/github/codecov.sh "setup"
+        env:
+          B2_TOOLSET: ${{matrix.toolset}}
+          B2_CXXSTD: ${{matrix.cxxstd}}
+          B2_ADDRESS_MODEL: ${{matrix.addrmd}}
 
       - name: Run tests
         run: |
