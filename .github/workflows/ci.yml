@@ -280,6 +280,7 @@ jobs:
           export BOOST_CI_SRC_FOLDER=$(pwd)
           ci/codecov.sh "upload"
         env:
+          B2_ROOT: ../boost-root
           B2_TOOLSET: ${{matrix.toolset}}
           B2_CXXSTD: ${{matrix.cxxstd}}
           B2_ADDRESS_MODEL: ${{matrix.addrmd}}
