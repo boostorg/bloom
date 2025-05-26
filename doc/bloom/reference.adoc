@@ -1,6 +1,7 @@
 [#reference]
 = Reference
 
+include::reference/header_bloom.adoc[]
 include::reference/header_filter.adoc[]
 include::reference/filter.adoc[]
 include::reference/subfilters.adoc[]
