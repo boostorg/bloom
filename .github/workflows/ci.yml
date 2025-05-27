@@ -482,49 +482,18 @@ jobs:
           sudo apt-get -y install ${{matrix.install}}
 
       - name: Setup Boost
-        run: |
-          echo GITHUB_REPOSITORY: $GITHUB_REPOSITORY
-          LIBRARY=${GITHUB_REPOSITORY#*/}
-          echo LIBRARY: $LIBRARY
-          echo "LIBRARY=$LIBRARY" >> $GITHUB_ENV
-          echo GITHUB_BASE_REF: $GITHUB_BASE_REF
-          echo GITHUB_REF: $GITHUB_REF
-          REF=${GITHUB_BASE_REF:-$GITHUB_REF}
-          REF=${REF#refs/heads/}
-          echo REF: $REF
-          BOOST_BRANCH=develop && [ "$REF" == "master" ] && BOOST_BRANCH=master || true
-          echo BOOST_BRANCH: $BOOST_BRANCH
-          cd ..
-          git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
-          cd boost-root
-          mkdir -p libs/$LIBRARY # remove when/if the library makes it into Boost
-          cp -r $GITHUB_WORKSPACE/* libs/$LIBRARY
-          git submodule update --init tools/boostdep
-          python3 tools/boostdep/depinst/depinst.py -I example --git_args "--jobs 3" $LIBRARY
-          ./bootstrap.sh
-          ./b2 -d0 headers
+        env:
+          B2_TOOLSET: ${{matrix.toolset}}
+          B2_CXXSTD: ${{matrix.cxxstd}}
+          B2_ADDRESS_MODEL: ${{matrix.address-model}}
+        run: source ci/github/install.sh
 
       - name: Setup coverage collection
         run: ci/github/codecov.sh "setup"
-        env:
-          B2_TOOLSET: ${{matrix.toolset}}
-          B2_CXXSTD: ${{matrix.cxxstd}}
-          B2_ADDRESS_MODEL: ${{matrix.addrmd}}
 
       - name: Run tests
-        run: |
-          ci/build.sh
-        env:
-          BOOST_ROOT: ${{github.workspace}}/../boost-root
+        run: ci/build.sh
 
       - name: Upload coverage
         if: matrix.coverage
-        run: |
-          export BOOST_CI_SRC_FOLDER=$(pwd)
-          ci/codecov.sh "upload"
-        env:
-          BOOST_ROOT: ${{github.workspace}}/../boost-root
-          B2_TOOLSET: ${{matrix.toolset}}
-          B2_CXXSTD: ${{matrix.cxxstd}}
-          B2_ADDRESS_MODEL: ${{matrix.addrmd}}
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: ci/codecov.sh "upload"
