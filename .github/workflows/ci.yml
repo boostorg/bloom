@@ -11,6 +11,7 @@ on:
 
 env:
   UBSAN_OPTIONS: print_stacktrace=1
+  B2_CI_VERSION: 1
 
 jobs:
   posix:
@@ -486,15 +487,12 @@ jobs:
           B2_TOOLSET: ${{matrix.toolset}}
           B2_CXXSTD: ${{matrix.cxxstd}}
           B2_ADDRESS_MODEL: ${{matrix.address-model}}
-          B2_CI_VERSION: 1
         run: source ci/github/install.sh
 
       - name: Setup coverage collection
         run: ci/github/codecov.sh "setup"
 
       - name: Run tests
-        env:
-          B2_CI_VERSION: 1
         run: ci/build.sh
 
       - name: Upload coverage
