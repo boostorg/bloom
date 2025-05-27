@@ -519,8 +519,9 @@ jobs:
 
       - name: Run tests
         run: |
-          cd ../boost-root
           ci/build.sh
+        env:
+          BOOST_ROOT: ${{github.workspace}}/../boost-root
 
       - name: Upload coverage
         if: matrix.coverage
