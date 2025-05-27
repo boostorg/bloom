@@ -486,6 +486,11 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install ${{matrix.install}}
 
+      - name: Install Capture::Tiny
+        if: runner.os == 'macOS'
+        run: |
+          cpanm Capture::Tiny
+
       - name: Setup Boost
         env:
           B2_TOOLSET: ${{matrix.toolset}}
