@@ -79,12 +79,6 @@ jobs:
             os: ubuntu-24.04
             install: g++-14-multilib
             address-model: 32,64
-          - toolset: gcc-14
-            coverage: true
-            cxxstd: "20"
-            os: ubuntu-24.04
-            install: g++-14-multilib
-            address-model: 32,64
           - toolset: clang
             compiler: clang++-3.9
             cxxstd: "11,14"
@@ -212,20 +206,6 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - name: Fetch Boost.CI
-        if: matrix.coverage
-        uses: actions/checkout@v4
-        with:
-          repository: boostorg/boost-ci
-          ref: master
-          path: boost-ci-cloned
-
-      - name: Install Boost.CI
-        if: matrix.coverage
-        run: |
-          cp -r boost-ci-cloned/ci .
-          rm -rf boost-ci-cloned
-
       - name: Install packages
         if: matrix.install
         run: |
@@ -260,31 +240,11 @@ jobs:
         run: |
           echo "using ${{matrix.toolset}} : : ${{matrix.compiler}} ;" > ~/user-config.jam
 
-      - name: Setup coverage collection
-        if: matrix.coverage
-        run: ci/github/codecov.sh "setup"
-        env:
-          B2_TOOLSET: ${{matrix.toolset}}
-          B2_CXXSTD: ${{matrix.cxxstd}}
-          B2_ADDRESS_MODEL: ${{matrix.addrmd}}
-
       - name: Run tests
         run: |
           cd ../boost-root
           export ADDRMD=${{matrix.address-model}}
           ./b2 -j3 libs/$LIBRARY/test toolset=${{matrix.toolset}} cxxstd=${{matrix.cxxstd}} ${ADDRMD:+address-model=$ADDRMD} variant=debug,release
-
-      - name: Upload coverage
-        if: matrix.coverage
-        run: |
-          export BOOST_CI_SRC_FOLDER=$(pwd)
-          ci/codecov.sh "upload"
-        env:
-          BOOST_ROOT: ${{github.workspace}}/../boost-root
-          B2_TOOLSET: ${{matrix.toolset}}
-          B2_CXXSTD: ${{matrix.cxxstd}}
-          B2_ADDRESS_MODEL: ${{matrix.addrmd}}
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   windows:
     strategy:
@@ -467,3 +427,109 @@ jobs:
         run: |
           cd ../boost-root/__build__
           ctest --output-on-failure --no-tests=error -C Release
+
+  codecov:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - toolset: gcc-14
+            cxxstd: "20"
+            os: ubuntu-24.04
+            install: g++-14-multilib
+            address-model: 64
+
+    runs-on: ${{matrix.os}}
+    container:
+      image: ${{matrix.container}}
+      volumes:
+        - /node20217:/node20217:rw,rshared
+        - ${{ startsWith(matrix.container, 'ubuntu:1') && '/node20217:/__e/node20:ro,rshared' || ' ' }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Setup container environment
+        if: matrix.container
+        run: |
+          apt-get update
+          apt-get -y install sudo python3 git g++ curl xz-utils
+          if [[ "${{matrix.container}}" == "ubuntu:1"* ]]; then
+            # Node 20 doesn't work with Ubuntu 16/18  glibc: https://github.com/actions/checkout/issues/1590
+            curl -sL https://archives.boost.io/misc/node/node-v20.9.0-linux-x64-glibc-217.tar.xz | tar -xJ --strip-components 1 -C /node20217
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Fetch Boost.CI
+        uses: actions/checkout@v4
+        with:
+          repository: boostorg/boost-ci
+          ref: master
+          path: boost-ci-cloned
+
+      - name: Install Boost.CI
+        run: |
+          cp -r boost-ci-cloned/ci .
+          rm -rf boost-ci-cloned
+
+      - name: Install packages
+        if: matrix.install
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install ${{matrix.install}}
+
+      - name: Setup Boost
+        run: |
+          echo GITHUB_REPOSITORY: $GITHUB_REPOSITORY
+          LIBRARY=${GITHUB_REPOSITORY#*/}
+          echo LIBRARY: $LIBRARY
+          echo "LIBRARY=$LIBRARY" >> $GITHUB_ENV
+          echo GITHUB_BASE_REF: $GITHUB_BASE_REF
+          echo GITHUB_REF: $GITHUB_REF
+          REF=${GITHUB_BASE_REF:-$GITHUB_REF}
+          REF=${REF#refs/heads/}
+          echo REF: $REF
+          BOOST_BRANCH=develop && [ "$REF" == "master" ] && BOOST_BRANCH=master || true
+          echo BOOST_BRANCH: $BOOST_BRANCH
+          cd ..
+          git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
+          cd boost-root
+          mkdir -p libs/$LIBRARY # remove when/if the library makes it into Boost
+          cp -r $GITHUB_WORKSPACE/* libs/$LIBRARY
+          git submodule update --init tools/boostdep
+          python3 tools/boostdep/depinst/depinst.py -I example --git_args "--jobs 3" $LIBRARY
+          ./bootstrap.sh
+          ./b2 -d0 headers
+
+      - name: Create user-config.jam
+        if: matrix.compiler
+        run: |
+          echo "using ${{matrix.toolset}} : : ${{matrix.compiler}} ;" > ~/user-config.jam
+
+      - name: Setup coverage collection
+        if: matrix.coverage
+        run: ci/github/codecov.sh "setup"
+        env:
+          B2_TOOLSET: ${{matrix.toolset}}
+          B2_CXXSTD: ${{matrix.cxxstd}}
+          B2_ADDRESS_MODEL: ${{matrix.addrmd}}
+
+      - name: Run tests
+        run: |
+          cd ../boost-root
+          ci/build.sh
+
+      - name: Upload coverage
+        if: matrix.coverage
+        run: |
+          export BOOST_CI_SRC_FOLDER=$(pwd)
+          ci/codecov.sh "upload"
+        env:
+          BOOST_ROOT: ${{github.workspace}}/../boost-root
+          B2_TOOLSET: ${{matrix.toolset}}
+          B2_CXXSTD: ${{matrix.cxxstd}}
+          B2_ADDRESS_MODEL: ${{matrix.addrmd}}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
