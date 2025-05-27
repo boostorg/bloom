@@ -439,7 +439,7 @@ jobs:
             cxxstd: "20"
             os: ubuntu-24.04
             install: g++-14-multilib
-            address-model: 64
+            address-model: 32,64
 
     runs-on: ${{matrix.os}}
     container:
