@@ -489,6 +489,7 @@ jobs:
       - name: Install Capture::Tiny
         if: runner.os == 'macOS'
         run: |
+          brew install cpanminus
           cpanm Capture::Tiny
 
       - name: Setup Boost
