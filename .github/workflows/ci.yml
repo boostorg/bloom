@@ -495,5 +495,4 @@ jobs:
         run: ci/build.sh
 
       - name: Upload coverage
-        if: matrix.coverage
         run: ci/codecov.sh "upload"
