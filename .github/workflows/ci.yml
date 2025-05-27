@@ -486,11 +486,12 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install ${{matrix.install}}
 
-      - name: Install Capture::Tiny
+      - name: Install Perl packages for Codecov
         if: runner.os == 'macOS'
         run: |
           brew install cpanminus
           cpanm Capture::Tiny
+          cpanm DateTime
 
       - name: Setup Boost
         env:
