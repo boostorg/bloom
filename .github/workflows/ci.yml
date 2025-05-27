@@ -436,10 +436,13 @@ jobs:
       matrix:
         include:
           - toolset: gcc-14
-            cxxstd: "20"
+            cxxstd: "11"
             os: ubuntu-24.04
             install: g++-14-multilib
             address-model: 32,64
+          - toolset: clang
+            cxxstd: "11"
+            os: macos-14
 
     runs-on: ${{matrix.os}}
     container:
