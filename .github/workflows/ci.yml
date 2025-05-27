@@ -485,7 +485,7 @@ jobs:
         env:
           B2_TOOLSET: ${{matrix.toolset}}
           B2_CXXSTD: ${{matrix.cxxstd}}
-          B2_ADDRESS_MODEL: ${{matrix.address-model}}
+          #B2_ADDRESS_MODEL: ${{matrix.address-model}}
         run: source ci/github/install.sh
 
       - name: Setup coverage collection
