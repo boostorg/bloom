@@ -495,4 +495,6 @@ jobs:
         run: ci/build.sh
 
       - name: Upload coverage
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
         run: ci/codecov.sh "upload"
