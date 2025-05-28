@@ -440,6 +440,10 @@ jobs:
             os: ubuntu-24.04
             install: g++-14-multilib
             address-model: 32,64
+          - toolset: gcc-14
+            cxxstd: "11"
+            os: macos-14
+            install: gcc@14
 
     runs-on: ${{matrix.os}}
     container:
@@ -477,11 +481,23 @@ jobs:
           cp -r boost-ci-cloned/ci .
           rm -rf boost-ci-cloned
 
-      - name: Install packages
-        if: matrix.install
+      - name: Install packages (Linux)
+        if: ${{ matrix.install && runner.os == 'Linux' }}
         run: |
           sudo apt-get update
           sudo apt-get -y install ${{matrix.install}}
+
+      - name: Install packages (macOS)
+        if: ${{ matrix.install && runner.os == 'macOS' }}
+        run: |
+          brew install ${{matrix.install}}
+
+      - name: Install Perl packages for Codecov
+        if: runner.os == 'macOS'
+        run: |
+          brew install cpanminus
+          cpanm Capture::Tiny
+          cpanm DateTime
 
       - name: Setup Boost
         env:
