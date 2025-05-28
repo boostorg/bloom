@@ -54,19 +54,19 @@ void save_filter(const filter& f, const char* filename)
 {
   std::ofstream out(filename, std::ios::binary | std::ios::trunc);
   std::size_t c=f.capacity();
-  out.write((const char*) &c, sizeof(c)); /* save capacity (bits) */
+  out.write(reinterpret_cast<const char*>(&c), sizeof(c)); /* save capacity (bits) */
   auto s = f.array();
-  out.write((const char*) s.data(), s.size()); /* save array */
+  out.write(reinterpret_cast<const char*>(s.data()), s.size()); /* save array */
 }
 
 filter load_filter(const char* filename)
 {
   std::ifstream in(filename, std::ios::binary);
   std::size_t c;
-  in.read((char*) &c, sizeof(c));
+  in.read(reinterpret_cast<char*>(&c), sizeof(c));
   filter f(c);
   auto s = f.array();
-  in.read((char*) s.data(), s.size()); /* load array */
+  in.read(reinterpret_cast<char*>(s.data()), s.size()); /* load array */
   return f;
 }
 
