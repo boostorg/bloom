@@ -11,6 +11,8 @@ on:
 
 env:
   UBSAN_OPTIONS: print_stacktrace=1
+  B2_CI_VERSION: 1
+  LCOV_BRANCH_COVERAGE: 0
 
 jobs:
   posix:
@@ -427,3 +429,74 @@ jobs:
         run: |
           cd ../boost-root/__build__
           ctest --output-on-failure --no-tests=error -C Release
+
+  codecov:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - toolset: gcc-14
+            cxxstd: "11"
+            os: ubuntu-24.04
+            install: g++-14-multilib
+            address-model: 32,64
+
+    runs-on: ${{matrix.os}}
+    container:
+      image: ${{matrix.container}}
+      volumes:
+        - /node20217:/node20217:rw,rshared
+        - ${{ startsWith(matrix.container, 'ubuntu:1') && '/node20217:/__e/node20:ro,rshared' || ' ' }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Setup container environment
+        if: matrix.container
+        run: |
+          apt-get update
+          apt-get -y install sudo python3 git g++ curl xz-utils
+          if [[ "${{matrix.container}}" == "ubuntu:1"* ]]; then
+            # Node 20 doesn't work with Ubuntu 16/18  glibc: https://github.com/actions/checkout/issues/1590
+            curl -sL https://archives.boost.io/misc/node/node-v20.9.0-linux-x64-glibc-217.tar.xz | tar -xJ --strip-components 1 -C /node20217
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Fetch Boost.CI
+        uses: actions/checkout@v4
+        with:
+          repository: boostorg/boost-ci
+          ref: master
+          path: boost-ci-cloned
+
+      - name: Install Boost.CI
+        run: |
+          cp -r boost-ci-cloned/ci .
+          rm -rf boost-ci-cloned
+
+      - name: Install packages
+        if: matrix.install
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install ${{matrix.install}}
+
+      - name: Setup Boost
+        env:
+          B2_TOOLSET: ${{matrix.toolset}}
+          B2_CXXSTD: ${{matrix.cxxstd}}
+          B2_ADDRESS_MODEL: ${{matrix.address-model}}
+        run: source ci/github/install.sh
+
+      - name: Setup coverage collection
+        run: ci/github/codecov.sh "setup"
+
+      - name: Run tests
+        run: ci/build.sh
+
+      - name: Upload coverage
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+        run: ci/codecov.sh "upload"
