@@ -94,7 +94,7 @@ as is; otherwise, a bit-mixing post-process is applied to hash values that impro
 their statistical properties so that the resulting FPR approaches its
 theoretical limit. The hash function is determined to be of high quality
 (more precisely, to have the so-called _avalanching_ property) via the
-`link:../../../unordered/doc/html/unordered/reference/hash_traits.html#hash_traits_hash_is_avalanching[boost::unordered::hash_is_avalanching]`
+`link:../../../container_hash/doc/html/hash.html#ref_hash_is_avalanchinghash[boost::hash_is_avalanching]`
 trait.
 
 == Capacity

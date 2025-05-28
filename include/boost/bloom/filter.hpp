@@ -17,9 +17,9 @@
 #include <boost/bloom/detail/type_traits.hpp>
 #include <boost/config.hpp>
 #include <boost/container_hash/hash.hpp>
+#include <boost/container_hash/hash_is_avalanching.hpp>
 #include <boost/core/allocator_traits.hpp>
 #include <boost/core/empty_value.hpp>
-#include <boost/unordered/hash_traits.hpp> // TODO: internalize?
 #include <cstdint>
 #include <initializer_list>
 #include <memory>
@@ -122,7 +122,7 @@ filter:
     K,Subfilter,BucketSize,allocator_rebind_t<Allocator,unsigned char>
   >;
   using mix_policy=typename std::conditional<
-    unordered::hash_is_avalanching<Hash>::value&&
+    boost::hash_is_avalanching<Hash>::value&&
     sizeof(std::size_t)>=sizeof(std::uint64_t),
     detail::no_mix_policy,
     detail::mulx64_mix_policy

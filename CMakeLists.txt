@@ -20,7 +20,6 @@ target_link_libraries(boost_bloom
     Boost::core
     Boost::throw_exception
     Boost::type_traits
-    Boost::unordered
 )
 
 target_compile_features(boost_bloom INTERFACE cxx_std_11)

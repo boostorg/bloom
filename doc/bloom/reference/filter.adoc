@@ -191,7 +191,7 @@ provided allocator. `value_type` construction/destruction (which only happens in
 `xref:filter_emplace[emplace]`) uses
 `std::allocator_traits<Allocator>::construct`/`destroy`.
 
-If `link:../../../unordered/doc/html/unordered/reference/hash_traits.html#hash_traits_hash_is_avalanching[boost::unordered::hash_is_avalanching]<Hash>::value`
+If `link:../../../container_hash/doc/html/hash.html#ref_hash_is_avalanchinghash[boost::hash_is_avalanching]<Hash>::value`
 is `true` and `sizeof(std::size_t) >= 8`, 
 the hash function is used as-is; otherwise, a bit-mixing post-processing stage
 is added to increase the quality of hashing at the expense of extra computational cost.
