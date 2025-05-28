@@ -16,7 +16,7 @@ in Boost.Unordered, we can pipeline several operations so that
 cache miss stalls are leveraged to do useful computation. The interface
 for this functionality could be as follows:
 
-[listing,subs="+macros,+quotes"]
+[source]
 -----
 f.insert(first1, last1);
 f.may_contain(first2, last2, [] (const value_type& x, bool res) {
@@ -28,7 +28,7 @@ f.may_contain(first2, last2, [] (const value_type& x, bool res) {
 
 To avoid inserting an already present element, we now have to do:
 
-[listing,subs="+macros,+quotes"]
+[source]
 -----
 if(!f.may_contain(x)) f.insert(x);
 -----
@@ -36,7 +36,7 @@ if(!f.may_contain(x)) f.insert(x);
 These two calls can be combined in a potentially faster,
 single operation:
 
-[listing,subs="+macros,+quotes"]
+[source]
 -----
 bool res = f.try_insert(x); // returns true if x was not present
 -----

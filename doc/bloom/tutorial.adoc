@@ -101,7 +101,7 @@ trait.
 
 The size of the filter's internal array is specified at construction time:
 
-[listing,subs="+macros,+quotes"]
+[source,subs="+macros,+quotes"]
 -----
 using filter = boost::bloom::filter<std::string, 8>;
 filter f(1'000'000); // array of 1'000'000 **bits**
@@ -116,7 +116,7 @@ Instead of specifying the array's capacity directly, we can let the library
 figure it out based on the number of elements we plan to insert and the
 desired FPR:
 
-[listing,subs="+macros,+quotes"]
+[source]
 -----
 // we'll insert 100'000 elements and want a FPR ~ 1%
 filter f(100'000, 0.01);
@@ -128,7 +128,7 @@ filter f2(filter::capacity_for(100'000, 0.01));
 Be careful when the FPR specified is very small, as the resulting capacity
 may be too large to fit in memory:
 
-[listing,subs="+macros,+quotes"]
+[source]
 -----
 // resulting capacity ~ 1.4E12, out of memory std::bad_alloc is thrown
 filter f3(100'000, 1E-50);
@@ -138,7 +138,7 @@ Once a filter is constructed, its array is fixed (for instance, it won't
 grow dynamically as elements are inserted). The only way to change it is
 by assignment/swapping from a different filter, or using `reset`:
 
-[listing,subs="+macros,+quotes"]
+[source,subs="+macros,+quotes"]
 -----
 f.reset(2'000'000); // change to 2'000'000 bits **and clears the filter**
 f.reset(100'000, 0.005); // equivalent to reset(filter::capacity_for(100'000, 0.005));
@@ -149,7 +149,7 @@ f.reset(); // null array (capacity == 0)
 
 Insertion is done in much the same way as with a traditional container:
 
-[listing,subs="+macros,+quotes"]
+[source]
 -----
 f.insert("hello");
 f.emplace(100, 'X'); // ~ insert(std::string(100, 'X'))
@@ -161,7 +161,7 @@ storage of elements into the filter, but rather the setting of bits in the
 internal array based on the hash values of those elements.
 Lookup goes as follows:
 
-[listing,subs="+macros,+quotes"]
+[source]
 -----
 bool b1 = f.may_contain("hello"); // b1 is true since we actually inserted "hello"
 bool b2 = f.may_contain("bye"); // b2 is most likely false
@@ -172,7 +172,7 @@ element has not been previously inserted, that is, it may yield false
 positives -- this is the essence of probabilistic data structures.
 `fpr_for` provides an estimation of the false positive rate:
 
-[listing,subs="+macros,+quotes"]
+[source]
 -----
 // we have inserted 100 elements so far, what's our FPR?
 std::cout<< filter::fpr_for(100, f.capacity());
@@ -186,7 +186,7 @@ operation.
 Once inserted, there is no way to remove a specific element from the filter.
 We can only clear up the filter entirely:
 
-[listing,subs="+macros,+quotes"]
+[source]
 -----
 f.clear(); // sets all the bits in the array to zero
 -----
@@ -196,7 +196,7 @@ f.clear(); // sets all the bits in the array to zero
 `boost::bloom::filter`+++s+++ can be combined by doing the OR logical operation
 of the bits of their arrays:
 
-[listing,subs="+macros,+quotes"]
+[source]
 -----
 filter f2 = ...;
 ...
@@ -207,7 +207,7 @@ The result is equivalent to a filter "containing" the set union of the elements
 of `f` and `f2`. AND combination, on the other hand, results in a filter
 holding the _intersection_ of the elements:
 
-[listing,subs="+macros,+quotes"]
+[source]
 -----
 filter f3 = ...;
 ...
@@ -224,7 +224,7 @@ case.
 The contents of the bit array can be accessed directly with the `array`
 member function, which can be leveraged for filter serialization:
 
-[listing,subs="+quotes"]
+[source]
 -----
 filter f1 = ...;
 ...

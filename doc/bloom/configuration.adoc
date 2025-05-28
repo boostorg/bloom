@@ -79,17 +79,17 @@ we choose `filter<1, multiblock<uint32_t, K>, 1>` as a compromise (or better yet
 `filter<1, fast_multiblock32<K>, 1>`), the only remaining step is to consult the
 value of `K` in the table for _c_ = 21 or 22, and we get our final configuration:
 
-[listing,subs="+macros,+quotes"]
+[source,subs="+macros,+quotes"]
 -----
 using my_filter=filter<std::string, 1, fast_multiblock32<**14**>, 1>;
 -----
 
 The resulting filter can be constructed in any of the following ways:
 
-[listing,subs="+macros,+quotes"]
+[source]
 -----
 // 1) calculate the capacity from the value of c we got from the chart
-my_filter pass:[f((]std::size_t)(10'000'000 * 21.5));
+my_filter f((std::size_t)(10'000'000 * 21.5));
 
 // 2) let the library calculate the capacity from n and target fpr
 // expect some deviation from the capacity in 1)

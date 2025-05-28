@@ -8,7 +8,7 @@ that can be configured to implement a classical Bloom filter as well as
 variations discussed in the literature such as block filters, multiblock filters,
 and more.
 
-[listing,subs="+macros,+quotes"]
+[source,subs="+macros,+quotes"]
 -----
 #include <boost/bloom/filter.hpp>
 #include <cassert>
