@@ -46,4 +46,18 @@ Boost.Bloom has been implemented with a focus on performance;
 SIMD technologies such as AVX2, Neon and SSE2 can be leveraged to speed up
 operations.
 
-Boost.Bloom is a header-only library. C++11 or later required.
+== Getting Started
+
+Consult the website
+https://www.boost.org/doc/user-guide/getting-started.html[section^]
+on how to install the entire Boost project or only Boost.Bloom
+and its dependencies.
+
+Boost.Bloom is a header-only library, so no additional build phase is
+needed. C++11 or later required. The library has been verified to
+work on GCC 4.8, Clang 3.9 and Visual Studio 2015 (and later versions
+of those).
+
+If you are not familiar with Bloom filters in general, see the
+xref:primer[primer]; otherwise, you can jump directly to the
+xref:tutorial[tutorial].
