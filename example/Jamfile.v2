@@ -5,12 +5,14 @@
 #
 # See http://www.boost.org/libs/bloom for library home page.
 
+import config : requires ;
+
 project
     : requirements
       # <library>/boost/bloom//boost_bloom
-      <cxxstd>11
+      [ requires cxx11_noexcept ] # used as a proxy for C++11 support
     ;
 
 exe basic : basic.cpp ;
-exe genome : genome.cpp : <cxxstd>17 ;
+exe genome : genome.cpp : [ requires cxx17_if_constexpr ] ;
 exe serialization : serialization.cpp ;

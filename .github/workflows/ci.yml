@@ -248,6 +248,12 @@ jobs:
           export ADDRMD=${{matrix.address-model}}
           ./b2 -j3 libs/$LIBRARY/test toolset=${{matrix.toolset}} cxxstd=${{matrix.cxxstd}} ${ADDRMD:+address-model=$ADDRMD} variant=debug,release
 
+      - name: Compile examples
+        run: |
+          cd ../boost-root
+          export ADDRMD=${{matrix.address-model}}
+          ./b2 -j3 libs/$LIBRARY/example toolset=${{matrix.toolset}} cxxstd=${{matrix.cxxstd}} ${ADDRMD:+address-model=$ADDRMD} variant=debug,release
+
   windows:
     strategy:
       fail-fast: false
@@ -307,6 +313,12 @@ jobs:
         run: |
           cd ../boost-root
           b2 -j3 libs/%LIBRARY%/test toolset=${{matrix.toolset}} cxxstd=${{matrix.cxxstd}} address-model=${{matrix.addrmd}} variant=debug,release embed-manifest-via=linker
+
+      - name: Compile examples
+        shell: cmd
+        run: |
+          cd ../boost-root
+          b2 -j3 libs/%LIBRARY%/example toolset=${{matrix.toolset}} cxxstd=${{matrix.cxxstd}} address-model=${{matrix.addrmd}} variant=debug,release embed-manifest-via=linker
 
   posix-cmake-test:
     strategy:
