@@ -8,7 +8,7 @@
  * See https://www.boost.org/libs/bloom for library home page.
  */
 
-#include <boost/bloom/filter.hpp>
+#include <boost/bloom.hpp>
 #include <cassert>
 #include <iostream>
 #include <string>
@@ -40,5 +40,8 @@ int main()
 
   if(f.may_contain("bye")) { /* likely false */
     std::cout << "false positive\n";
+  }
+  else {
+    std::cout << "everything worked as expected\n";
   }
 }
