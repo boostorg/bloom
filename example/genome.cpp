@@ -71,20 +71,28 @@ struct k_mer
 template<std::size_t N>
 std::size_t hash_value(const k_mer<N>& km)
 {
+  /* k:mer::data is 8 bytes wide. We use it directly as the associated
+   * hash value in 64-bit mode, as std::size_t is the same size; in 32-bit
+   * mode, we XOR the high and low portions of data to make it fit into
+   * a std::size_t.
+   */
+
   if constexpr (sizeof(std::size_t) >= sizeof(std::uint64_t)) {
     return (std::size_t)km.data;
   }
-  else{
+  else{ /* 32-bit mode */
     return (std::size_t)(km.data ^ (km.data >> 32));
   }
 }
 
 /* Insert all the k-mers of a given genome in a boost::bloom::filter.
  * Assumed format is FASTA with A, C, G, T.
+ * https://en.wikipedia.org/wiki/FASTA_format
  */
 
 using genome_filter = boost::bloom::filter<
-  k_mer<20>, 1, boost::bloom::fast_multiblock32<8> >;
+  k_mer<20>, /* using k-mers of length 20 */
+  1, boost::bloom::fast_multiblock32<8> >;
 
 genome_filter make_genome_filter(const char* filename)
 {
@@ -93,7 +101,11 @@ genome_filter make_genome_filter(const char* filename)
   std::ifstream in(filename, std::ios::ate); /* open at end to tell size */
   if(!in) throw std::runtime_error("can't open file");
 
-  /* number of k-mers ~ length of the genome, FPR = 1% */
+  /* As a rough estimation, we assume that the number of k-mers
+   * is approximately equal to the length of the genome --this is
+   * overpessimistic due to the likely presence of duplicate k-mers.
+   * We set FPR = 1%.
+   */
 
   genome_filter f((std::size_t)in.tellg(), 0.01);
   in.seekg(0);
