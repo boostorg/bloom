@@ -21,7 +21,7 @@ Andrzej Krzemie&nacute;ski,
 Ivan Matek,
 Christian Mazakas,
 Rub&eacute;n P&eacute;rez,
-Konstantin Savvidy,
+Kostas Savvidis,
 Peter Turcan,
 Tomer Vromen. Many thanks to all of them for their very helpful feedback.
 
