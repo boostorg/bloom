@@ -10,6 +10,7 @@
 #define BOOST_BLOOM_MULTIBLOCK_HPP
 
 #include <boost/bloom/detail/block_base.hpp>
+#include <boost/bloom/detail/block_ops.hpp>
 #include <boost/bloom/detail/multiblock_fpr_base.hpp>
 #include <cstddef>
 #include <cstdint>
@@ -19,7 +20,8 @@ namespace bloom{
 
 template<typename Block,std::size_t K>
 struct multiblock:
-  private detail::block_base<Block,K>,public detail::multiblock_fpr_base<K>
+  public detail::multiblock_fpr_base<K>,
+  private detail::block_base<Block,K>,private detail::block_ops<Block>
 {
   static constexpr std::size_t k=K;
   using value_type=Block[k];
@@ -28,15 +30,15 @@ struct multiblock:
   static inline void mark(value_type& x,std::uint64_t hash)
   {
     std::size_t i=0;
-    loop(hash,[&](std::uint64_t h){x[i++]|=Block(1)<<(h&mask);});
+    loop(hash,[&](std::uint64_t h){set(x[i++],h&mask);});
   }
 
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   static inline bool check(const value_type& x,std::uint64_t hash)
   {
-    Block res=1;
+    int res=1;
     std::size_t i=0;
-    loop(hash,[&](std::uint64_t h){res&=(x[i++]>>(h&mask));});
+    loop(hash,[&](std::uint64_t h){reduce(res,x[i++],h&mask);});
     return res;
   }
 
@@ -44,6 +46,9 @@ private:
   using super=detail::block_base<Block,K>;
   using super::mask;
   using super::loop;
+  using block_ops=detail::block_ops<Block>;
+  using block_ops::set;
+  using block_ops::reduce;
 };
 
 } /* namespace bloom */
