@@ -19,9 +19,9 @@ template<typename Block>
 struct block_ops
 {
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline Block zero()
+  static inline void zero(Block& x)
   {
-    return Block(0);
+    x=0;
   }
 
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
@@ -41,8 +41,47 @@ struct block_ops
   {
     return (x&y)==y;
   }
+};
 
+template<typename Block,std::size_t N>
+struct block_ops<Block[N]>
+{
+  using value_type=Block[N];
 
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  static inline void zero(value_type& x)
+  {
+    for(std::size_t i=0;i<N;++i)x[i]=0;
+  }
+
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  static inline void set(value_type& x,std::uint64_t n)
+  {
+    x[n%N]|=Block(1)<<(n/N);
+  }
+
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  static inline void reduce(int& res,const value_type& x,std::uint64_t n)
+  {
+    res&=static_cast<int>(x[n%N]>>(n/N));
+  }
+
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  static inline bool testc(const value_type& x,const value_type& y)
+  {
+#if 0
+    for(std::size_t i=0;i<N;++i){
+     if((x[i]&y[i])!=y[i])return false;
+    }
+    return true;
+#else
+    int res=1;
+    for(std::size_t i=0;i<N;++i){
+     res&=((x[i]&y[i])==y[i]);
+    }
+    return res;
+#endif
+  }
 };
 
 } /* namespace detail */

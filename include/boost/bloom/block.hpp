@@ -35,7 +35,8 @@ struct block:
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   static inline bool check(const value_type& x,std::uint64_t hash)
   {
-    Block fp=zero();
+    Block fp;
+    zero(fp);
     mark(fp,hash);
     return testc(x,fp);
   }
