@@ -339,7 +339,7 @@ int main(int argc,char* argv[])
   std::cout<<
     "  <tr>\n"
     "    <th></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint32_t[16],K>,1></code></th>\n"
+    "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint32_t[16],K>></code></th>\n"
     "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t[8],K>></code></th>\n"
     "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t[8],K>,1></code></th>\n"
     "  </tr>\n"
@@ -350,10 +350,10 @@ int main(int argc,char* argv[])
     subheader<<
     "  </tr>\n";
 
-  row<filters4< 5,  5,  5>>( 8);
-  row<filters4< 8,  8,  8>>(12);
-  row<filters4<11, 11, 11>>(16);
-  row<filters4<13, 13, 14>>(20);
+  row<filters4< 5,  5,  6>>( 8);
+  row<filters4< 7,  7,  7>>(12);
+  row<filters4< 9,  9, 10>>(16);
+  row<filters4<12, 12, 12>>(20);
 
   std::cout<<"</table>\n";
 }
