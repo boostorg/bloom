@@ -35,10 +35,18 @@ struct block:
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   static inline bool check(const value_type& x,std::uint64_t hash)
   {
+#if 0
     Block fp;
     zero(fp);
     mark(fp,hash);
     return testc(x,fp);
+#else
+    int res=1;
+    loop(hash,[&](std::uint64_t h){
+      if(res)block_ops::reduce(res,x,h&mask);
+    });
+    return res;
+#endif
   }
 
 private:
