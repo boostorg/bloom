@@ -69,7 +69,7 @@ struct block_ops<Block[N]>
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   static inline bool testc(const value_type& x,const value_type& y)
   {
-#if 0
+#if 1
     for(std::size_t i=0;i<N;++i){
      if((x[i]&y[i])!=y[i])return false;
     }
