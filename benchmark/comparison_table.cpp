@@ -232,9 +232,9 @@ using filters3=boost::mp11::mp_list<
 
 template<std::size_t K1,std::size_t K2,std::size_t K3>
 using filters4=boost::mp11::mp_list<
-  filter<int,1,block<std::uint32_t[16],K1>>,
-  filter<int,1,block<std::uint64_t[8],K2>>,
-  filter<int,1,block<std::uint64_t[8],K3>,1>
+  filter<int,1,block<std::uint64_t[8],K1>>,
+  filter<int,1,block<std::uint64_t[8],K2>,1>,
+  filter<int,1,multiblock<std::uint64_t[8],K3>>
 >;
 
 int main(int argc,char* argv[])
@@ -339,9 +339,9 @@ int main(int argc,char* argv[])
   std::cout<<
     "  <tr>\n"
     "    <th></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint32_t[16],K>></code></th>\n"
     "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t[8],K>></code></th>\n"
     "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t[8],K>,1></code></th>\n"
+    "    <th colspan=\"5\"><code>filter&lt;1,multiblock&lt;uint64_t[8],K>></code></th>\n"
     "  </tr>\n"
     "  <tr>\n"
     "    <th>c</th>\n"<<
@@ -350,10 +350,10 @@ int main(int argc,char* argv[])
     subheader<<
     "  </tr>\n";
 
-  row<filters4< 5,  5,  6>>( 8);
-  row<filters4< 7,  7,  7>>(12);
-  row<filters4< 9,  9, 10>>(16);
-  row<filters4<12, 12, 12>>(20);
+  row<filters4< 5,  6,  7>>( 8);
+  row<filters4< 7,  7, 10>>(12);
+  row<filters4< 9, 10, 11>>(16);
+  row<filters4<12, 12, 15>>(20);
 
   std::cout<<"</table>\n";
 }
