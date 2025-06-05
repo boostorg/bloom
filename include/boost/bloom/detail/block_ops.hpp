@@ -9,35 +9,47 @@
 #ifndef BOOST_BLOOM_DETAIL_BLOCK_OPS_HPP
 #define BOOST_BLOOM_DETAIL_BLOCK_OPS_HPP
 
+#include <boost/config.hpp>
 #include <cstdint>
+#include <type_traits>
 
 namespace boost{
 namespace bloom{
 namespace detail{
 
+#if defined(BOOST_MSVC)
+#pragma warning(push)
+#pragma warning(disable:4714) /* marked as __forceinline not inlined */
+#endif
+
 template<typename Block>
 struct block_ops
 {
-  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline void zero(Block& x)
+  using is_extended_block=std::false_type;
+  using value_type=Block;
+
+  static BOOST_FORCEINLINE void zero(Block& x)
   {
     x=0;
   }
 
-  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline void set(Block& x,std::uint64_t n)
+  static BOOST_FORCEINLINE void set(value_type& x,std::uint64_t n)
   {
     x|=Block(1)<<n;
   }
 
-  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline void reduce(int& res,const Block& x,std::uint64_t n)
+  static BOOST_FORCEINLINE int get_at_lsb(const value_type& x,std::uint64_t n)
   {
-    res&=static_cast<int>(x>>n);
+    return static_cast<int>(x>>n);
   }
 
-  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline bool testc(const Block& x,const Block& y)
+  static BOOST_FORCEINLINE void reduce(
+    int& res,const value_type& x,std::uint64_t n)
+  {
+    res&=get_at_lsb(x,n);
+  }
+
+  static BOOST_FORCEINLINE bool testc(const value_type& x,const value_type& y)
   {
     return (x&y)==y;
   }
@@ -46,43 +58,35 @@ struct block_ops
 template<typename Block,std::size_t N>
 struct block_ops<Block[N]>
 {
+  using is_extended_block=std::true_type;
   using value_type=Block[N];
 
-  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline void zero(value_type& x)
+  static BOOST_FORCEINLINE void zero(value_type& x)
   {
     for(std::size_t i=0;i<N;++i)x[i]=0;
   }
 
-  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline void set(value_type& x,std::uint64_t n)
+  static BOOST_FORCEINLINE void set(value_type& x,std::uint64_t n)
   {
     x[n%N]|=Block(1)<<(n/N);
   }
 
-  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline void reduce(int& res,const value_type& x,std::uint64_t n)
+  static BOOST_FORCEINLINE int get_at_lsb(const value_type& x,std::uint64_t n)
   {
-    res&=static_cast<int>(x[n%N]>>(n/N));
+    return static_cast<int>(x[n%N]>>(n/N));
   }
 
-  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline bool testc(const value_type& x,const value_type& y)
+  static BOOST_FORCEINLINE void reduce(
+    int& res,const value_type& x,std::uint64_t n)
   {
-#if 1
-    for(std::size_t i=0;i<N;++i){
-     if((x[i]&y[i])!=y[i])return false;
-    }
-    return true;
-#else
-    int res=1;
-    for(std::size_t i=0;i<N;++i){
-     res&=((x[i]&y[i])==y[i]);
-    }
-    return res;
-#endif
+    res&=get_at_lsb(x,n);
   }
 };
+
+#if defined(BOOST_MSVC)
+#pragma warning(pop) /* C4714 */
+#endif
+
 
 } /* namespace detail */
 } /* namespace bloom */

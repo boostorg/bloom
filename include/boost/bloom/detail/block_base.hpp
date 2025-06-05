@@ -42,19 +42,29 @@ struct block_base
   template<typename F>
   static BOOST_FORCEINLINE void loop(std::uint64_t hash,F f)
   {
+    loop_while(hash,[&](std::uint64_t h){
+      f(h);
+      return true;
+    });
+  }
+
+  template<typename F>
+  static BOOST_FORCEINLINE bool loop_while(std::uint64_t hash,F f)
+  {
     for(std::size_t i=0;i<k/rehash_k;++i){
       auto h=hash;
       for(std::size_t j=0;j<rehash_k;++j){
         h>>=shift;
-        f(h);
+        if(!f(h))return false;
       }
       hash=detail::mulx64(hash);
     }
     auto h=hash;
     for(std::size_t i=0;i<k%rehash_k;++i){
       h>>=shift;
-      f(h);
+      if(!f(h))return false;
     }
+    return true;
   }
 };
 

@@ -12,52 +12,66 @@
 #include <boost/bloom/detail/block_base.hpp>
 #include <boost/bloom/detail/block_ops.hpp>
 #include <boost/bloom/detail/block_fpr_base.hpp>
+#include <boost/config.hpp>
 #include <cstddef>
 #include <cstdint>
 
 namespace boost{
 namespace bloom{
 
+#if defined(BOOST_MSVC)
+#pragma warning(push)
+#pragma warning(disable:4714) /* marked as __forceinline not inlined */
+#endif
+
 template<typename Block,std::size_t K>
 struct block:
   public detail::block_fpr_base<K>,
-  private detail::block_base<Block,K>,private detail::block_ops<Block>
+  private detail::block_base<Block,K>
 {
   static constexpr std::size_t k=K;
   using value_type=Block;
 
-  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline void mark(value_type& x,std::uint64_t hash)
+  static BOOST_FORCEINLINE void mark(value_type& x,std::uint64_t hash)
   {
-    loop(hash,[&](std::uint64_t h){set(x,h&mask);});
+    loop(hash,[&](std::uint64_t h){block_ops::set(x,h&mask);});
   }
 
-  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline bool check(const value_type& x,std::uint64_t hash)
+  static BOOST_FORCEINLINE bool check(const value_type& x,std::uint64_t hash)
   {
-#if 0
-    Block fp;
-    zero(fp);
-    mark(fp,hash);
-    return testc(x,fp);
-#else
-    int res=1;
-    loop(hash,[&](std::uint64_t h){
-      if(res)block_ops::reduce(res,x,h&mask);
-    });
-    return res;
-#endif
+    return check(x,hash,typename block_ops::is_extended_block{});
   }
 
 private:
   using super=detail::block_base<Block,K>;
   using super::mask;
   using super::loop;
+  using super::loop_while;
   using block_ops=detail::block_ops<Block>;
-  using block_ops::set;
-  using block_ops::zero;
-  using block_ops::testc;
+
+  static BOOST_FORCEINLINE bool check(
+    const value_type& x,std::uint64_t hash,
+    std::false_type /* non-extended block */)
+  {
+    Block fp;
+    block_ops::zero(fp);
+    mark(fp,hash);
+    return block_ops::testc(x,fp);
+  }
+
+  static BOOST_FORCEINLINE bool check(
+    const value_type& x,std::uint64_t hash,
+    std::true_type /* extended block */)
+  {
+    return loop_while(hash,[&](std::uint64_t h){
+      return block_ops::get_at_lsb(x,h&mask)&1;
+    });
+  }
 };
+
+#if defined(BOOST_MSVC)
+#pragma warning(pop) /* C4714 */
+#endif
 
 } /* namespace bloom */
 } /* namespace boost */
