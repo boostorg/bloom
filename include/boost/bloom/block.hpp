@@ -12,17 +12,11 @@
 #include <boost/bloom/detail/block_base.hpp>
 #include <boost/bloom/detail/block_ops.hpp>
 #include <boost/bloom/detail/block_fpr_base.hpp>
-#include <boost/config.hpp>
 #include <cstddef>
 #include <cstdint>
 
 namespace boost{
 namespace bloom{
-
-#if defined(BOOST_MSVC)
-#pragma warning(push)
-#pragma warning(disable:4714) /* marked as __forceinline not inlined */
-#endif
 
 template<typename Block,std::size_t K>
 struct block:
@@ -32,12 +26,14 @@ struct block:
   static constexpr std::size_t k=K;
   using value_type=Block;
 
-  static BOOST_FORCEINLINE void mark(value_type& x,std::uint64_t hash)
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  static inline void mark(value_type& x,std::uint64_t hash)
   {
     loop(hash,[&](std::uint64_t h){block_ops::set(x,h&mask);});
   }
 
-  static BOOST_FORCEINLINE bool check(const value_type& x,std::uint64_t hash)
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  static inline bool check(const value_type& x,std::uint64_t hash)
   {
     return check(x,hash,typename block_ops::is_extended_block{});
   }
@@ -49,7 +45,8 @@ private:
   using super::loop_while;
   using block_ops=detail::block_ops<Block>;
 
-  static BOOST_FORCEINLINE bool check(
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  static inline bool check(
     const value_type& x,std::uint64_t hash,
     std::false_type /* non-extended block */)
   {
@@ -59,7 +56,8 @@ private:
     return block_ops::testc(x,fp);
   }
 
-  static BOOST_FORCEINLINE bool check(
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  static inline bool check(
     const value_type& x,std::uint64_t hash,
     std::true_type /* extended block */)
   {
@@ -68,10 +66,6 @@ private:
     });
   }
 };
-
-#if defined(BOOST_MSVC)
-#pragma warning(pop) /* C4714 */
-#endif
 
 } /* namespace bloom */
 } /* namespace boost */
