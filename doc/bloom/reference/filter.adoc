@@ -187,7 +187,10 @@ Otherwise, `BucketSize` must be not greater than `_used-value-size_<Subfilter>`.
 |===
 
 Allocation and deallocation of the internal array is done through an internal copy of the
-provided allocator. `value_type` construction/destruction (which only happens in
+provided allocator. If `xref:filter_bucket_size[bucket_size]` is a
+multiple of `alignof(Subfilter::value_type)`, the array is byte-aligned to
+max(64, `alignof(Subfilter::value_type)`).
+`value_type` construction/destruction (which only happens in
 `xref:filter_emplace[emplace]`) uses
 `std::allocator_traits<Allocator>::construct`/`destroy`.
 
