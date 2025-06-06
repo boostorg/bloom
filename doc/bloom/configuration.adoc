@@ -26,39 +26,47 @@ as shown in the table below.
         <th>14</th> <th>15</th> <th>16</th> <th>17</th> <th>18</th> <th>19</th> <th>20</th> <th>21</th> <th>22</th> <th>23</th> <th>24</th>
     </tr>
     <tr>
-        <td style="text-align: left;"><code>filter&lt;1,block&lt;uint32_t,K&gt;&gt;</code></td> <td>3</td> <td>3</td> <td>3</td> <td>4</td> <td>4</td> <td>5</td> <td>5</td> <td>5</td> <td>5</td> <td>5</td>
+        <td style="text-align: left;"><code>filter&lt;T,1,block&lt;uint32_t,K&gt;&gt;</code></td> <td>3</td> <td>3</td> <td>3</td> <td>4</td> <td>4</td> <td>5</td> <td>5</td> <td>5</td> <td>5</td> <td>5</td>
         <td>5</td> <td>5</td> <td>6</td> <td>6</td> <td>7</td> <td>7</td> <td>7</td> <td>7</td> <td>7</td> <td>7</td> <td>7</td>
     </tr>
     <tr>
-        <td style="text-align: left;"><code>filter&lt;1,block&lt;uint32_t,K&gt;,1&gt;</code></td> <td>2</td> <td>3</td> <td>4</td> <td>4</td> <td>4</td> <td>4</td> <td>5</td> <td>5</td> <td>5</td> <td>6</td>
+        <td style="text-align: left;"><code>filter&lt;T,1,block&lt;uint32_t,K&gt;,1&gt;</code></td> <td>2</td> <td>3</td> <td>4</td> <td>4</td> <td>4</td> <td>4</td> <td>5</td> <td>5</td> <td>5</td> <td>6</td>
         <td>6</td> <td>6</td> <td>6</td> <td>6</td> <td>6</td> <td>6</td> <td>7</td> <td>7</td> <td>7</td> <td>7</td> <td>7</td>
     </tr>
     <tr>
-        <td style="text-align: left;"><code>filter&lt;1,block&lt;uint64_t,K&gt;&gt;</code></td> <td>2</td> <td>3</td> <td>4</td> <td>4</td> <td>5</td> <td>5</td> <td>5</td> <td>5</td> <td>5</td> <td>6</td>
+        <td style="text-align: left;"><code>filter&lt;T,1,block&lt;uint64_t,K&gt;&gt;</code></td> <td>2</td> <td>3</td> <td>4</td> <td>4</td> <td>5</td> <td>5</td> <td>5</td> <td>5</td> <td>5</td> <td>6</td>
         <td>6</td> <td>6</td> <td>6</td> <td>6</td> <td>7</td> <td>7</td> <td>7</td> <td>7</td> <td>7</td> <td>7</td> <td>7</td>
     </tr>
     <tr>
-        <td style="text-align: left;"><code>filter&lt;1,block&lt;uint64_t,K&gt;,1&gt;</code></td> <td>2</td> <td>3</td> <td>4</td> <td>4</td> <td>4</td> <td>5</td> <td>6</td> <td>6</td> <td>6</td> <td>7</td>
+        <td style="text-align: left;"><code>filter&lt;T,1,block&lt;uint64_t,K&gt;,1&gt;</code></td> <td>2</td> <td>3</td> <td>4</td> <td>4</td> <td>4</td> <td>5</td> <td>6</td> <td>6</td> <td>6</td> <td>7</td>
         <td>7</td> <td>7</td> <td>7</td> <td>7</td> <td>8</td> <td>8</td> <td>8</td> <td>8</td> <td>8</td> <td>9</td> <td>9</td>
     </tr>
     <tr>
-        <td style="text-align: left;"><code>filter&lt;1,multiblock&lt;uint32_t,K&gt;&gt;</code></td> <td>3</td> <td>3</td> <td>4</td> <td>5</td> <td>6</td> <td>6</td> <td>8</td> <td>8</td> <td>8</td> <td>8</td>
+        <td style="text-align: left;"><code>filter&lt;T,1,multiblock&lt;uint32_t,K&gt;&gt;</code></td> <td>3</td> <td>3</td> <td>4</td> <td>5</td> <td>6</td> <td>6</td> <td>8</td> <td>8</td> <td>8</td> <td>8</td>
         <td>9</td> <td>9</td> <td>9</td> <td>10</td> <td>13</td> <td>13</td> <td>15</td> <td>15</td> <td>15</td> <td>16</td> <td>16</td>
     </tr>
     <tr>
-        <td style="text-align: left;"><code>filter&lt;1,multiblock&lt;uint32_t,K&gt;,1&gt;</code></td> <td>3</td> <td>3</td> <td>4</td> <td>5</td> <td>6</td> <td>6</td> <td>7</td> <td>7</td> <td>8</td> <td>8</td>
+        <td style="text-align: left;"><code>filter&lt;T,1,block&lt;uint64_t[8],K&gt;&gt;</code></td> <td>4</td> <td>4</td> <td>4</td> <td>5</td> <td>5</td> <td>6</td> <td>7</td> <td>7</td> <td>7</td> <td>8</td>
+		<td>8</td> <td>9</td> <td>9</td> <td>10</td> <td>10</td> <td>11</td> <td>12</td> <td>12</td> <td>12</td> <td>12</td> <td>12</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;"><code>filter&lt;T,1,multiblock&lt;uint32_t,K&gt;,1&gt;</code></td> <td>3</td> <td>3</td> <td>4</td> <td>5</td> <td>6</td> <td>6</td> <td>7</td> <td>7</td> <td>8</td> <td>8</td>
         <td>9</td> <td>9</td> <td>10</td> <td>10</td> <td>12</td> <td>12</td> <td>14</td> <td>14</td> <td>14</td> <td>14</td> <td>15</td>
     </tr>
     <tr>
-        <td style="text-align: left;"><code>filter&lt;1,multiblock&lt;uint64_t,K&gt;&gt;</code></td> <td>4</td> <td>4</td> <td>5</td> <td>5</td> <td>6</td> <td>6</td> <td>6</td> <td>7</td> <td>8</td> <td>8</td>
+        <td style="text-align: left;"><code>filter&lt;T,1,block&lt;uint64_t[8],K&gt;,1&gt;</code></td> <td>3</td> <td>3</td> <td>4</td> <td>5</td> <td>6</td> <td>6</td> <td>7</td> <td>7</td> <td>7</td> <td>8</td>
+		<td>8</td> <td>8</td> <td>10</td> <td>11</td> <td>11</td> <td>12</td> <td>12</td> <td>12</td> <td>12</td> <td>12</td> <td>13</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;"><code>filter&lt;T,1,multiblock&lt;uint64_t,K&gt;&gt;</code></td> <td>4</td> <td>4</td> <td>5</td> <td>5</td> <td>6</td> <td>6</td> <td>6</td> <td>7</td> <td>8</td> <td>8</td>
         <td>10</td> <td>10</td> <td>12</td> <td>13</td> <td>14</td> <td>15</td> <td>15</td> <td>15</td> <td>15</td> <td>16</td> <td>17</td>
     </tr>
     <tr>
-        <td style="text-align: left;"><code>filter&lt;1,multiblock&lt;uint64_t,K&gt;,1&gt;</code></td> <td>3</td> <td>3</td> <td>4</td> <td>5</td> <td>5</td> <td>6</td> <td>6</td> <td>7</td> <td>9</td> <td>10</td>
+        <td style="text-align: left;"><code>filter&lt;T,1,multiblock&lt;uint64_t,K&gt;,1&gt;</code></td> <td>3</td> <td>3</td> <td>4</td> <td>5</td> <td>5</td> <td>6</td> <td>6</td> <td>7</td> <td>9</td> <td>10</td>
         <td>10</td> <td>11</td> <td>11</td> <td>12</td> <td>12</td> <td>13</td> <td>13</td> <td>13</td> <td>15</td> <td>16</td> <td>16</td>
     </tr>
     <tr>
-        <td style="text-align: left;"><code>filter&lt;K&gt;</code></td> <td>3</td> <td>4</td> <td>4</td> <td>5</td> <td>5</td> <td>6</td> <td>6</td> <td>8</td> <td>8</td> <td>9</td>
+        <td style="text-align: left;"><code>filter&lt;T,K&gt;</code></td> <td>3</td> <td>4</td> <td>4</td> <td>5</td> <td>5</td> <td>6</td> <td>6</td> <td>8</td> <td>8</td> <td>9</td>
         <td>10</td> <td>11</td> <td>12</td> <td>13</td> <td>13</td> <td>13</td> <td>14</td> <td>16</td> <td>16</td> <td>16</td> <td>17</td>
     </tr>
 </table>
@@ -68,15 +76,17 @@ Let's see how this can be used by way of an example. Suppose we plan to insert 1
 and want to keep the FPR at 10^&minus;4^. The chart gives us five different
 values of _c_ (the array capacity divided by the number of elements, in our case 10M):
 
-* `filter<K>` -> _c_ &cong; 19 bits per element
-* `filter<1, multiblock<uint64_t, K>, 1>` -> _c_ &cong; 20 bits per element
-* `filter<1, multiblock<uint64_t, K>>` -> _c_ &cong; 21 bits per element
-* `filter<1, multiblock<uint32_t, K>, 1>` -> _c_ &cong; 21.5 bits per element
-* `filter<1, multiblock<uint32_t, K>>` -> _c_ &cong; 23 bits per element
+* `filter<T, K>` -> _c_ &cong; 19 bits per element
+* `filter<T, 1, multiblock<uint64_t, K>, 1>` -> _c_ &cong; 20 bits per element
+* `filter<T, 1, multiblock<uint64_t, K>>` -> _c_ &cong; 21 bits per element
+* `filter<T, 1, block<uint64_t[8], K>, 1>` -> _c_ &cong; 21 bits per element
+* `filter<T, 1, multiblock<uint32_t, K>, 1>` -> _c_ &cong; 21.5 bits per element
+* `filter<T, 1, block<uint64_t[8], K>>` -> _c_ &cong; 22 bits per element
+* `filter<T, 1, multiblock<uint32_t, K>>` -> _c_ &cong; 23 bits per element
 
 These options have different tradeoffs in terms of space used and performance. If
-we choose `filter<1, multiblock<uint32_t, K>, 1>` as a compromise (or better yet,
-`filter<1, fast_multiblock32<K>, 1>`), the only remaining step is to consult the
+we choose `filter<T, 1, multiblock<uint32_t, K>, 1>` as a compromise (or better yet,
+`filter<T, 1, fast_multiblock32<K>, 1>`), the only remaining step is to consult the
 value of `K` in the table for _c_ = 21 or 22, and we get our final configuration:
 
 [source,subs="+macros,+quotes"]
