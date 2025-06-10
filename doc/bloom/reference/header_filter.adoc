@@ -14,7 +14,8 @@ namespace bloom{
 template<
   typename T, std::size_t K,
   typename Subfilter = block<unsigned char, 1>, std::size_t BucketSize = 0,
-  typename Hash = boost::hash<T>, typename Allocator = std::allocator<T>
+  typename Hash = boost::hash<T>, 
+  typename Allocator = std::allocator<unsigned char>
 >
 class xref:filter[filter];
 

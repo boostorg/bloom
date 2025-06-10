@@ -43,9 +43,7 @@ struct counting_allocator
 template<typename Filter,typename ValueFactory>
 void test_capacity()
 {
-  using filter=realloc_filter<
-    Filter,counting_allocator<typename Filter::value_type>
-  >;
+  using filter=realloc_filter<Filter,counting_allocator<unsigned char>>;
 
   ValueFactory fac;
 

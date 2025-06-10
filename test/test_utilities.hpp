@@ -10,7 +10,6 @@
 #define BOOST_BLOOM_TEST_TEST_UTILITIES_HPP
 
 #include <boost/bloom/filter.hpp>
-#include <boost/core/allocator_traits.hpp>
 #include <limits>
 #include <new>
 #include <string>
@@ -44,7 +43,7 @@ template<
 >
 struct revalue_filter_impl<boost::bloom::filter<T,K,S,B,H,A>,U>
 {
-  using type=boost::bloom::filter<U,K,S,B,H,boost::allocator_rebind_t<A,U>>;
+  using type=boost::bloom::filter<U,K,S,B,H,A>;
 };
 
 template<typename Filter,typename U>

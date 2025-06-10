@@ -70,7 +70,7 @@ struct mulx64_mix_policy
 template<
   typename T,std::size_t K,
   typename Subfilter=block<unsigned char,1>,std::size_t BucketSize=0,
-  typename Hash=boost::hash<T>,typename Allocator=std::allocator<T>
+  typename Hash=boost::hash<T>,typename Allocator=std::allocator<unsigned char>
 >
 class
 
@@ -86,11 +86,9 @@ filter:
 {
   BOOST_BLOOM_STATIC_ASSERT_IS_CV_UNQUALIFIED_OBJECT(T);
   static_assert(
-    std::is_same<T,allocator_value_type_t<Allocator>>::value,
-    "Allocator's value_type must be T");
-  using super=detail::filter_core<
-    K,Subfilter,BucketSize,allocator_rebind_t<Allocator,unsigned char>
-  >;
+    std::is_same<unsigned char,allocator_value_type_t<Allocator>>::value,
+    "Allocator's value_type must be unsigned char");
+  using super=detail::filter_core<K,Subfilter,BucketSize,Allocator>;
   using mix_policy=typename std::conditional<
     boost::hash_is_avalanching<Hash>::value&&
     sizeof(std::size_t)>=sizeof(std::uint64_t),
