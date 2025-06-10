@@ -332,10 +332,10 @@ int main(int argc,char* argv[])
       subheader<<
       "  </tr>\n";
 
-    row<filters3< 5,  5,  5>>( 8);
-    row<filters3< 8,  8,  8>>(12);
-    row<filters3<11, 11, 11>>(16);
-    row<filters3<13, 13, 14>>(20);
+    //row<filters3< 5,  5,  5>>( 8);
+    //row<filters3< 8,  8,  8>>(12);
+    //row<filters3<11, 11, 11>>(16);
+    //row<filters3<13, 13, 14>>(20);
 
     std::cout<<
       "  <tr>\n"
