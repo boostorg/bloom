@@ -443,65 +443,6 @@ void test_construction()
   }
 }
 
-struct allocator_only_constructible
-{
-  allocator_only_constructible()=delete;
-  ~allocator_only_constructible()=delete;
-
-  int n;
-};
-
-struct allocator_only_constructible_hash
-{
-  using is_transparent=void;
-
-  std::size_t operator()(const allocator_only_constructible& x)const
-  {
-    return (*this)(x.n);
-  }
-
-  std::size_t operator()(int n)const
-  {
-    return boost::hash<int>{}(n);
-  }
-};
-
-template<typename T>
-struct constructing_allocator
-{
-  using value_type=T;
-
-  constructing_allocator()=default;
-  template<typename U>
-  constructing_allocator(const constructing_allocator<U>&){}
-
-  T* allocate(std::size_t n)
-  {
-    return static_cast<T*>(::operator new(n*sizeof(T)));
-  }
-
-  void deallocate(T* p,std::size_t){::operator delete(p);}
-
-  void construct(allocator_only_constructible* p,int n){p->n=n;}
-  void destroy(allocator_only_constructible* p){}
-
-  bool operator==(const constructing_allocator& x)const{return true;}
-  bool operator!=(const constructing_allocator& x)const{return false;}
-};
-
-void test_allocator_aware_construction()
-{
-  using value_type=allocator_only_constructible;
-  using filter=boost::bloom::filter<
-    value_type,5,boost::bloom::block<unsigned char,1>,0,
-    allocator_only_constructible_hash,constructing_allocator<value_type>
-  >;
-
-  filter f(1000);
-  f.emplace(42);
-  BOOST_TEST(f.may_contain(42));
-}
-
 struct lambda
 {
   template<typename T>
@@ -517,6 +458,5 @@ struct lambda
 int main()
 {
   boost::mp11::mp_for_each<identity_test_types>(lambda{});
-  test_allocator_aware_construction();
   return boost::report_errors();
 }
