@@ -10,6 +10,7 @@
 #define BOOST_BLOOM_BLOCK_HPP
 
 #include <boost/bloom/detail/block_base.hpp>
+#include <boost/bloom/detail/block_ops.hpp>
 #include <boost/bloom/detail/block_fpr_base.hpp>
 #include <cstddef>
 #include <cstdint>
@@ -19,7 +20,8 @@ namespace bloom{
 
 template<typename Block,std::size_t K>
 struct block:
-  private detail::block_base<Block,K>,public detail::block_fpr_base<K>
+  public detail::block_fpr_base<K>,
+  private detail::block_base<Block,K>
 {
   static constexpr std::size_t k=K;
   using value_type=Block;
@@ -27,21 +29,42 @@ struct block:
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   static inline void mark(value_type& x,std::uint64_t hash)
   {
-    loop(hash,[&](std::uint64_t h){x|=Block(1)<<(h&mask);});
+    loop(hash,[&](std::uint64_t h){block_ops::set(x,h&mask);});
   }
 
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   static inline bool check(const value_type& x,std::uint64_t hash)
   {
-    Block fp=0;
-    mark(fp,hash);
-    return (x&fp)==fp;
+    return check(x,hash,typename block_ops::is_extended_block{});
   }
 
 private:
   using super=detail::block_base<Block,K>;
   using super::mask;
   using super::loop;
+  using super::loop_while;
+  using block_ops=detail::block_ops<Block>;
+
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  static inline bool check(
+    const value_type& x,std::uint64_t hash,
+    std::false_type /* non-extended block */)
+  {
+    Block fp;
+    block_ops::zero(fp);
+    mark(fp,hash);
+    return block_ops::testc(x,fp);
+  }
+
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  static inline bool check(
+    const value_type& x,std::uint64_t hash,
+    std::true_type /* extended block */)
+  {
+    return loop_while(hash,[&](std::uint64_t h){
+      return block_ops::get_at_lsb(x,h&mask)&1;
+    });
+  }
 };
 
 } /* namespace bloom */

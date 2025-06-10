@@ -97,7 +97,7 @@ int main()
 
   std::cout
     <<filter_name<<"\n"
-    <<"fpr;c;k\n";
+    <<"c;fpr;k\n";
 
   std::size_t ik=0; /* k-1 */
   for(std::size_t c=c_min;c<=c_max;++c){

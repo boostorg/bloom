@@ -56,6 +56,25 @@ struct block_base
       f(h);
     }
   }
+
+  template<typename F>
+  static BOOST_FORCEINLINE bool loop_while(std::uint64_t hash,F f)
+  {
+    for(std::size_t i=0;i<k/rehash_k;++i){
+      auto h=hash;
+      for(std::size_t j=0;j<rehash_k;++j){
+        h>>=shift;
+        if(!f(h))return false;
+      }
+      hash=detail::mulx64(hash);
+    }
+    auto h=hash;
+    for(std::size_t i=0;i<k%rehash_k;++i){
+      h>>=shift;
+      if(!f(h))return false;
+    }
+    return true;
+  }
 };
 
 #if defined(BOOST_MSVC)

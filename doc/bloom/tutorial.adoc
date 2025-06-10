@@ -43,9 +43,10 @@ for a general explanation of block and multiblock filters.
 `block<Block, K'>`
 
 [.indent]
-Sets `K'` bits in an underlying value of the unsigned integral type `Block`
-(e.g. `unsigned char`, `uint32_t`, `uint64_t`). So,
-a `filter<T, K, block<Block, K'>>` will set `K * K'` bits per element.
+Sets `K'` bits in an underlying `Block` value. `Block` can be an
+unsigned integral type  (e.g. `unsigned char`, `uint32_t`, `uint64_t`), or
+an array of 2^`N`^ unsigned integrals (e.g. `uint64_t[8]`).
+So, a `filter<T, K, block<Block, K'>>` will set `K * K'` bits per element.
 The tradeoff here is that insertion/lookup will be (much) faster than
 with `filter<T, K * K'>` while the FPR will be worse (larger).
 FPR is better the wider `Block` is.
