@@ -51,21 +51,6 @@ void test_insertion()
   ValueFactory fac;
 
   {
-    auto x=fac();
-    f.emplace(x,0,"hello",3.1416);
-    BOOST_TEST(f.may_contain(value_type{x,1}));
-  }
-  {
-    auto x=fac();
-    f.emplace(value_type{x,0,"boost"}); /* must avoid value_type move ctor */
-    BOOST_TEST(f.may_contain(value_type{x,1}));
-  }
-  {
-    value_type x{fac(),0,"boost"};
-    f.emplace(x); /* same with copy ctor */
-    BOOST_TEST(f.may_contain(x));
-  }
-  {
     value_type x{fac(),0};
     f.insert(const_cast<value_type&>(x));
     BOOST_TEST(f.may_contain(x));

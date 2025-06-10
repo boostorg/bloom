@@ -120,8 +120,6 @@ public:
   boost::span<const unsigned char> xref:#filter_array[array]() const noexcept;
 
   // modifiers
-  template<typename... Args>
-    void xref:#filter_emplace[emplace](Args&&... args);
   void xref:#filter_insert[insert](const value_type& x);
   template<typename U>
     void xref:#filter_insert[insert](const U& x);
@@ -190,9 +188,6 @@ Allocation and deallocation of the internal array is done through an internal co
 provided allocator. If `xref:filter_bucket_size[bucket_size]` is a
 multiple of `alignof(Subfilter::value_type)`, the array is byte-aligned to
 max(64, `alignof(Subfilter::value_type)`).
-`value_type` construction/destruction (which only happens in
-`xref:filter_emplace[emplace]`) uses
-`std::allocator_traits<Allocator>::construct`/`destroy`.
 
 If `link:../../../container_hash/doc/html/hash.html#ref_hash_is_avalanchinghash[boost::hash_is_avalanching]<Hash>::value`
 is `true` and `sizeof(std::size_t) >= 8`, 
@@ -536,21 +531,6 @@ Postconditions:;; `array().size() == capacity() / CHAR_BIT`.
 Returns:;; A span over the internal array.
 
 === Modifiers
-
-==== Emplace
-
-[listing,subs="+macros,+quotes"]
-----
-template<typename... Args> void emplace(Args&&... args);
-----
-
-Inserts an element constructed from `std::forward<Args>(args)+++...+++`.
-
-[horizontal]
-Preconditions:;; `value_type` is https://en.cppreference.com/w/cpp/named_req/EmplaceConstructible[EmplaceConstructible^]
-into `filter` from `std::forward<Args>(args)+++...+++`. +
-`value_type` is https://en.cppreference.com/w/cpp/named_req/Erasable[Erasable^] from `filter`.
-Exception Safety:;; Strong.
 
 ==== Insert
 

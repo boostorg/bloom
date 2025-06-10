@@ -155,7 +155,6 @@ Insertion is done in much the same way as with a traditional container:
 [source]
 -----
 f.insert("hello");
-f.emplace(100, 'X'); // ~ insert(std::string(100, 'X'))
 f.insert(data.begin(), data.end());
 -----
 

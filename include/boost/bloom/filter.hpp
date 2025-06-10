@@ -60,36 +60,6 @@ struct mulx64_mix_policy
   }
 };
 
-template<typename Allocator,typename T>
-class allocator_constructed
-{
-public:
-  template<typename...Args>
-  allocator_constructed(const Allocator& al_,Args&&... args):al{al_}
-  {
-    allocator_construct(al,std::addressof(u.x),std::forward<Args>(args)...);
-  }
-
-  ~allocator_constructed()
-  {
-    allocator_destroy(al,std::addressof(u.x));
-  }
-
-  const T& value()const noexcept{return u.x;}
-
-private:
-  union uninitialized_value
-  {
-    uninitialized_value(){}
-    ~uninitialized_value(){}
-
-    T x;
-  };
-  
-  uninitialized_value u;
-  Allocator           al;
-};
-
 } /* namespace detail */
 
 #if defined(BOOST_MSVC)
@@ -260,23 +230,6 @@ public:
   using super::fpr_for;
   using super::array;
 
-  template<typename... Args>
-  BOOST_FORCEINLINE void emplace(Args&&... args)
-  {
-    insert(detail::allocator_constructed<allocator_type,value_type>{
-      get_allocator(),std::forward<Args>(args)...}.value());
-  }
-
-  template<
-    typename U,
-    typename std::enable_if<
-      std::is_same<T,detail::remove_cvref_t<U>>::value>::type* =nullptr
-  >
-  BOOST_FORCEINLINE void emplace(U&& x)
-  {
-    insert(x); /* avoid value_type construction */
-  }
-
   BOOST_FORCEINLINE void insert(const T& x)
   {
     super::insert(hash_for(x));
@@ -294,7 +247,7 @@ public:
   template<typename InputIterator>
   void insert(InputIterator first,InputIterator last)
   {
-    while(first!=last)emplace(*first++);
+    while(first!=last)insert(*first++);
   }
 
   void insert(std::initializer_list<value_type> il)
