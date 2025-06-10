@@ -239,121 +239,127 @@ using filters4=boost::mp11::mp_list<
 
 int main(int argc,char* argv[])
 {
-  if(argc<2){
-    std::cerr<<"provide the number of elements\n";
-    return EXIT_FAILURE;
-  }
   try{
-    num_elements=std::stoul(argv[1]);
+    if(argc<2){
+      std::cerr<<"provide the number of elements\n";
+      return EXIT_FAILURE;
+    }
+    try{
+      num_elements=std::stoul(argv[1]);
+    }
+    catch(...){
+      std::cerr<<"wrong arg\n";
+      return EXIT_FAILURE;
+    }
+
+    /* reference table: boost::unordered_flat_set */
+
+    auto res=test<unordered_flat_set_filter<int>>(0);
+    std::cout<<
+      "<table>\n"
+      "  <tr><th colspan=\"3\"><code>boost::unordered_flat_set</code></tr>\n"
+      "  <tr>\n"
+      "    <th>insertion</th>\n"
+      "    <th>successful<br/>lookup</th>\n"
+      "    <th>unsuccessful<br/>lookup</th>\n"
+      "  </tr>\n"
+      "  <tr>\n"
+      "    <td align=\"right\">"<<print_double(res.insertion_time)<<"</td>\n"
+      "    <td align=\"right\">"<<print_double(res.successful_lookup_time)<<"</td>\n"
+      "    <td align=\"right\">"<<print_double(res.unsuccessful_lookup_time)<<"</td>\n"
+      "  </tr>\n"
+      "</table>\n";
+
+    /* filter table */
+
+    auto subheader=
+      "    <th>K</th>\n"
+      "    <th>FPR<br/>[%]</th>\n"
+      "    <th>ins.</th>\n"
+      "    <th>succ.<br/>lkp.</th>\n"
+      "    <th>uns.<br/>lkp.</th>\n";
+
+    std::cout<<
+      "<table>\n"
+      "  <tr>\n"
+      "    <th></th>\n"
+      "    <th colspan=\"5\"><code>filter&lt;K></code></th>\n"
+      "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t,K>></code></th>\n"
+      "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t,K>,1></code></th>\n"
+      "  </tr>\n"
+      "  <tr>\n"
+      "    <th>c</th>\n"<<
+      subheader<<
+      subheader<<
+      subheader<<
+      "  </tr>\n";
+
+    row<filters1< 6,  4,  5>>( 8);
+    row<filters1< 9,  5,  6>>(12);
+    row<filters1<11,  6,  7>>(16);
+    row<filters1<14,  7,  8>>(20);
+
+    std::cout<<
+      "  <tr>\n"
+      "    <th></th>\n"
+      "    <th colspan=\"5\"><code>filter&lt;1,multiblock&lt;uint64_t,K>></code></th>\n"
+      "    <th colspan=\"5\"><code>filter&lt;1,multiblock&lt;uint64_t,K>,1></code></th>\n"
+      "    <th colspan=\"5\"><code>filter&lt;1,fast_multiblock32&lt;K>></code></th>\n"
+      "  </tr>\n"
+      "  <tr>\n"
+      "    <th>c</th>\n"<<
+      subheader<<
+      subheader<<
+      subheader<<
+      "  </tr>\n";
+
+    row<filters2< 5,  5,  5>>( 8);
+    row<filters2< 8,  8,  8>>(12);
+    row<filters2<11, 11, 11>>(16);
+    row<filters2<13, 14, 13>>(20);
+
+    std::cout<<
+      "  <tr>\n"
+      "    <th></th>\n"
+      "    <th colspan=\"5\"><code>filter&lt;1,fast_multiblock32&lt;K>,1></code></th>\n"
+      "    <th colspan=\"5\"><code>filter&lt;1,fast_multiblock64&lt;K>></code></th>\n"
+      "    <th colspan=\"5\"><code>filter&lt;1,fast_multiblock64&lt;K>,1></code></th>\n"
+      "  </tr>\n"
+      "  <tr>\n"
+      "    <th>c</th>\n"<<
+      subheader<<
+      subheader<<
+      subheader<<
+      "  </tr>\n";
+
+    row<filters3< 5,  5,  5>>( 8);
+    row<filters3< 8,  8,  8>>(12);
+    row<filters3<11, 11, 11>>(16);
+    row<filters3<13, 13, 14>>(20);
+
+    std::cout<<
+      "  <tr>\n"
+      "    <th></th>\n"
+      "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t[8],K>></code></th>\n"
+      "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t[8],K>,1></code></th>\n"
+      "    <th colspan=\"5\"><code>filter&lt;1,multiblock&lt;uint64_t[8],K>></code></th>\n"
+      "  </tr>\n"
+      "  <tr>\n"
+      "    <th>c</th>\n"<<
+      subheader<<
+      subheader<<
+      subheader<<
+      "  </tr>\n";
+
+    row<filters4< 5,  6,  7>>( 8);
+    row<filters4< 7,  7, 10>>(12);
+    row<filters4< 9, 10, 11>>(16);
+    row<filters4<12, 12, 15>>(20);
+
+    std::cout<<"</table>\n";
   }
-  catch(...){
-    std::cerr<<"wrong arg\n";
-    return EXIT_FAILURE;
+  catch(const std::exception e)
+  {
+    std::cout<<e.what()<<"\n";
   }
-
-  /* reference table: boost::unordered_flat_set */
-
-  auto res=test<unordered_flat_set_filter<int>>(0);
-  std::cout<<
-    "<table>\n"
-    "  <tr><th colspan=\"3\"><code>boost::unordered_flat_set</code></tr>\n"
-    "  <tr>\n"
-    "    <th>insertion</th>\n"
-    "    <th>successful<br/>lookup</th>\n"
-    "    <th>unsuccessful<br/>lookup</th>\n"
-    "  </tr>\n"
-    "  <tr>\n"
-    "    <td align=\"right\">"<<print_double(res.insertion_time)<<"</td>\n"
-    "    <td align=\"right\">"<<print_double(res.successful_lookup_time)<<"</td>\n"
-    "    <td align=\"right\">"<<print_double(res.unsuccessful_lookup_time)<<"</td>\n"
-    "  </tr>\n"
-    "</table>\n";
-
-  /* filter table */
-
-  auto subheader=
-    "    <th>K</th>\n"
-    "    <th>FPR<br/>[%]</th>\n"
-    "    <th>ins.</th>\n"
-    "    <th>succ.<br/>lkp.</th>\n"
-    "    <th>uns.<br/>lkp.</th>\n";
-
-  std::cout<<
-    "<table>\n"
-    "  <tr>\n"
-    "    <th></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;K></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t,K>></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t,K>,1></code></th>\n"
-    "  </tr>\n"
-    "  <tr>\n"
-    "    <th>c</th>\n"<<
-    subheader<<
-    subheader<<
-    subheader<<
-    "  </tr>\n";
-
-  row<filters1< 6,  4,  5>>( 8);
-  row<filters1< 9,  5,  6>>(12);
-  row<filters1<11,  6,  7>>(16);
-  row<filters1<14,  7,  8>>(20);
-
-  std::cout<<
-    "  <tr>\n"
-    "    <th></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,multiblock&lt;uint64_t,K>></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,multiblock&lt;uint64_t,K>,1></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,fast_multiblock32&lt;K>></code></th>\n"
-    "  </tr>\n"
-    "  <tr>\n"
-    "    <th>c</th>\n"<<
-    subheader<<
-    subheader<<
-    subheader<<
-    "  </tr>\n";
-
-  row<filters2< 5,  5,  5>>( 8);
-  row<filters2< 8,  8,  8>>(12);
-  row<filters2<11, 11, 11>>(16);
-  row<filters2<13, 14, 13>>(20);
-
-  std::cout<<
-    "  <tr>\n"
-    "    <th></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,fast_multiblock32&lt;K>,1></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,fast_multiblock64&lt;K>></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,fast_multiblock64&lt;K>,1></code></th>\n"
-    "  </tr>\n"
-    "  <tr>\n"
-    "    <th>c</th>\n"<<
-    subheader<<
-    subheader<<
-    subheader<<
-    "  </tr>\n";
-
-  row<filters3< 5,  5,  5>>( 8);
-  row<filters3< 8,  8,  8>>(12);
-  row<filters3<11, 11, 11>>(16);
-  row<filters3<13, 13, 14>>(20);
-
-  std::cout<<
-    "  <tr>\n"
-    "    <th></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t[8],K>></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t[8],K>,1></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,multiblock&lt;uint64_t[8],K>></code></th>\n"
-    "  </tr>\n"
-    "  <tr>\n"
-    "    <th>c</th>\n"<<
-    subheader<<
-    subheader<<
-    subheader<<
-    "  </tr>\n";
-
-  row<filters4< 5,  6,  7>>( 8);
-  row<filters4< 7,  7, 10>>(12);
-  row<filters4< 9, 10, 11>>(16);
-  row<filters4<12, 12, 15>>(20);
-
-  std::cout<<"</table>\n";
 }
