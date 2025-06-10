@@ -351,10 +351,10 @@ int main(int argc,char* argv[])
       subheader<<
       "  </tr>\n";
 
-    row<filters4< 5,  6,  7>>( 8);
-    row<filters4< 7,  7, 10>>(12);
-    row<filters4< 9, 10, 11>>(16);
-    row<filters4<12, 12, 15>>(20);
+    //row<filters4< 5,  6,  7>>( 8);
+    //row<filters4< 7,  7, 10>>(12);
+    //row<filters4< 9, 10, 11>>(16);
+    //row<filters4<12, 12, 15>>(20);
 
     std::cout<<"</table>\n";
   }
