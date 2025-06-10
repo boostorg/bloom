@@ -237,6 +237,11 @@ using filters4=boost::mp11::mp_list<
   filter<int,1,multiblock<std::uint64_t[8],K3>>
 >;
 
+static struct trace
+{
+  ~trace(){std::cout<<"end"<<std::endl;}
+}trace;
+
 int main(int argc,char* argv[])
 {
   try{
