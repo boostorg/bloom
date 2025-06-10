@@ -53,11 +53,7 @@ void resume_timing()
   measure_start+=std::chrono::high_resolution_clock::now()-measure_pause;
 }
 
-#include <boost/bloom/block.hpp>
-#include <boost/bloom/fast_multiblock32.hpp>
-#include <boost/bloom/fast_multiblock64.hpp>
-#include <boost/bloom/filter.hpp>
-#include <boost/bloom/multiblock.hpp>
+#include <boost/bloom.hpp>
 #include <boost/core/detail/splitmix64.hpp>
 #include <boost/mp11/algorithm.hpp>
 #include <boost/mp11/list.hpp>
