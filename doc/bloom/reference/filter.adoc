@@ -35,7 +35,8 @@ namespace bloom{
 template<
   typename T, std::size_t K,
   typename Subfilter = block<unsigned char, 1>, std::size_t BucketSize = 0,
-  typename Hash = boost::hash<T>, typename Allocator = std::allocator<T>
+  typename Hash = boost::hash<T>,
+  typename Allocator = std::allocator<unsigned char>
 >
 class filter
 {
@@ -180,7 +181,8 @@ Otherwise, `BucketSize` must be not greater than `_used-value-size_<Subfilter>`.
 |A https://en.cppreference.com/w/cpp/named_req/Hash[Hash^] type over `T`.
 
 |`Allocator`
-|An https://en.cppreference.com/w/cpp/named_req/Allocator[Allocator^] whose value type is `T`.
+|An https://en.cppreference.com/w/cpp/named_req/Allocator[Allocator^] whose value type is
+`unsigned char`.
 
 |===
 

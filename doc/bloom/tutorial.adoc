@@ -21,7 +21,8 @@ array based on the hash value of the element.
 template<
   typename T, std::size_t K,
   typename Subfilter = block<unsigned char, 1>, std::size_t BucketSize = 0,
-  typename Hash = boost::hash<T>, typename Allocator = std::allocator<T>  
+  typename Hash = boost::hash<T>,
+  typename Allocator = std::allocator<unsigned char>  
 >
 class filter;
 -----
@@ -31,7 +32,7 @@ class filter;
 * `xref:tutorial_subfilter[Subfilter]`: Type of subfilter used.
 * `xref:tutorial_bucketsize[BucketSize`]: Size in bytes of the buckets.
 * `xref:tutorial_hash[Hash]`: A hash function for `T`.
-* `Allocator`: An allocator for `T`.
+* `Allocator`: An allocator for `unsigned char`.
 
 === `Subfilter`
 

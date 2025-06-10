@@ -55,10 +55,7 @@ void test_fpr()
 {
   using filter=rehash_filter<
     revalue_filter<
-      realloc_filter<
-        Filter,
-        throwing_allocator<typename Filter::value_type>
-      >,
+      realloc_filter<Filter,throwing_allocator<unsigned char>>,
       std::string
     >,
     boost::hash<std::string>

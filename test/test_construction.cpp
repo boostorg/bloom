@@ -88,7 +88,7 @@ void test_pocxx()
   static constexpr auto always_equal=AlwaysEqual::value;
   using filter=realloc_filter<
     rehash_filter<Filter,stateful<typename Filter::hasher>>,
-    stateful_allocator<typename Filter::value_type,Propagate,AlwaysEqual>
+    stateful_allocator<unsigned char,Propagate,AlwaysEqual>
   >;
   using value_type=typename filter::value_type;
   using hasher=typename filter::hasher;
@@ -170,7 +170,7 @@ void test_construction()
 {
   using filter=realloc_filter<
     rehash_filter<Filter,stateful<typename Filter::hasher>>,
-    stateful_allocator<typename Filter::value_type>
+    stateful_allocator<unsigned char>
   >;
   using value_type=typename filter::value_type;
   using hasher=typename filter::hasher;
