@@ -11,7 +11,9 @@
 #ifndef BOOST_BLOOM_DETAIL_TYPE_TRAITS_HPP
 #define BOOST_BLOOM_DETAIL_TYPE_TRAITS_HPP
 
+#include <boost/config.hpp>
 #include <boost/type_traits/make_void.hpp>
+#include <cstddef>
 #include <type_traits>
 #include <utility>
 
@@ -85,6 +87,54 @@ struct is_transparent<T,void_t<typename T::is_transparent>>:std::true_type{};
 template<typename T,class Q=void>
 using enable_if_transparent_t=
   typename std::enable_if<is_transparent<T>::value,Q>::type;
+
+template<typename T>
+struct is_integral_or_extended_integral:std::is_integral<T>{};
+template<typename T>
+struct is_unsigned_or_extended_unsigned:std::is_unsigned<T>{};
+
+#if defined(__SIZEOF_INT128__)
+
+#if defined(BOOST_GCC)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
+
+template<>
+struct is_integral_or_extended_integral<__int128>:std::true_type{};
+template<>
+struct is_integral_or_extended_integral<unsigned __int128>:std::true_type{};
+template<>
+struct is_unsigned_or_extended_unsigned<unsigned __int128>:std::true_type{};
+
+#if defined(BOOST_GCC)
+#pragma GCC diagnostic pop
+#endif
+
+#endif
+
+template<typename T>
+struct is_unsigned_integral_or_extended_unsigned_integral:
+  std::integral_constant<
+    bool,
+    is_integral_or_extended_integral<T>::value&&
+    is_unsigned_or_extended_unsigned<T>::value
+  >
+{};
+
+template<typename T,template <typename...> class Trait>
+struct is_array_of:std::false_type{};
+
+template<typename T,std::size_t N,template <typename...> class Trait>
+struct is_array_of<T[N],Trait>:Trait<T>{};
+
+template<typename T> struct array_size:
+  std::integral_constant<std::size_t,0>{};
+template<typename T,std::size_t N> struct array_size<T[N]>:
+  std::integral_constant<std::size_t,N>{};
+
+template<std::size_t N>
+struct is_power_of_two:std::integral_constant<bool,(N!=0)&&((N&(N-1))==0)>{};
 
 } /* namespace detail */
 } /* namespace bloom */
