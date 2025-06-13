@@ -278,9 +278,9 @@ int main(int argc,char* argv[])
     "<table>\n"
     "  <tr>\n"
     "    <th></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;K></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t,K>></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t,K>,1></code></th>\n"
+    "    <th colspan=\"5\"><code>filter&lt;int,K></code></th>\n"
+    "    <th colspan=\"5\"><code>filter&lt;int,1,block&lt;uint64_t,K>></code></th>\n"
+    "    <th colspan=\"5\"><code>filter&lt;int,1,block&lt;uint64_t,K>,1></code></th>\n"
     "  </tr>\n"
     "  <tr>\n"
     "    <th>c</th>\n"<<
@@ -297,9 +297,9 @@ int main(int argc,char* argv[])
   std::cout<<
     "  <tr>\n"
     "    <th></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,multiblock&lt;uint64_t,K>></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,multiblock&lt;uint64_t,K>,1></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,fast_multiblock32&lt;K>></code></th>\n"
+    "    <th colspan=\"5\"><code>filter&lt;int,1,multiblock&lt;uint64_t,K>></code></th>\n"
+    "    <th colspan=\"5\"><code>filter&lt;int,1,multiblock&lt;uint64_t,K>,1></code></th>\n"
+    "    <th colspan=\"5\"><code>filter&lt;int,1,fast_multiblock32&lt;K>></code></th>\n"
     "  </tr>\n"
     "  <tr>\n"
     "    <th>c</th>\n"<<
@@ -316,9 +316,9 @@ int main(int argc,char* argv[])
   std::cout<<
     "  <tr>\n"
     "    <th></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,fast_multiblock32&lt;K>,1></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,fast_multiblock64&lt;K>></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,fast_multiblock64&lt;K>,1></code></th>\n"
+    "    <th colspan=\"5\"><code>filter&lt;int,1,fast_multiblock32&lt;K>,1></code></th>\n"
+    "    <th colspan=\"5\"><code>filter&lt;int,1,fast_multiblock64&lt;K>></code></th>\n"
+    "    <th colspan=\"5\"><code>filter&lt;int,1,fast_multiblock64&lt;K>,1></code></th>\n"
     "  </tr>\n"
     "  <tr>\n"
     "    <th>c</th>\n"<<
@@ -335,9 +335,9 @@ int main(int argc,char* argv[])
   std::cout<<
     "  <tr>\n"
     "    <th></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t[8],K>></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,block&lt;uint64_t[8],K>,1></code></th>\n"
-    "    <th colspan=\"5\"><code>filter&lt;1,multiblock&lt;uint64_t[8],K>></code></th>\n"
+    "    <th colspan=\"5\"><code>filter&lt;int,1,block&lt;uint64_t[8],K>></code></th>\n"
+    "    <th colspan=\"5\"><code>filter&lt;int,1,block&lt;uint64_t[8],K>,1></code></th>\n"
+    "    <th colspan=\"5\"><code>filter&lt;int,1,multiblock&lt;uint64_t[8],K>></code></th>\n"
     "  </tr>\n"
     "  <tr>\n"
     "    <th>c</th>\n"<<

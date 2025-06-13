@@ -16,7 +16,7 @@ The chart plots FPR vs. _c_ (capacity / number of elements inserted) for several
 as shown in the table below.
 
 +++
-<table class="bordered_table" style="text-align: center;">
+<table class="bordered_table" style="text-align: center; font-size: 85%;">
     <tr>
         <th rowspan="2"></th>
 		<th colspan="21"><i>c</i> = capacity / number of elements inserted</th>
