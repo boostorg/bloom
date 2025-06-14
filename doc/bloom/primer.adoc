@@ -11,6 +11,13 @@ space than traditional non-probabilistic containers (typically, around 8-20 bits
 element) for an acceptably low FPR. The greater the filter's _capacity_ (its size in bits),
 the lower the resulting FPR.
 
+In general, Bloom filters are useful to prevent/mitigate queries against large data sets
+when exact retrieval is costly and/or can't be made in main memory.
+
+[.boxed]
+====
+*Example: Speeding up unsuccessful requests to a database*
+
 One prime application of Bloom filters and similar data structures is for the prevention
 of expensive disk/network accesses when these would fail to retrieve a given piece of
 information.
@@ -28,8 +35,8 @@ which is perfectly realizable.
 
 image::db_speedup.png[align=center, title="Improving DB negative access time with a Bloom filter."]
 
-In general, Bloom filters are useful to prevent/mitigate queries against large data sets
-when exact retrieval is costly and/or can't be made in main memory.
+====
+
 Applications have been described in the areas of web caching,
 dictionary compression, network routing and genomics, among others.
 https://www.eecs.harvard.edu/~michaelm/postscripts/im2005b.pdf[Broder and Mitzenmacher^]
@@ -41,13 +48,13 @@ The implementation of a Bloom filter consists of an array of _m_ bits, initially
 Inserting an element _x_ reduces to selecting _k_ positions pseudorandomly (with the help
 of _k_ independent hash functions) and setting them to one.
 
-image::bloom_insertion.png[align=center, title="Insertion in a classical Bloom filter, _k_ = 6."]
+image::bloom_insertion.png[align=center, title="Insertion in a classical Bloom filter with _k_ = 6 different hash functions. Inserting _x_ reduces to setting to one the bits at positions 10, 14, 43, 58, 1, and 39 as indicated by _h_~1~(_x_), ... , _h_~6~(_x_)."]
 
 To check if an element _y_ is in the filter, we follow the same procedure and see if
 the selected bits are all set to one. In the example figure there are two unset bits, which
 definitely indicates _y_ was not inserted in the filter.
 
-image::bloom_lookup.png[align=center, title="Lookup in a classical Bloom filter."]
+image::bloom_lookup.png[align=center, title="Lookup in a classical Bloom filter. Value _y_ is not in the filter because bits at positions 20 and 61 are not set to one."]
 
 A false positive occurs when the bits checked happen to be all set to one due to
 other, unrelated insertions. The probability of having a false positive increases as we
@@ -60,7 +67,7 @@ the array will have more and more bits set to one as new elements are inserted, 
 eventually will reach a point where we lose out to a filter with a lower _k_ and
 thus a smaller proportions of set bits.
 
-image::fpr_n_k.png[align=center, title="FPR vs. number of inserted elements for two filters with _m_ = 10^5^ bits."]
+image::fpr_n_k.png[align=center, title="FPR vs. number of inserted elements for two filters with _m_ = 10^5^ bits. _k_ = 2 (blue) has a better (lower) FPR than _k_ = 6 (red) for small values of _n_, but eventually degrades more as _n_ grows. The dotted line shows the minimum attainable FPR resulting from selecting the optimum value of _k_ for each value of _n_."]
 
 For given values of _n_ and _m_, the optimum _k_ is
 {small}stem:[\lfloor k_{\text{opt}}\rfloor]{small-end} or
