@@ -67,7 +67,7 @@ the array will have more and more bits set to one as new elements are inserted, 
 eventually will reach a point where we lose out to a filter with a lower _k_ and
 thus a smaller proportions of set bits.
 
-image::fpr_n_k.png[align=center, title="FPR vs. number of inserted elements for two filters with _m_ = 10^5^ bits. _k_ = 2 (blue) has a better (lower) FPR than _k_ = 6 (red) for small values of _n_, but eventually degrades more as _n_ grows. The dotted line shows the minimum attainable FPR resulting from selecting the optimum value of _k_ for each value of _n_."]
+image::fpr_n_k.png[align=center, title="FPR vs. number of inserted elements for two filters with _m_ = 10^5^ bits. _k_ = 6 (red) has a better (lower) FPR than _k_ = 2 (blue) for small values of _n_, but eventually degrades more as _n_ grows. The dotted line shows the minimum attainable FPR resulting from selecting the optimum value of _k_ for each value of _n_."]
 
 For given values of _n_ and _m_, the optimum _k_ is
 {small}stem:[\lfloor k_{\text{opt}}\rfloor]{small-end} or
