@@ -92,21 +92,21 @@ setting/checking in a small block of _b_ bits pseudorandomly selected from the
 entire array. If the block is small enough, it will fit in a CPU cacheline,
 thus drastically reducing the number of cache misses.
 
-image::block_insertion.png[align=center, title="Block filter."]
+image::block_insertion.png[align=center, title="Block filter. A block of _b_ bits is selected based on _h_~0~(x), and all subsequent bit setting is constrained there."]
 
 The downside is that the resulting FPR is worse than that of a classical filter for
 the same values of _n_, _m_ and _k_. Intuitively, block filters reduce the
 uniformity of the distribution of bits in the array, which ultimately hurts their
 probabilistic performance.
 
-image::fpr_n_k_bk.png[align=center, title="FPR (logarithmic scale) vs. number of inserted elements for a classical and a block filter, _m_ = 10^5^ bits."]
+image::fpr_n_k_bk.png[align=center, title="FPR (logarithmic scale) vs. number of inserted elements for a classical and a block filter with the same _k_ = 4, _m_ = 10^5^ bits."]
 
 A further variation in this idea is to have operations select _k_ blocks
 with _k'_ bits set on each. This, again, will have a worse FPR than a classical
 filter with _k&middot;k'_ bits per operation, but improves on a plain
 _k&middot;k'_ block filter.
 
-image::block_multi_insertion.png[align=center, title="Block filter with multi-insertion."]
+image::block_multi_insertion.png[align=center, title="Block filter with multi-insertion. _k_ = 2 blocks are selected, and _k_' = 3 bits are set in each."]
 
 === Multiblock Filters
 
@@ -116,7 +116,7 @@ so that each block takes exactly one bit. This still maintains a good cache
 locality but improves FPR with respect to block filters because bits set to one
 are more spread out across the array.
 
-image::multiblock_insertion.png[align=center, title="Multiblock filter."]
+image::multiblock_insertion.png[align=center, title="Multiblock filter. A range of _k_' = 4 consecutive blocks is selected based on _h_~0~(x), and a bit is set to one in each of the blocks."]
 
 Multiblock filters can also be combined with multi-insertion. In general,
 for the same number of bits per operation and equal values of _n_ and _m_,
