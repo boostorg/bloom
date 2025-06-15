@@ -20,6 +20,7 @@
 #include <boost/core/empty_value.hpp>
 #include <boost/core/span.hpp>
 #include <boost/throw_exception.hpp>
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -60,35 +61,27 @@ namespace detail{
 #pragma warning(disable:4714) /* marked as __forceinline not inlined */
 #endif
 
-/*  mcg_and_fastrange produces (pos,hash') from hash, where
- *   - m=mulx64(hash,range), mulx64 denotes extended multiplication
- *   - pos=high(m)
- *   - hash'=low(m)
- *  pos is uniformly distributed in [0,range) (see
- *  https://arxiv.org/pdf/1805.10941), whereas hash'<-hash is a multiplicative
- *  congruential generator of the form hash'<-hash*rng mod 2^64. This MCG
- *  generates long cycles when the initial value of hash is odd and
- *  rng = +-3 (mod 8), which is why we adjust hash and rng as seen below. As a
- *  result, the low bits of hash' are of poor quality, and the least
- *  significant bit in particular is always one.
+/* fastrange_and_mcg produces (pos,hash') from hash as follows:
+ *   - pos=high(mulx64(hash,range))
+ *   - hash'=c*m
+ * pos is uniformly distributed in [0,range) (see Lemire 2018
+ * https://arxiv.org/pdf/1805.10941), whereas hash'<-hash is a multiplicative
+ * congruential generator using well-behaved multipliers c from Steele and
+ * Vigna 2021 https://arxiv.org/pdf/2001.05304 . To ensure the MCG generates
+ * long cycles the initial value of hash is adjusted to be odd, which implies
+ * that the least significant of hash' is always one. In general, the low bits
+ * of MCG-produced values are of low quality and we don't use them downstream.
  */
 
-struct mcg_and_fastrange
+struct fastrange_and_mcg
 {
-  constexpr mcg_and_fastrange(std::size_t m)noexcept:
-    rng{
-      m+(
-        (m%8<=3)?3-(m%8):
-        (m%8<=5)?5-(m%8):
-                 8-(m%8)+3)
-    }
-    {}
+  constexpr fastrange_and_mcg(std::size_t m)noexcept:rng{m}{}
 
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   inline constexpr std::size_t range()const noexcept{return (std::size_t)rng;}
 
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  inline void prepare_hash(std::uint64_t& hash)const noexcept
+  inline void prepare_hash(boost::uint64_t& hash)const noexcept
   {
     hash|=1u;
   }
@@ -96,8 +89,14 @@ struct mcg_and_fastrange
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   inline std::size_t next_position(std::uint64_t& hash)const noexcept
   {
-    std::uint64_t hi;
-    hash=umul128(hash,rng,hi);
+    boost::uint64_t hi;
+    umul128(hash,rng,hi);
+
+#if ((((SIZE_MAX>>16)>>16)>>16)>>15)!=0 /* 64-bit mode (or higher) */
+    hash*=0xf1357aea2e62a9c5ull;
+#else /* 32-bit mode */
+    hash*=0xe817fb2d;
+#endif
     return (std::size_t)hi;
   }
 
@@ -211,7 +210,7 @@ private:
       1;
   static constexpr std::size_t prefetched_cachelines=
     1+(block_size+cacheline-1-gcd_pow2(bucket_size,cacheline))/cacheline;
-  using hash_strategy=detail::mcg_and_fastrange;
+  using hash_strategy=detail::fastrange_and_mcg;
 
 public:
   using allocator_type=Allocator;

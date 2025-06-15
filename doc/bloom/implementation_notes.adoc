@@ -54,25 +54,28 @@ and {small}stem:[r]{small-end} is the number of buckets in the filter.
 To produce a location (i.e. a number {small}stem:[p]{small-end} in {small}stem:[[0,r)]{small-end}) from
 {small}stem:[h_{i-1}]{small-end}, instead of the straightforward but costly
 procedure {small}stem:[p\leftarrow h_{i-1}\bmod r]{small-end} we resort to
-Lemire's https://arxiv.org/pdf/1805.10941[fastrange technique^]. Moreover,
-we combine this calculation with the production of {small}stem:[h_{i}]{small-end}
-from {small}stem:[h_{i-1}]{small-end} as follows:
+Lemire's https://arxiv.org/pdf/1805.10941[fastrange technique^]:
 
 [.text-center]
 {small}stem:[m\leftarrow\text{mul}(h_{i-1},r),]{small-end} +
-{small}stem:[p\leftarrow\lfloor m/2^{64} \rfloor=\text{high}(m),]{small-end} +
-{small}stem:[h_i\leftarrow m \bmod 2^{64}=\text{low}(m).]{small-end}
+{small}stem:[p\leftarrow\lfloor m/2^{64} \rfloor=\text{high}(m).]{small-end}
 
+To decorrelate {small}stem:[p]{small-end} from further uses of the hash value,
+we produce {small}stem:[h_{i}]{small-end} from {small}stem:[h_{i-1}]{small-end} as
+
+[.text-center]
+{small}stem:[h_i\leftarrow c \cdot h_{i-1} \bmod 2^{64}=\text{low}(c \cdot h_{i-1}),]{small-end}
+
+with {small}stem:[c=\text{0xf1357aea2e62a9c5}]{small-end} (64-bit mode),
+{small}stem:[c=\text{0xe817fb2d}]{small-end} (32-bit mode) obtained
+from https://arxiv.org/pdf/2001.05304[Steele and Vigna^].
 The transformation {small}stem:[h_{i-1} \rightarrow h_i]{small-end} is
 a simple https://en.wikipedia.org/wiki/Linear_congruential_generator[multiplicative congruential generator^]
 over {small}stem:[2^{64}]{small-end}. For this MCG to produce long
-cycles, {small}stem:[h_0]{small-end} must be odd and the multiplicative constant
-{small}stem:[r]{small-end} must be {small}stem:[\equiv \pm 3 \text{ (mod 8)}]{small-end}:
-to meet these requirements, the implementation adjusts {small}stem:[h_0]{small-end}
-to {small}stem:[h_0']{small-end} and {small}stem:[r]{small-end}
-to {small}stem:[r']{small-end}. This renders the least significant bit
-of {small}stem:[h_i]{small-end} unsuitable for pseudorandomization
-(it is always one).
+cycles {small}stem:[h_0]{small-end} must be odd, so the implementation adjusts
+{small}stem:[h_0]{small-end} to {small}stem:[h_0'= (h_0\text{ or }1)]{small-end},
+which renders the least significant bit of {small}stem:[h_i]{small-end}
+unsuitable for pseudorandomization (it is always one).
 
 === Bit selection
 
