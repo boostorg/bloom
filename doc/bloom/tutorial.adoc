@@ -89,7 +89,7 @@ image::bucket_size.png[align=center, title="Two different configurations of `Buc
 
 === `Hash`
 
-Unlike other Bloom filters that require several hash functions per operation,
+Unlike other Bloom filter implementations requiring several hash functions per operation,
 `boost::bloom::filter` uses only one.
 By default, link:../../../container_hash/index.html[Boost.ContainerHash] is used.
 Consult this library's link:../../../container_hash/doc/html/hash.html#user[dedicated section]
