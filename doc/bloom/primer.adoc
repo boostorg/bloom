@@ -44,7 +44,7 @@ provide a rather extensive review of use cases with a focus on networking.
 
 == Implementation
 
-The implementation of a Bloom filter consists of an array of _m_ bits, initially set to zero.
+The implementation of a classical Bloom filter consists of an array of _m_ bits, initially set to zero.
 Inserting an element _x_ reduces to selecting _k_ positions pseudorandomly (with the help
 of _k_ independent hash functions) and setting them to one.
 

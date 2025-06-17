@@ -36,46 +36,60 @@ class filter;
 
 === `Subfilter`
 
-The following subfilters can be selected, offering different compromises
-between performance and _false positive rate_ (FPR).
-See the xref:primer_variations_on_the_classical_filter[Bloom Filter Primer]
-for a general explanation of block and multiblock filters.
+A subfilter defines the local strategy for setting or checking bits within
+a selected subarray of the bit array. It determines how many bits are
+modified per operation, how they are arranged in memory, and how memory is accessed.
+The following subfilters are provided:
 
-`block<Block, K'>`
+[options="header"]
+|===
+| Subfilter | Description | Pros | Cons
 
-[.indent]
-Sets `K'` bits in an underlying `Block` value. `Block` can be an
-unsigned integral type  (e.g. `unsigned char`, `uint32_t`, `uint64_t`), or
-an array of 2^`N`^ unsigned integrals (e.g. `uint64_t[8]`).
-So, a `filter<T, K, block<Block, K'>>` will set `K * K'` bits per element.
-The tradeoff here is that insertion/lookup will be (much) faster than
-with `filter<T, K * K'>` while the FPR will be worse (larger).
-FPR is better the wider `Block` is.
+| `block<Block, K'>`
+| Sets `K'` bits in a subarray of type `Block`
+| Very fast access time
+| FPR is worse (higher) the smaller `Block` is
 
-`multiblock<Block, K'>`
+| `multiblock<Block, K'>`
+| Sets one bit in each of the elements of a `Block[K']` subarray
+| Better (lower) FPR than `block<Block, K'>` for the same `Block` type
+| Performance may worsen if cacheline boundaries are crossed when accessing the subarray
 
-[.indent]
-Instead of setting `K'` bits in a `Block` value, this subfilter sets
-one bit on each of the elements of a `Block[K']` subarray. This improves FPR
-but impacts performance with respect to `block<Block, K'>`, among other
-things because cacheline boundaries can be crossed when accessing the subarray.
-
-`fast_multiblock32<K'>`
-
-[.indent]
-Statistically equivalent to `multiblock<uint32_t, K'>`, but uses
+| `fast_multiblock32<K'>`
+| Statistically equivalent to `multiblock<uint32_t, K'>`, but uses
 faster SIMD-based algorithms when SSE2, AVX2 or Neon are enabled at
-compile time.
+compile time
+| Always prefer it to `multiblock<uint32_t, K'>` when SSE2/AVX2/Neon is available
+| FPR is worse (higher) than `fast_multiblock64<K'>` for the same `K'`
 
-`fast_multiblock64<K'>`
+| `fast_multiblock64<K'>`
+| Statistically equivalent to `multiblock<uint64_t, K'>`, but uses a
+faster SIMD-based algorithm when AVX2 is enabled at compile time
+| Always prefer it to `multiblock<uint64_t, K'>` when AVX2 is available
+| Slower than `fast_multiblock32<K'>` for the same `K'`
+|===
 
-[.indent]
-Statistically equivalent to `multiblock<uint64_t, K'>`, but uses a
-faster SIMD-based algorithm when AVX2 is enabled at compile time.
+In the table above, `Block` can be an unsigned integral type
+(e.g. `unsigned char`, `uint32_t`, `uint64_t`), or
+an array of 2^`N`^ unsigned integrals (e.g. `uint64_t[8]`). In general,
+the wider `Block` is, the better (lower) the resulting FPR, but
+cache locality worsens and performance may suffer as a result.
 
-The default configuration with `block<unsigned char,1>` corresponds to a
-xref:primer[classical Bloom filter] setting `K` bits per element uniformly
-distributed across the array.
+Note that the total number of of bits set/checked for a
+`boost::bloom::filter<T, K, _subfilter_<..., K'>>` is `K * K'`. The
+default configuration `boost::bloom::filter<T, K>` = 
+`boost::bloom::filter<T, K, block<unsigned char, 1>>`, which corresponds to a
+xref:primer_implementation[classical Bloom filter], has the best (lowest) FPR among all filters
+with the same number of bits per operation, but is also the slowest: a new
+subarray is accessed for each bit set/checked. Consult the
+xref:benchmarks[benchmarks section] to see different tradeoffs between FPR and
+performance.
+
+Once a subfilter have been selected, the parameter `K'` can be tuned
+to its optimum value (minimum FPR) if the number of elements that will be inserted is
+known in advance, as explained in a xref:configuration[dedicated section];
+otherwise, low values of `K'` will generally be faster and preferred to
+higher values as long as the resulting FPR is at acceptable levels.
 
 === `BucketSize`
 
