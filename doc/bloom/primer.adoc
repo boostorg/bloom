@@ -26,7 +26,7 @@ For instance, suppose we are developing a frontend for a database with access ti
 Inserting a Bloom filter with a lookup time of 200 ns and a FPR of 0.5% will reduce the
 average response time of the system from 10 ms to
 
-[.text-center]
+[.equation-center]
 (10 + 0.0002) &times; 50.25% + 0.0002 &times; 49.75% &cong; 5.03 ms, 
 
 that is, we get a &times;1.99 overall speedup. If the database holds 1 billion records,
@@ -69,7 +69,7 @@ thus a smaller proportions of set bits. For given values of _n_ and _m_, the opt
 {small}stem:[\lfloor k_{\text{opt}}\rfloor]{small-end} or
 {small}stem:[\lceil k_{\text{opt}}\rceil]{small-end}, with
 
-[.text-center]
+[.equation-center]
 {small}stem:[k_{\text{opt}}=\displaystyle\frac{m\cdot\ln2}{n},]{small-end}
 
 for a minimum FPR close to
