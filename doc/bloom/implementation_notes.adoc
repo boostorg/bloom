@@ -8,7 +8,7 @@
 This is the bit-mixing post-process we use to improve the statistical properties
 of the hash function when it doesn't have the avalanching property:
 
-[.equation-center]
+[.formula-center]
 {small}stem:[m\leftarrow\text{mul}(h,C)]{small-end}, +
 {small}stem:[h'\leftarrow\text{high}(m)\text{ xor }\text{low}(m)]{small-end},
 
@@ -37,7 +37,7 @@ show how to relax this requirement down to two different hash functions
 {small}stem:[h_1(x)]{small-end} and {small}stem:[h_2(x)]{small-end} linearly
 combined as
 
-[.equation-center]
+[.formula-center]
 {small}stem:[g_i(x)=h_1(x)+ih_2(x).]{small-end}
 
 Without formal justification, we have relaxed this even further to just one
@@ -56,14 +56,14 @@ To produce a location (i.e. a number {small}stem:[p]{small-end} in {small}stem:[
 procedure {small}stem:[p\leftarrow h_{i-1}\bmod r]{small-end} we resort to
 Lemire's https://arxiv.org/pdf/1805.10941[fastrange technique^]:
 
-[.equation-center]
+[.formula-center]
 {small}stem:[m\leftarrow\text{mul}(h_{i-1},r),]{small-end} +
 {small}stem:[p\leftarrow\lfloor m/2^{64} \rfloor=\text{high}(m).]{small-end}
 
 To decorrelate {small}stem:[p]{small-end} from further uses of the hash value,
 we produce {small}stem:[h_{i}]{small-end} from {small}stem:[h_{i-1}]{small-end} as
 
-[.equation-center]
+[.formula-center]
 {small}stem:[h_i\leftarrow c \cdot h_{i-1} \bmod 2^{64}=\text{low}(c \cdot h_{i-1}),]{small-end}
 
 with {small}stem:[c=\text{0xf1357aea2e62a9c5}]{small-end} (64-bit mode),
@@ -112,14 +112,14 @@ In the case of SSE2, we don't have the 128-bit equivalent of
 `+++_+++mm256_sllv_epi32`, so we use the following, mildly interesting
 technique: a `+++__+++m128i` of the form
 
-[.equation-center]
+[.formula-center]
 {small}stem:[((x_0+127)\cdot 2^{23},(x_1+127)\cdot 2^{23},(x_2+127)\cdot 2^{23},(x_3+127)\cdot 2^{23}),]{small-end}
 
 where each {small}stem:[x_i]{small-end} is in {small}stem:[[0,32)]{small-end},
 can be `reinterpret_cast`+++ed+++ to (i.e., has the same binary representation as)
 the `+++__+++m128` (register of `float`+++s+++)
 
-[.equation-center]
+[.formula-center]
 {small}stem:[(2^{x_0},2^{x_1},2^{x_2},2^{x_3}),]{small-end}
 
 from which our desired `+++__+++m128i` of shifted 1s can be obtained

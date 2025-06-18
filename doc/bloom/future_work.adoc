@@ -47,7 +47,7 @@ For a classical Bloom filter, the number of elements actually inserted
 can be estimated from the number {small}stem:[B]{small-end} of bits set
 to one in the array as
 
-[.equation-center]
+[.formula-center]
 {small}stem:[n\approx-\displaystyle\frac{m}{k}\ln\left(1-\displaystyle\frac{B}{m}\right),]{small-end}
 
 which can be used for the implementation of a member function

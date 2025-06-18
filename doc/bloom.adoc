@@ -27,7 +27,7 @@
   border: 1px solid lightgray;
 }
 
-.equation-center {
+.formula-center {
   display: block;
   overflow-x: auto;
   overflow-y: hidden;
