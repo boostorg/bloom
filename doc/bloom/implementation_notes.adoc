@@ -47,9 +47,9 @@ by means of very cheap mixing schemes. In what follows
 {small}stem:[k]{small-end}, {small}stem:[k']{small-end} are the homonym values
 in a filter of the form `boost::bloom::filter<T, K, {block|multiblock}<Block, K'>>`,
 {small}stem:[b]{small-end} is `sizeof(Block) * CHAR_BIT`,
-and {small}stem:[r]{small-end} is the number of buckets in the filter.
+and {small}stem:[r]{small-end} is the number of subarrays in the filter.
 
-=== Bucket Location
+=== Subarray Location
 
 To produce a location (i.e. a number {small}stem:[p]{small-end} in {small}stem:[[0,r)]{small-end}) from
 {small}stem:[h_{i-1}]{small-end}, instead of the straightforward but costly

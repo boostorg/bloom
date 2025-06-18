@@ -143,7 +143,7 @@ constexpr double constexpr_ldexp_1_positive(int exp)
 struct filter_array
 {
   unsigned char* data;
-  unsigned char* buckets; /* adjusted from data for proper alignment */
+  unsigned char* array; /* adjusted from data for proper alignment */
 };
 
 struct if_constexpr_void_else{void operator()()const{}};
@@ -173,7 +173,7 @@ template<bool B,typename T,typename std::enable_if<!B>::type* =nullptr>
 void swap_if(T&,T&){}
 
 template<
-  std::size_t K,typename Subfilter,std::size_t BucketSize,typename Allocator
+  std::size_t K,typename Subfilter,std::size_t Stride,typename Allocator
 >
 class filter_core:empty_value<Allocator,0>
 {
@@ -195,22 +195,21 @@ private:
     detail::used_value_size<subfilter>::value;
 
 public:
-  static constexpr std::size_t bucket_size=
-    BucketSize?BucketSize:used_value_size;
+  static constexpr std::size_t stride=Stride?Stride:used_value_size;
   static_assert(
-    bucket_size<=used_value_size,"BucketSize can't exceed the block size");
+    stride<=used_value_size,"Stride can't exceed the block size");
 
 private:
-  static constexpr std::size_t tail_size=sizeof(block_type)-bucket_size;
+  static constexpr std::size_t tail_size=sizeof(block_type)-stride;
   static constexpr bool are_blocks_aligned=
-    (bucket_size%alignof(block_type)==0);
+    (stride%alignof(block_type)==0);
   static constexpr std::size_t cacheline=64; /* unknown at compile time */
   static constexpr std::size_t initial_alignment=
     are_blocks_aligned?
       alignof(block_type)>cacheline?alignof(block_type):cacheline:
       1;
   static constexpr std::size_t prefetched_cachelines=
-    1+(block_size+cacheline-1-gcd_pow2(bucket_size,cacheline))/cacheline;
+    1+(block_size+cacheline-1-gcd_pow2(stride,cacheline))/cacheline;
   using hash_strategy=detail::mcg_and_fastrange;
 
 public:
@@ -365,12 +364,12 @@ public:
 
   boost::span<unsigned char> array()noexcept
   {
-    return {ar.data?ar.buckets:nullptr,capacity()/CHAR_BIT};
+    return {ar.data?ar.array:nullptr,capacity()/CHAR_BIT};
   }
 
   boost::span<const unsigned char> array()const noexcept
   {
-    return {ar.data?ar.buckets:nullptr,capacity()/CHAR_BIT};
+    return {ar.data?ar.array:nullptr,capacity()/CHAR_BIT};
   }
 
   BOOST_FORCEINLINE void insert(std::uint64_t hash)
@@ -467,7 +466,7 @@ public:
   {
     if(x.range()!=y.range())return false;
     else if(!x.ar.data)return true;
-    else return std::memcmp(x.ar.buckets,y.ar.buckets,x.used_array_size())==0;
+    else return std::memcmp(x.ar.array,y.ar.array,x.used_array_size())==0;
   }
 
 private:
@@ -478,25 +477,25 @@ private:
 
   static std::size_t requested_range(std::size_t m)
   {
-    if(m>(used_value_size-bucket_size)*CHAR_BIT){
+    if(m>(used_value_size-stride)*CHAR_BIT){
       /* ensures filter_core{f.capacity()}.capacity()==f.capacity() */
-      m-=(used_value_size-bucket_size)*CHAR_BIT;
+      m-=(used_value_size-stride)*CHAR_BIT;
     }
     return
-      (std::numeric_limits<std::size_t>::max)()-m>=bucket_size*CHAR_BIT-1?
-      (m+bucket_size*CHAR_BIT-1)/(bucket_size*CHAR_BIT):
-      m/(bucket_size*CHAR_BIT);
+      (std::numeric_limits<std::size_t>::max)()-m>=stride*CHAR_BIT-1?
+      (m+stride*CHAR_BIT-1)/(stride*CHAR_BIT):
+      m/(stride*CHAR_BIT);
   }
 
   static filter_array new_array(allocator_type& al,std::size_t rng)
   {
     if(rng){
       auto p=allocator_allocate(al,space_for(rng));
-      return {p,buckets_for(p)};
+      return {p,array_for(p)};
     }
     else{
       /* To avoid dynamic allocation for zero capacity or moved-from filters,
-       * we point buckets to a statically allocated dummy array with all bits
+       * we point array to a statically allocated dummy array with all bits
        * set to one. This is good for read operations but not so for write
        * operations, where we need to resort to a null check on
        * filter_array::data.
@@ -505,7 +504,7 @@ private:
       static struct {unsigned char x=-1;}
       dummy[space_for(hash_strategy{0}.range())];
 
-      return {nullptr,buckets_for(reinterpret_cast<unsigned char*>(&dummy))};
+      return {nullptr,array_for(reinterpret_cast<unsigned char*>(&dummy))};
     }
   }
 
@@ -516,13 +515,13 @@ private:
 
   void clear_bytes()noexcept
   {
-    std::memset(ar.buckets,0,used_array_size());
+    std::memset(ar.array,0,used_array_size());
   }
 
   void copy_bytes(const filter_core& x)
   {
     BOOST_ASSERT(range()==x.range());
-    std::memcpy(ar.buckets,x.ar.buckets,used_array_size());
+    std::memcpy(ar.array,x.ar.array,used_array_size());
   }
 
   std::size_t range()const noexcept
@@ -532,10 +531,10 @@ private:
 
   static constexpr std::size_t space_for(std::size_t rng)noexcept
   {
-    return (initial_alignment-1)+rng*bucket_size+tail_size;
+    return (initial_alignment-1)+rng*stride+tail_size;
   }
 
-  static unsigned char* buckets_for(unsigned char* p)noexcept
+  static unsigned char* array_for(unsigned char* p)noexcept
   {
     return p+
       (std::uintptr_t(initial_alignment)-
@@ -549,7 +548,7 @@ private:
 
   static std::size_t used_array_size(std::size_t rng)noexcept
   {
-    return rng?rng*bucket_size+(used_value_size-bucket_size):0;
+    return rng?rng*stride+(used_value_size-stride):0;
   }
 
   static std::size_t unadjusted_capacity_for(std::size_t n,double fpr)
@@ -612,7 +611,7 @@ private:
 
   static double fpr_for_c(double c)
   {
-    constexpr std::size_t w=(2*used_value_size-bucket_size)*CHAR_BIT;
+    constexpr std::size_t w=(2*used_value_size-stride)*CHAR_BIT;
     const double          lambda=w*k/c;
     const double          loglambda=std::log(lambda);
     double                res=0.0;
@@ -688,7 +687,7 @@ private:
   BOOST_FORCEINLINE 
   unsigned char* next_element(std::uint64_t& h)noexcept
   {
-    auto p=ar.buckets+hs.next_position(h)*bucket_size;
+    auto p=ar.array+hs.next_position(h)*stride;
     for(std::size_t i=0;i<prefetched_cachelines;++i){
       BOOST_BLOOM_PREFETCH_WRITE((unsigned char*)p+i*cacheline);
     }
@@ -698,7 +697,7 @@ private:
   BOOST_FORCEINLINE
   const unsigned char* next_element(std::uint64_t& h)const noexcept
   {
-    auto p=ar.buckets+hs.next_position(h)*bucket_size;
+    auto p=ar.array+hs.next_position(h)*stride;
     for(std::size_t i=0;i<prefetched_cachelines;++i){
       BOOST_BLOOM_PREFETCH((unsigned char*)p+i*cacheline);
     }
@@ -711,9 +710,9 @@ private:
     if(range()!=x.range()){
       BOOST_THROW_EXCEPTION(std::invalid_argument("incompatible filters"));
     }
-    auto first0=ar.buckets,
+    auto first0=ar.array,
          last0=first0+used_array_size(),
-         first1=x.ar.buckets;
+         first1=x.ar.array;
     while(first0!=last0)f(*first0++,*first1++);
   }
 

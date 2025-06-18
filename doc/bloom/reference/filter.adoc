@@ -34,7 +34,7 @@ namespace bloom{
 
 template<
   typename T, std::size_t K,
-  typename Subfilter = block<unsigned char, 1>, std::size_t BucketSize = 0,
+  typename Subfilter = block<unsigned char, 1>, std::size_t Stride = 0,
   typename Hash = boost::hash<T>,
   typename Allocator = std::allocator<unsigned char>
 >
@@ -45,7 +45,7 @@ public:
   using value_type                         = T;
   static constexpr std::size_t k           = K;
   using subfilter                          = Subfilter;
-  static constexpr std::size_t xref:filter_bucket_size[bucket_size] = xref:filter_bucket_size[__see below__];
+  static constexpr std::size_t xref:filter_stride[stride]      = xref:filter_stride[__see below__];
   using hasher                             = Hash;
   using allocator_type                     = Allocator;
   using size_type                          = std::size_t;
@@ -171,11 +171,11 @@ bit setting/checking into the filter's internal array. The subfilter is invoked 
 per operation on `K` pseudorandomly selected portions of the array (_subarrays_) of width
 `xref:subfilters_used_value_size[_used-value-size_]<Subfilter>`.
 
-|`BucketSize`
+|`Stride`
 | Distance in bytes between the initial positions of consecutive subarrays.
-If `BucketSize` is specified as zero, the actual distance is automatically selected to
+If `Stride` is specified as zero, the actual distance is automatically selected to
 `_used-value-size_<Subfilter>` (non-overlapping subarrays).
-Otherwise, `BucketSize` must be not greater than `_used-value-size_<Subfilter>`.
+Otherwise, `Stride` must be not greater than `_used-value-size_<Subfilter>`.
 
 |`Hash`
 |A https://en.cppreference.com/w/cpp/named_req/Hash[Hash^] type over `T`.
@@ -187,7 +187,7 @@ Otherwise, `BucketSize` must be not greater than `_used-value-size_<Subfilter>`.
 |===
 
 Allocation and deallocation of the internal array is done through an internal copy of the
-provided allocator. If `xref:filter_bucket_size[bucket_size]` is a
+provided allocator. If `xref:filter_stride[stride]` is a
 multiple of `alignof(Subfilter::value_type)`, the array is byte-aligned to
 max(64, `alignof(Subfilter::value_type)`).
 
@@ -210,13 +210,13 @@ is thrown by the filter's `Hash` or `Allocator` object (if any).
 
 === Types and Constants
 
-[[filter_bucket_size]]
+[[filter_stride]]
 [listing,subs="+macros,+quotes"]
 ----
-static constexpr std::size_t bucket_size;
+static constexpr std::size_t stride;
 ----
 
-Equal to `BucketSize` if that parameter was specified as distinct from zero.
+Equal to `Stride` if that parameter was specified as distinct from zero.
 Otherwise, equal to `xref:subfilters_used_value_size[_used-value-size_]<subfilter>`.
 
 === Constructors

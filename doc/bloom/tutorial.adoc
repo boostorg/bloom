@@ -3,9 +3,9 @@
 
 :idprefix: tutorial_
 
-A `boost::bloom::filter` can be regarded as a bit array divided into _buckets_ that
+A `boost::bloom::filter` can be regarded as a bit array divided into _subarrays_ that
 are selected pseudo-randomly (based on a hash function) upon insertion:
-each of the buckets is passed to a _subfilter_ that marks several of its bits according
+each of the subarrays is passed to a _subfilter_ that marks several of its bits according
 to some associated strategy.
 
 Note that although `boost::bloom::filter` mimics the interface of a container
@@ -20,7 +20,7 @@ array based on the hash value of the element.
 -----
 template<
   typename T, std::size_t K,
-  typename Subfilter = block<unsigned char, 1>, std::size_t BucketSize = 0,
+  typename Subfilter = block<unsigned char, 1>, std::size_t Stride = 0,
   typename Hash = boost::hash<T>,
   typename Allocator = std::allocator<unsigned char>  
 >
@@ -28,9 +28,9 @@ class filter;
 -----
 
 * `T`: Type of the elements inserted.
-* `K`: Number of buckets marked per insertion.
+* `K`: Number of subarrays marked per insertion.
 * `xref:tutorial_subfilter[Subfilter]`: Type of subfilter used.
-* `xref:tutorial_bucketsize[BucketSize`]: Size in bytes of the buckets.
+* `xref:tutorial_stride[Stride`]: Distance in bytes between the initial positions of consecutive subarrays.
 * `xref:tutorial_hash[Hash]`: A hash function for `T`.
 * `Allocator`: An allocator for `unsigned char`.
 
@@ -91,15 +91,28 @@ known in advance, as explained in a xref:configuration[dedicated section];
 otherwise, low values of `K'` will generally be faster and preferred to
 higher values as long as the resulting FPR is at acceptable levels.
 
-=== `BucketSize`
+=== `Stride`
 
-When the default value 0 is used, buckets have the same size as
-the _subarrays_ subfilters operate on (non-overlapping case).
-Otherwise, bucket size is smaller and subarrays spill over adjacent buckets,
-which results in an improved (lower) FPR in exchange for a possibly
-worse performance due to memory unalignment.
+As we have seen, `Subfilter` defines the subarray (`Block` in the case of
+`block<Block, K'>`, `Block[K']` for `multiblock<Block, K'>`) used by
+`boost::bloom::filter`: contiguous portions of the underlying bit array
+are then accessed and treated as those subarrays. The `Stride` parameter
+controls the distance in bytes between the initial positions of
+consecutive subarrays.
 
-image::bucket_size.png[align=center, title="Two different configurations of `BucketSize`: (a) non-overlapping subarrays, (b) overlapping subarrays.+++<br/>+++Each subarray is associated to the bucket of the same color."]
+When the default value 0 is used, the stride is automatically set
+to the size of the subarrays, and so there's no overlapping between them.
+If `Stride` is set to a smaller value than that size, contiguous
+subarrays superimpose on one another: the level of overlap is larger
+for smaller values of `Stride`, with maximum overlap happening when
+`Stride` is 1 byte.
+
+image::stride.png[align=center, title="Two different configurations of `Stride`: (a) non-overlapping subarrays, (b) overlapping subarrays.+++<br/>+++Each subarray is associated to the stride of the same color."]
+
+As it happens, overlapping improves (decreases) the resulting FPR
+with respect to the non-overlapping case, the tradeoff being that
+subarrays may not be aligned in memory, which can impact performance
+negatively.
 
 === `Hash`
 

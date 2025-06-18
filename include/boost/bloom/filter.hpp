@@ -69,7 +69,7 @@ struct mulx64_mix_policy
 
 template<
   typename T,std::size_t K,
-  typename Subfilter=block<unsigned char,1>,std::size_t BucketSize=0,
+  typename Subfilter=block<unsigned char,1>,std::size_t Stride=0,
   typename Hash=boost::hash<T>,typename Allocator=std::allocator<unsigned char>
 >
 class
@@ -80,7 +80,7 @@ __declspec(empty_bases) /* activate EBO with multiple inheritance */
 
 filter:
   detail::filter_core<
-    K,Subfilter,BucketSize,allocator_rebind_t<Allocator,unsigned char>
+    K,Subfilter,Stride,allocator_rebind_t<Allocator,unsigned char>
   >,
   empty_value<Hash,0>
 {
@@ -88,7 +88,7 @@ filter:
   static_assert(
     std::is_same<unsigned char,allocator_value_type_t<Allocator>>::value,
     "Allocator's value_type must be unsigned char");
-  using super=detail::filter_core<K,Subfilter,BucketSize,Allocator>;
+  using super=detail::filter_core<K,Subfilter,Stride,Allocator>;
   using mix_policy=typename std::conditional<
     boost::hash_is_avalanching<Hash>::value&&
     sizeof(std::size_t)>=sizeof(std::uint64_t),
@@ -100,7 +100,7 @@ public:
   using value_type=T;
   using super::k;
   using subfilter=typename super::subfilter;
-  using super::bucket_size;
+  using super::stride;
   using hasher=Hash;
   using allocator_type=Allocator;
   using size_type=typename super::size_type;
@@ -299,10 +299,10 @@ public:
 
 private:
   template<
-    typename T1,std::size_t K1,typename S,std::size_t B,typename H,typename A
+    typename T1,std::size_t K1,typename SF,std::size_t S,typename H,typename A
   >
   bool friend operator==(
-    const filter<T1,K1,S,B,H,A>& x,const filter<T1,K1,S,B,H,A>& y);
+    const filter<T1,K1,SF,S,H,A>& x,const filter<T1,K1,SF,S,H,A>& y);
 
   using hash_base=empty_value<Hash,0>;
 
@@ -318,26 +318,26 @@ private:
 };
 
 template<
-  typename T,std::size_t K,typename S,std::size_t B,typename H,typename A
+  typename T,std::size_t K,typename SF,std::size_t S,typename H,typename A
 >
-bool operator==(const filter<T,K,S,B,H,A>& x,const filter<T,K,S,B,H,A>& y)
+bool operator==(const filter<T,K,SF,S,H,A>& x,const filter<T,K,SF,S,H,A>& y)
 {
-  using super=typename filter<T,K,S,B,H,A>::super;
+  using super=typename filter<T,K,SF,S,H,A>::super;
   return static_cast<const super&>(x)==static_cast<const super&>(y);
 }
 
 template<
-  typename T,std::size_t K,typename S,std::size_t B,typename H,typename A
+  typename T,std::size_t K,typename SF,std::size_t S,typename H,typename A
 >
-bool operator!=(const filter<T,K,S,B,H,A>& x,const filter<T,K,S,B,H,A>& y)
+bool operator!=(const filter<T,K,SF,S,H,A>& x,const filter<T,K,SF,S,H,A>& y)
 {
   return !(x==y);
 }
 
 template<
-  typename T,std::size_t K,typename S,std::size_t B,typename H,typename A
+  typename T,std::size_t K,typename SF,std::size_t S,typename H,typename A
 >
-void swap(filter<T,K,S,B,H,A>& x,filter<T,K,S,B,H,A>& y)
+void swap(filter<T,K,SF,S,H,A>& x,filter<T,K,SF,S,H,A>& y)
   noexcept(noexcept(x.swap(y)))
 {
   x.swap(y);

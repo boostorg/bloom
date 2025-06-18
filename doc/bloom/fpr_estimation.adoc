@@ -57,9 +57,9 @@ which follows simply from the observation that using `{block|multiblock}<Block, 
 a classical Bloom filter.
 
 We don't know of any closed, simple formula for the FPR of block and multiblock filters when
-`Bucketsize` is not its "natural" size `xref:subfilters_used_value_size[_used-value-size_]<Subfilter>`,
+`Stride` is not its "natural" size `xref:subfilters_used_value_size[_used-value-size_]<Subfilter>`,
 that is, when subfilter subarrays overlap.
-We can use the following approximations ({small}stem:[s]{small-end} = `BucketSize` in bits):
+We can use the following approximations ({small}stem:[s]{small-end} = `Stride` in bits):
 
 [.text-center]
 {small}stem:[\text{FPR}_{\text{block}}(n,m,b,s,k,k')=\left(\displaystyle\sum_{i=0}^{\infty} \text{Pois}\left(i,\frac{n(2b-s)k}{m}\right) \cdot \text{FPR}(i,2b-s,k')\right)^{k},]{small-end} +
