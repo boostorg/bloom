@@ -41,6 +41,9 @@ a selected subarray of the bit array. It determines how many bits are
 modified per operation, how they are arranged in memory, and how memory is accessed.
 The following subfilters are provided:
 
+++++
+<div style="overflow-x: auto;">
+++++
 [options="header"]
 |===
 | Subfilter | Description | Pros | Cons
@@ -68,6 +71,9 @@ faster SIMD-based algorithm when AVX2 is enabled at compile time
 | Always prefer it to `multiblock<uint64_t, K'>` when AVX2 is available
 | Slower than `fast_multiblock32<K'>` for the same `K'`
 |===
+++++
+</div>
+++++
 
 In the table above, `Block` can be an unsigned integral type
 (e.g. `unsigned char`, `uint32_t`, `uint64_t`), or

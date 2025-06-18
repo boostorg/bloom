@@ -16,6 +16,7 @@ The chart plots FPR vs. _c_ (capacity / number of elements inserted) for several
 as shown in the table below.
 
 +++
+<div style="overflow-x: auto;">
 <table class="bordered_table" style="text-align: center; font-size: 85%;">
     <tr>
         <th rowspan="2"></th>
@@ -70,6 +71,7 @@ as shown in the table below.
         <td>10</td> <td>11</td> <td>12</td> <td>13</td> <td>13</td> <td>13</td> <td>14</td> <td>16</td> <td>16</td> <td>16</td> <td>17</td>
     </tr>
 </table>
+</div>
 +++
 
 Let's see how this can be used by way of an example. Suppose we plan to insert 10M elements
