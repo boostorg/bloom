@@ -24,6 +24,7 @@ Standard release-mode settings are used; AVX2 is indicated for Visual Studio bui
 == GCC 14, x64
 
 +++
+<div style="overflow-x: auto;">
 <table class="bordered_table" style="font-size: 85%;">
   <tr>
     <th></th>
@@ -410,11 +411,13 @@ Standard release-mode settings are used; AVX2 is indicated for Visual Studio bui
     <td align="right">73.83</td>
   </tr>
 </table>
+</div>
 +++
 
 == Clang 18, x64
 
 +++
+<div style="overflow-x: auto;">
 <table class="bordered_table" style="font-size: 85%;">
   <tr>
     <th></th>
@@ -801,11 +804,13 @@ Standard release-mode settings are used; AVX2 is indicated for Visual Studio bui
     <td align="right">72.55</td>
   </tr>
 </table>
+</div>
 +++
 
 == Clang 15, ARM64
 
 +++
+<div style="overflow-x: auto;">
 <table class="bordered_table" style="font-size: 85%;">
   <tr>
     <th></th>
@@ -1192,11 +1197,13 @@ Standard release-mode settings are used; AVX2 is indicated for Visual Studio bui
     <td align="right">39.07</td>
   </tr>
 </table>
+</div>
 +++
 
 == VS 2022, x64
 
 +++
+<div style="overflow-x: auto;">
 <table class="bordered_table" style="font-size: 85%;">
   <tr>
     <th></th>

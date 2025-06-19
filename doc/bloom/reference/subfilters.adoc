@@ -55,3 +55,5 @@ constexpr std::size_t _used-value-size_; // exposition only
 constant exists, or `sizeof(Subfilter::value_type)` otherwise.
 The value is the effective size in bytes of the subarrays upon which a
 given subfilter operates.
+
+'''

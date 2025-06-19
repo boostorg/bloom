@@ -26,6 +26,14 @@
 .bordered_table th, .bordered_table td {
   border: 1px solid lightgray;
 }
+
+.formula-center {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  text-align: center;
+}
 </style>
 ++++
 

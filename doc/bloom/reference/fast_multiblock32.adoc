@@ -50,3 +50,5 @@ The non-SIMD case falls back to regular `multiblock`.
 
 `xref:subfilters_used_value_size[_used-value-size_]<fast_multiblock32<K>>` is
 `4 * K`.
+
+'''

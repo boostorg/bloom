@@ -3,9 +3,9 @@
 
 :idprefix: tutorial_
 
-A `boost::bloom::filter` can be regarded as a bit array divided into _buckets_ that
+A `boost::bloom::filter` can be regarded as a bit array divided into _subarrays_ that
 are selected pseudo-randomly (based on a hash function) upon insertion:
-each of the buckets is passed to a _subfilter_ that marks several of its bits according
+each of the subarrays is passed to a _subfilter_ that marks several of its bits according
 to some associated strategy.
 
 Note that although `boost::bloom::filter` mimics the interface of a container
@@ -20,7 +20,7 @@ array based on the hash value of the element.
 -----
 template<
   typename T, std::size_t K,
-  typename Subfilter = block<unsigned char, 1>, std::size_t BucketSize = 0,
+  typename Subfilter = block<unsigned char, 1>, std::size_t Stride = 0,
   typename Hash = boost::hash<T>,
   typename Allocator = std::allocator<unsigned char>  
 >
@@ -28,67 +28,102 @@ class filter;
 -----
 
 * `T`: Type of the elements inserted.
-* `K`: Number of buckets marked per insertion.
+* `K`: Number of subarrays marked per insertion.
 * `xref:tutorial_subfilter[Subfilter]`: Type of subfilter used.
-* `xref:tutorial_bucketsize[BucketSize`]: Size in bytes of the buckets.
+* `xref:tutorial_stride[Stride`]: Distance in bytes between the initial positions of consecutive subarrays.
 * `xref:tutorial_hash[Hash]`: A hash function for `T`.
 * `Allocator`: An allocator for `unsigned char`.
 
 === `Subfilter`
 
-The following subfilters can be selected, offering different compromises
-between performance and _false positive rate_ (FPR).
-See the xref:primer_variations_on_the_classical_filter[Bloom Filter Primer]
-for a general explanation of block and multiblock filters.
+A subfilter defines the local strategy for setting or checking bits within
+a selected subarray of the bit array. It determines how many bits are
+modified per operation, how they are arranged in memory, and how memory is accessed.
+The following subfilters are provided:
 
-`block<Block, K'>`
+++++
+<div style="overflow-x: auto;">
+++++
+[options="header"]
+|===
+| Subfilter | Description | Pros | Cons
 
-[.indent]
-Sets `K'` bits in an underlying `Block` value. `Block` can be an
-unsigned integral type  (e.g. `unsigned char`, `uint32_t`, `uint64_t`), or
-an array of 2^`N`^ unsigned integrals (e.g. `uint64_t[8]`).
-So, a `filter<T, K, block<Block, K'>>` will set `K * K'` bits per element.
-The tradeoff here is that insertion/lookup will be (much) faster than
-with `filter<T, K * K'>` while the FPR will be worse (larger).
-FPR is better the wider `Block` is.
+| `block<Block, K'>`
+| Sets `K'` bits in a subarray of type `Block`
+| Very fast access time
+| FPR is worse (higher) the smaller `Block` is
 
-`multiblock<Block, K'>`
+| `multiblock<Block, K'>`
+| Sets one bit in each of the elements of a `Block[K']` subarray
+| Better (lower) FPR than `block<Block, K'>` for the same `Block` type
+| Performance may worsen if cacheline boundaries are crossed when accessing the subarray
 
-[.indent]
-Instead of setting `K'` bits in a `Block` value, this subfilter sets
-one bit on each of the elements of a `Block[K']` subarray. This improves FPR
-but impacts performance with respect to `block<Block, K'>`, among other
-things because cacheline boundaries can be crossed when accessing the subarray.
-
-`fast_multiblock32<K'>`
-
-[.indent]
-Statistically equivalent to `multiblock<uint32_t, K'>`, but uses
+| `fast_multiblock32<K'>`
+| Statistically equivalent to `multiblock<uint32_t, K'>`, but uses
 faster SIMD-based algorithms when SSE2, AVX2 or Neon are enabled at
-compile time.
+compile time
+| Always prefer it to `multiblock<uint32_t, K'>` when SSE2/AVX2/Neon is available
+| FPR is worse (higher) than `fast_multiblock64<K'>` for the same `K'`
 
-`fast_multiblock64<K'>`
+| `fast_multiblock64<K'>`
+| Statistically equivalent to `multiblock<uint64_t, K'>`, but uses a
+faster SIMD-based algorithm when AVX2 is enabled at compile time
+| Always prefer it to `multiblock<uint64_t, K'>` when AVX2 is available
+| Slower than `fast_multiblock32<K'>` for the same `K'`
+|===
+++++
+</div>
+++++
 
-[.indent]
-Statistically equivalent to `multiblock<uint64_t, K'>`, but uses a
-faster SIMD-based algorithm when AVX2 is enabled at compile time.
+In the table above, `Block` can be an unsigned integral type
+(e.g. `unsigned char`, `uint32_t`, `uint64_t`), or
+an array of 2^`N`^ unsigned integrals (e.g. `uint64_t[8]`). In general,
+the wider `Block` is, the better (lower) the resulting FPR, but
+cache locality worsens and performance may suffer as a result.
 
-The default configuration with `block<unsigned char,1>` corresponds to a
-xref:primer[classical Bloom filter] setting `K` bits per element uniformly
-distributed across the array.
+Note that the total number of of bits set/checked for a
+`boost::bloom::filter<T, K, _subfilter_<..., K'>>` is `K * K'`. The
+default configuration `boost::bloom::filter<T, K>` = 
+`boost::bloom::filter<T, K, block<unsigned char, 1>>`, which corresponds to a
+xref:primer_implementation[classical Bloom filter], has the best (lowest) FPR among all filters
+with the same number of bits per operation, but is also the slowest: a new
+subarray is accessed for each bit set/checked. Consult the
+xref:benchmarks[benchmarks section] to see different tradeoffs between FPR and
+performance.
 
-=== `BucketSize`
+Once a subfilter have been selected, the parameter `K'` can be tuned
+to its optimum value (minimum FPR) if the number of elements that will be inserted is
+known in advance, as explained in a xref:configuration[dedicated section];
+otherwise, low values of `K'` will generally be faster and preferred to
+higher values as long as the resulting FPR is at acceptable levels.
 
-When the default value 0 is used, buckets have the same size as
-the _subarrays_ subfilters operate on (non-overlapping case).
-Otherwise, bucket size is smaller and subarrays spill over adjacent buckets,
-which results in an improved (lower) FPR in exchange for a possibly
-worse performance due to memory unalignment.
+=== `Stride`
 
-image::bucket_size.png[align=center, title="Two different configurations of `BucketSize`: (a) non-overlapping subarrays, (b) overlapping subarrays.+++<br/>+++Each subarray is associated to the bucket of the same color."]
+As we have seen, `Subfilter` defines the subarray (`Block` in the case of
+`block<Block, K'>`, `Block[K']` for `multiblock<Block, K'>`) used by
+`boost::bloom::filter`: contiguous portions of the underlying bit array
+are then accessed and treated as those subarrays. The `Stride` parameter
+controls the distance in bytes between the initial positions of
+consecutive subarrays.
+
+When the default value 0 is used, the stride is automatically set
+to the size of the subarrays, and so there's no overlapping between them.
+If `Stride` is set to a smaller value than that size, contiguous
+subarrays superimpose on one another: the level of overlap is larger
+for smaller values of `Stride`, with maximum overlap happening when
+`Stride` is 1 byte.
+
+image::stride.png[align=center, title="Two different configurations of `Stride`: (a) non-overlapping subarrays, (b) overlapping subarrays.+++<br/>+++Each subarray is associated to the stride of the same color."]
+
+As it happens, overlapping improves (decreases) the resulting FPR
+with respect to the non-overlapping case, the tradeoff being that
+subarrays may not be aligned in memory, which can impact performance
+negatively.
 
 === `Hash`
 
+Unlike other Bloom filter implementations requiring several hash functions per operation,
+`boost::bloom::filter` uses only one.
 By default, link:../../../container_hash/index.html[Boost.ContainerHash] is used.
 Consult this library's link:../../../container_hash/doc/html/hash.html#user[dedicated section]
 if you need to extend `boost::hash` for your own types.

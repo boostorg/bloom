@@ -12,12 +12,12 @@ See https://www.boost.org/libs/bloom for library home page.
 <Type Name="boost::bloom::filter&lt;*&gt;" Inheritable="false">
 	<Intrinsic Name="core" Expression="*static_cast&lt;super*&gt;(this)" />
 	<Intrinsic Name="has_array" Expression="core().ar.data!=nullptr" />
-	<Intrinsic Name="data" Expression="has_array()?core().ar.buckets:nullptr" />
+	<Intrinsic Name="data" Expression="has_array()?core().ar.array:nullptr" />
 	<Intrinsic
 		Name="array_size" 
 		Expression="
 			has_array()?
-				core().hs.rng*super::bucket_size+(super::used_value_size-super::bucket_size):
+				core().hs.rng*super::stride+(super::used_value_size-super::stride):
 				0"
 	/>
 	<Intrinsic Name="capacity" Expression="array_size()*8" />
