@@ -737,3 +737,5 @@ void swap(filter<T, K, S, B, H, A>& x, filter<T, K, S, B, H, A>& y)
 ----
 
 Equivalent to `x.xref:filter_swap[swap](y)`.
+
+'''

@@ -40,3 +40,5 @@ struct block
 | Number of bits set/checked per operation. Must be greater than zero.
 
 |===
+
+'''

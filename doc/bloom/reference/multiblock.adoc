@@ -43,3 +43,5 @@ struct multiblock
 
 Each of the `K` bits set/checked is located in a different element of the
 `Block[K]` array.
+
+'''
