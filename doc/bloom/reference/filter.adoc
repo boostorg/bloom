@@ -188,8 +188,8 @@ Otherwise, `Stride` must be not greater than `_used-value-size_<Subfilter>`.
 
 Allocation and deallocation of the internal array is done through an internal copy of the
 provided allocator. If `xref:filter_stride[stride]` is a
-multiple of `alignof(Subfilter::value_type)`, the array is byte-aligned to
-max(64, `alignof(Subfilter::value_type)`).
+multiple of _a_ = `alignof(Subfilter::value_type)`, the array is byte-aligned to
+max(64, _a_).
 
 If `link:../../../container_hash/doc/html/hash.html#ref_hash_is_avalanchinghash[boost::hash_is_avalanching]<Hash>::value`
 is `true` and `sizeof(std::size_t) >= 8`, 
