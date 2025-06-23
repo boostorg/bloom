@@ -3,7 +3,7 @@
 
 :idprefix: release_notes_
 
-== Boost 1.xx
+== Boost 1.89
 
 * Initial release.
 
