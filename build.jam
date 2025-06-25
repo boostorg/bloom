@@ -12,6 +12,7 @@ constant boost_dependencies :
     /boost/core//boost_core
     /boost/throw_exception//boost_throw_exception
     /boost/type_traits//boost_type_traits
+    ;
 
 project /boost/bloom ;
 
