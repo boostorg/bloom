@@ -1,4 +1,4 @@
-# Copyright 2025 Joaquín M López Muñoz.
+# Copyright 2025 Joaquï¿½n M Lï¿½pez Muï¿½oz.
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
@@ -26,3 +26,5 @@ run test_comparison.cpp ;
 run test_construction.cpp ;
 run test_fpr.cpp ;
 run test_insertion.cpp ;
+
+compile test_visualization.cpp ;

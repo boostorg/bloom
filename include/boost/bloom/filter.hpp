@@ -12,6 +12,7 @@
 #define BOOST_BLOOM_FILTER_HPP
 
 #include <boost/bloom/block.hpp>
+#include <boost/bloom/detail/bloom_printers.hpp>
 #include <boost/bloom/detail/core.hpp>
 #include <boost/bloom/detail/mulx64.hpp>
 #include <boost/bloom/detail/type_traits.hpp>
