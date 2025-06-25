@@ -13,6 +13,7 @@
 #include <boost/bloom/detail/mulx64.hpp>
 #include <boost/bloom/detail/sse2.hpp>
 #include <boost/config.hpp>
+#include <boost/config/workaround.hpp>
 #include <cstddef>
 #include <cstdint>
 
@@ -121,6 +122,12 @@ private:
     if(kp>4)x.hi=_mm_or_si128(x.hi,h.hi);
   }
 
+#if BOOST_WORKAROUND(BOOST_MSVC,<=1900)
+/* 'int': forcing value to bool 'true' or 'false' */
+#pragma warning(push)
+#pragma warning(disable:4800)
+#endif
+
   static BOOST_FORCEINLINE bool check_m128ix2(
     const detail::m128ix2& x,std::uint64_t hash,std::size_t kp)
   {
@@ -129,6 +136,10 @@ private:
     if(kp>4)res&=detail::mm_testc_si128(x.hi,h.hi);
     return res;
   }
+
+#if BOOST_WORKAROUND(BOOST_MSVC,<=1900)
+#pragma warning(pop) /* C4800 */
+#endif
 };
 
 #if defined(BOOST_MSVC)

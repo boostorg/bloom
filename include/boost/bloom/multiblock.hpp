@@ -12,6 +12,8 @@
 #include <boost/bloom/detail/block_base.hpp>
 #include <boost/bloom/detail/block_ops.hpp>
 #include <boost/bloom/detail/multiblock_fpr_base.hpp>
+#include <boost/config.hpp>
+#include <boost/config/workaround.hpp>
 #include <cstddef>
 #include <cstdint>
 
@@ -33,6 +35,12 @@ struct multiblock:
     loop(hash,[&](std::uint64_t h){block_ops::set(x[i++],h&mask);});
   }
 
+#if BOOST_WORKAROUND(BOOST_MSVC,<=1900)
+/* 'int': forcing value to bool 'true' or 'false' */
+#pragma warning(push)
+#pragma warning(disable:4800)
+#endif
+
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
   static inline bool check(const value_type& x,std::uint64_t hash)
   {
@@ -41,6 +49,10 @@ struct multiblock:
     loop(hash,[&](std::uint64_t h){block_ops::reduce(res,x[i++],h&mask);});
     return res;
   }
+
+#if BOOST_WORKAROUND(BOOST_MSVC,<=1900)
+#pragma warning(pop) /* C4800 */
+#endif
 
 private:
   using super=detail::block_base<Block,K>;
