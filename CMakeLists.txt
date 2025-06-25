@@ -29,3 +29,12 @@ if(BUILD_TESTING AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
   add_subdirectory(test)
 
 endif()
+
+if(CMAKE_VERSION VERSION_GREATER 3.18 AND CMAKE_GENERATOR MATCHES "Visual Studio")
+
+  file(GLOB_RECURSE boost_bloom_IDEFILES CONFIGURE_DEPENDS "include/**/*.hpp")
+  source_group(TREE ${PROJECT_SOURCE_DIR}/include FILES ${boost_bloom_IDEFILES} PREFIX "Header Files")
+  list(APPEND boost_bloom_IDEFILES extra/boost_bloom.natvis)
+  target_sources(boost_bloom PRIVATE ${boost_bloom_IDEFILES})
+
+endif()
