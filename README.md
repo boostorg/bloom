@@ -46,8 +46,25 @@ int main()
 
 ## Install Boost.Bloom
 
-Clone this repo, adjust your include paths  and enjoy.
-Boost.Bloom is header-only and requires no building. A recent version of Boost is required.
+* [Download Boost](https://www.boost.org/users/download/) and you're ready to go (this is a header-only library requiring no building).
+* Using Conan 2: In case you don't have it yet, add an entry for Boost in your `conanfile.txt` (the example requires at least Boost 1.89):
+```
+[requires]
+boost/[>=1.89.0]
+```
+<ul>If you're not using any compiled Boost library, the following will skip building altogether:</ul>
+
+```
+[options]
+boost:header_only=True
+```
+* Using vcpkg: Execute the command
+```
+vcpkg install boost-bloom
+```
+* Using CMake: [Boost CMake support infrastructure](https://github.com/boostorg/cmake)
+allows you to use CMake directly to download, build and consume all of Boost or
+some specific libraries.
 
 ## Support
 
