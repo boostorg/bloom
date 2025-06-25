@@ -15,4 +15,8 @@ project
 
 exe basic : basic.cpp ;
 exe genome : genome.cpp : [ requires cxx17_if_constexpr ] ;
-exe serialization : serialization.cpp ;
+exe serialization
+  : serialization.cpp 
+  : <library>/boost/core//boost_core
+    <library>/boost/uuid//boost_uuid
+  ;
