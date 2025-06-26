@@ -119,9 +119,9 @@ private:
       template rebind_alloc<filter_type>
   >;
 
+  std::size_t w;
   vector_type fs;
-  std::size_t w,
-              count = 0,
+  std::size_t count = 0,
               i = 0;
 };
 
