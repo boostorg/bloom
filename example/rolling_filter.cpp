@@ -135,7 +135,7 @@ int main()
   const std::size_t num_windows = 10;
   const double      max_fpr = 0.01;
 
-  rolling_filter<std::size_t, 8> rf(window_size, num_windows, max_fpr);
+  rolling_filter<std::size_t, 5> rf(window_size, num_windows, max_fpr);
   std::cout << "rolling filter capacity: " << rf.capacity() << " bits\n";
 
   /* Run the filter through more than 10x the elements it can hold. */
