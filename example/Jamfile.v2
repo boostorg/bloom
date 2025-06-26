@@ -15,6 +15,7 @@ project
 
 exe basic : basic.cpp ;
 exe genome : genome.cpp : [ requires cxx17_if_constexpr ] ;
+exe rolling_filter : rolling_filter.cpp ;
 exe serialization
   : serialization.cpp 
   : <library>/boost/core//boost_core
