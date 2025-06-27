@@ -303,3 +303,47 @@ to your project to allow for user-friendly inspection of `boost::bloom::filter`+
 
 image::natvis.png[align=center, title="View of a `boost::bloom::filter` with `boost_bloom.natvis`."]
 
+=== GDB Pretty-Printer
+
+`boost::bloom::filter` comes with a dedicated
+https://sourceware.org/gdb/current/onlinedocs/gdb.html/Pretty-Printing.html#Pretty-Printing[pretty-printer^]
+for visual inspection when debugging with GDB:
+
+[source,plaintext]
+-----
+(gdb) print f
+$1 = boost::bloom::filter with {capacity = 2000, data = 0x6da840, size = 250} = {[0] = 0 '\000',
+  [1] = 0 '\000', [2] = 0 '\000', [3] = 0 '\000', [4] = 0 '\000', [5] = 1 '\001'...}
+
+(gdb) # boost::bloom::filter does not have an operator[]. The following expression
+(gdb) # is used in place of print f.array()[30]
+(gdb) print f[30]
+$2 = 128 '\200'
+-----
+
+Remember to enable pretty-printing in GDB (typically a one-time setup):
+
+[source,plaintext]
+-----
+(gdb) set print pretty on
+-----
+
+The pretty-printer is automatically embedded in the program if your compiled binary
+format is ELF and the macro `BOOST_ALL_NO_EMBEDDED_GDB_SCRIPTS` is _not_ defined;
+embedded pretty-printers are enabled for a particular GDB session
+with this command (or by default by adding it to your `.gdbinit` configuration
+file):
+
+[source,plaintext,subs="+quotes"]
+-----
+(gdb) add-auto-load-safe-path _<path-to-executable>_
+-----
+
+Alternatively to the use of the embedded pretty-printer, you can explicitly
+load the link:../../extra/boost_bloom_printers.py[`boost_bloom_printers.py`^]
+script:
+
+[source,plaintext,subs="+quotes"]
+-----
+(gdb) source _<path-to-boost>_/libs/bloom/extra/boost_bloom_printers.py
+-----

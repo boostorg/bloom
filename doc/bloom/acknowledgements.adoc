@@ -5,7 +5,8 @@
 
 Peter Dimov and Christian Mazakas reviewed significant portions of the code
 and documentation during the development phase. Sam Darwin provided support
-for CI setup and documentation building.
+for CI setup and documentation building. Braden Ganetsky contributed the
+GDB pretty-printer for `boost::bloom::filter`.
 
 The Boost acceptance review took place between the 13th and 22nd of May,
 2025. Big thanks to Arnaud Becheler for his expert managing. The
