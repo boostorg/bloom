@@ -25,7 +25,7 @@ int main()
 {
   boost::bloom::filter<int, 1> filter1{};
   boost::bloom::filter<int, 1> filter2{1};
-  boost::bloom::filter<int, 1024> filter3{{1,2,3,4,5}, 512};
+  boost::bloom::filter<int, 5> filter3{{1,2,3,4,5}, 2000};
 
   use(filter1);
   use(filter2);
