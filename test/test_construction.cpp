@@ -6,6 +6,8 @@
  * See https://www.boost.org/libs/bloom for library home page.
  */
 
+#include <boost/config.hpp>
+#include <boost/config/workaround.hpp>
 #include <boost/core/lightweight_test.hpp>
 #include <boost/mp11/algorithm.hpp>
 #include <new>
@@ -13,6 +15,15 @@
 #include <vector>
 #include "test_types.hpp"
 #include "test_utilities.hpp"
+
+#if BOOST_WORKAROUND(BOOST_GCC,>=120000)&&BOOST_WORKAROUND(BOOST_GCC,<130000)
+/* GCC 12 (this version alone) gets confused with
+ * stateful_allocator::last_allocation.
+ */
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuse-after-free"
+#endif
 
 using namespace test_utilities;
 

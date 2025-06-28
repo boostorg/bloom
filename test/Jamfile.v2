@@ -14,6 +14,7 @@ import config : requires ;
 project
     : requirements
       <library>/boost/bloom//boost_bloom
+      <library>/boost/config//boost_config
       <library>/boost/core//boost_core
       <library>/boost/mp11//boost_mp11
       [ requires cxx11_noexcept ] # used as a proxy for C++11 support
