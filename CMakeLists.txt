@@ -7,7 +7,8 @@ cmake_minimum_required(VERSION 3.8...3.20)
 
 project(boost_bloom VERSION "${BOOST_SUPERPROJECT_VERSION}" LANGUAGES CXX)
 
-add_library(boost_bloom INTERFACE)
+file(GLOB_RECURSE boost_bloom_all_headers "include/**/*.hpp")
+add_library(boost_bloom INTERFACE ${boost_bloom_all_headers})
 add_library(Boost::bloom ALIAS boost_bloom)
 
 target_include_directories(boost_bloom INTERFACE include)
@@ -29,3 +30,8 @@ if(BUILD_TESTING AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
   add_subdirectory(test)
 
 endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/GroupSources.cmake")
+GroupSources(include/boost "/")
+# Explicit override for cases when the GroupSources call doesn't do the right thing for the top-level
+source_group("/" FILES "include/boost/bloom.hpp")
