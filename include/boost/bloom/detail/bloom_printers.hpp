@@ -2,7 +2,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
-// Generated on 2025-06-25T14:45:13
+// Generated on 2025-06-29T10:15:10
 
 #ifndef BOOST_BLOOM_DETAIL_BLOOM_PRINTERS_HPP
 #define BOOST_BLOOM_DETAIL_BLOOM_PRINTERS_HPP
@@ -16,6 +16,7 @@
 __asm__(".pushsection \".debug_gdb_scripts\", \"MS\",%progbits,1\n"
         ".ascii \"\\4gdb.inlined-script.BOOST_BLOOM_DETAIL_BLOOM_PRINTERS_HPP\\n\"\n"
         ".ascii \"import gdb.printing\\n\"\n"
+        ".ascii \"import gdb.xmethod\\n\"\n"
 
         ".ascii \"class BoostBloomFilterPrinter:\\n\"\n"
         ".ascii \"    def __init__(self, val):\\n\"\n"
@@ -59,6 +60,53 @@ __asm__(".pushsection \".debug_gdb_scripts\", \"MS\",%progbits,1\n"
         ".ascii \"    return pp\\n\"\n"
 
         ".ascii \"gdb.printing.register_pretty_printer(gdb.current_objfile(), boost_bloom_build_pretty_printer())\\n\"\n"
+
+        ".ascii \"# https://sourceware.org/gdb/current/onlinedocs/gdb.html/Writing-an-Xmethod.html\\n\"\n"
+        ".ascii \"class BoostBloomFilterSubscriptMethod(gdb.xmethod.XMethod):\\n\"\n"
+        ".ascii \"    def __init__(self):\\n\"\n"
+        ".ascii \"        gdb.xmethod.XMethod.__init__(self, 'subscript')\\n\"\n"
+
+        ".ascii \"    def get_worker(self, method_name):\\n\"\n"
+        ".ascii \"        if method_name == 'operator[]':\\n\"\n"
+        ".ascii \"            return BoostBloomFilterSubscriptWorker()\\n\"\n"
+
+        ".ascii \"class BoostBloomFilterSubscriptWorker(gdb.xmethod.XMethodWorker):\\n\"\n"
+        ".ascii \"    def get_arg_types(self):\\n\"\n"
+        ".ascii \"        return [gdb.lookup_type('std::size_t')]\\n\"\n"
+
+        ".ascii \"    def get_result_type(self, obj):\\n\"\n"
+        ".ascii \"        return gdb.lookup_type('unsigned char')\\n\"\n"
+
+        ".ascii \"    def __call__(self, obj, index):\\n\"\n"
+        ".ascii \"        fp = BoostBloomFilterPrinter(obj)\\n\"\n"
+        ".ascii \"        if fp.array_size == 0:\\n\"\n"
+        ".ascii \"            print('Error: Filter is null')\\n\"\n"
+        ".ascii \"            return\\n\"\n"
+        ".ascii \"        elif index < 0 or index >= fp.array_size:\\n\"\n"
+        ".ascii \"            print('Error: Out of bounds')\\n\"\n"
+        ".ascii \"            return\\n\"\n"
+        ".ascii \"        else:\\n\"\n"
+        ".ascii \"            data = fp.data\\n\"\n"
+        ".ascii \"            return (data + index).dereference()\\n\"\n"
+
+        ".ascii \"class BoostBloomFilterMatcher(gdb.xmethod.XMethodMatcher):\\n\"\n"
+        ".ascii \"    def __init__(self):\\n\"\n"
+        ".ascii \"        gdb.xmethod.XMethodMatcher.__init__(self, 'BoostBloomFilterMatcher')\\n\"\n"
+        ".ascii \"        self.methods = [BoostBloomFilterSubscriptMethod()]\\n\"\n"
+
+        ".ascii \"    def match(self, class_type, method_name):\\n\"\n"
+        ".ascii \"        if not class_type.tag.startswith('boost::bloom::filter<'):\\n\"\n"
+        ".ascii \"            return None\\n\"\n"
+
+        ".ascii \"        workers = []\\n\"\n"
+        ".ascii \"        for method in self.methods:\\n\"\n"
+        ".ascii \"            if method.enabled:\\n\"\n"
+        ".ascii \"                worker = method.get_worker(method_name)\\n\"\n"
+        ".ascii \"                if worker:\\n\"\n"
+        ".ascii \"                    workers.append(worker)\\n\"\n"
+        ".ascii \"        return workers\\n\"\n"
+
+        ".ascii \"gdb.xmethod.register_xmethod_matcher(None, BoostBloomFilterMatcher())\\n\"\n"
 
         ".byte 0\n"
         ".popsection\n");

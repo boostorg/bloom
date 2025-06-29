@@ -52,10 +52,10 @@ gdb.printing.register_pretty_printer(gdb.current_objfile(), boost_bloom_build_pr
 class BoostBloomFilterSubscriptMethod(gdb.xmethod.XMethod):
     def __init__(self):
         gdb.xmethod.XMethod.__init__(self, 'subscript')
- 
+
     def get_worker(self, method_name):
         if method_name == 'operator[]':
-            return BoostBloomFilterSubscriptWorker()    
+            return BoostBloomFilterSubscriptWorker()
 
 class BoostBloomFilterSubscriptWorker(gdb.xmethod.XMethodWorker):
     def get_arg_types(self):
@@ -63,14 +63,14 @@ class BoostBloomFilterSubscriptWorker(gdb.xmethod.XMethodWorker):
 
     def get_result_type(self, obj):
         return gdb.lookup_type('unsigned char')
- 
+
     def __call__(self, obj, index):
         fp = BoostBloomFilterPrinter(obj)
         if fp.array_size == 0:
-            print('Filter is null')
+            print('Error: Filter is null')
             return
         elif index < 0 or index >= fp.array_size:
-            print('Out of bounds')
+            print('Error: Out of bounds')
             return
         else:
             data = fp.data
@@ -80,7 +80,7 @@ class BoostBloomFilterMatcher(gdb.xmethod.XMethodMatcher):
     def __init__(self):
         gdb.xmethod.XMethodMatcher.__init__(self, 'BoostBloomFilterMatcher')
         self.methods = [BoostBloomFilterSubscriptMethod()]
- 
+
     def match(self, class_type, method_name):
         if not class_type.tag.startswith('boost::bloom::filter<'):
             return None
@@ -90,7 +90,7 @@ class BoostBloomFilterMatcher(gdb.xmethod.XMethodMatcher):
             if method.enabled:
                 worker = method.get_worker(method_name)
                 if worker:
-                    workers.append(worker) 
+                    workers.append(worker)
         return workers
 
 gdb.xmethod.register_xmethod_matcher(None, BoostBloomFilterMatcher())
