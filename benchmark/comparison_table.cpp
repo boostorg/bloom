@@ -225,32 +225,63 @@ template<typename Filters> void row(std::size_t c)
 
 using namespace boost::bloom;
 
+static constexpr bool branchful=false;
+static constexpr bool branchless=true;
+
 template<std::size_t K1,std::size_t K2,std::size_t K3>
 using filters1=boost::mp11::mp_list<
-  filter<int,K1>,
-  filter<int,1,block<std::uint64_t,K2>>,
-  filter<int,1,block<std::uint64_t,K3>,1>
+  filter<int,K1,block<unsigned char,1>,0,boost::hash<int>,std::allocator<unsigned char>,branchful>,
+  filter<int,1,block<std::uint64_t,K2,branchful>>,
+  filter<int,1,block<std::uint64_t,K3,branchful>,1>
+>;
+
+template<std::size_t K1,std::size_t K2,std::size_t K3>
+using filters1bl=boost::mp11::mp_list<
+  filter<int,K1,block<unsigned char,1>,0,boost::hash<int>,std::allocator<unsigned char>,branchless>,
+  filter<int,1,block<std::uint64_t,K2,branchless>>,
+  filter<int,1,block<std::uint64_t,K3,branchless>,1>
 >;
 
 template<std::size_t K1,std::size_t K2,std::size_t K3>
 using filters2=boost::mp11::mp_list<
-  filter<int,1,multiblock<std::uint64_t,K1>>,
-  filter<int,1,multiblock<std::uint64_t,K2>,1>,
-  filter<int,1,fast_multiblock32<K3>>
+  filter<int,1,multiblock<std::uint64_t,K1,branchful>>,
+  filter<int,1,multiblock<std::uint64_t,K2,branchful>,1>,
+  filter<int,1,fast_multiblock32<K3,branchful>>
+>;
+
+template<std::size_t K1,std::size_t K2,std::size_t K3>
+using filters2bl=boost::mp11::mp_list<
+  filter<int,1,multiblock<std::uint64_t,K1,branchless>>,
+  filter<int,1,multiblock<std::uint64_t,K2,branchless>,1>,
+  filter<int,1,fast_multiblock32<K3,branchless>>
 >;
 
 template<std::size_t K1,std::size_t K2,std::size_t K3>
 using filters3=boost::mp11::mp_list<
-  filter<int,1,fast_multiblock32<K1>,1>,
-  filter<int,1,fast_multiblock64<K2>>,
-  filter<int,1,fast_multiblock64<K3>,1>
+  filter<int,1,fast_multiblock32<K1,branchful>,1>,
+  filter<int,1,fast_multiblock64<K2,branchful>>,
+  filter<int,1,fast_multiblock64<K3,branchful>,1>
+>;
+
+template<std::size_t K1,std::size_t K2,std::size_t K3>
+using filters3bl=boost::mp11::mp_list<
+  filter<int,1,fast_multiblock32<K1,branchless>,1>,
+  filter<int,1,fast_multiblock64<K2,branchless>>,
+  filter<int,1,fast_multiblock64<K3,branchless>,1>
 >;
 
 template<std::size_t K1,std::size_t K2,std::size_t K3>
 using filters4=boost::mp11::mp_list<
-  filter<int,1,block<std::uint64_t[8],K1>>,
-  filter<int,1,block<std::uint64_t[8],K2>,1>,
-  filter<int,1,multiblock<std::uint64_t[8],K3>>
+  filter<int,1,block<std::uint64_t[8],K1,branchful>>,
+  filter<int,1,block<std::uint64_t[8],K2,branchful>,1>,
+  filter<int,1,multiblock<std::uint64_t[8],K3,branchful>>
+>;
+
+template<std::size_t K1,std::size_t K2,std::size_t K3>
+using filters4bl=boost::mp11::mp_list<
+  filter<int,1,block<std::uint64_t[8],K1,branchless>>,
+  filter<int,1,block<std::uint64_t[8],K2,branchless>,1>,
+  filter<int,1,multiblock<std::uint64_t[8],K3,branchless>>
 >;
 
 int main(int argc,char* argv[])
@@ -299,6 +330,7 @@ int main(int argc,char* argv[])
 
   std::cout<<
     "<table>\n"
+    "  <tr><th colspan=\"19\">branchful</th></tr>\n"
     "  <tr>\n"
     "    <th></th>\n"
     "    <th colspan=\"6\"><code>filter&lt;int,K></code></th>\n"
@@ -318,6 +350,27 @@ int main(int argc,char* argv[])
   row<filters1<14,  7,  8>>(20);
 
   std::cout<<
+    "  <tr><th colspan=\"19\">branchless</th></tr>\n"
+    "  <tr>\n"
+    "    <th></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,K></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,block&lt;uint64_t,K>></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,block&lt;uint64_t,K>,1></code></th>\n"
+    "  </tr>\n"
+    "  <tr>\n"
+    "    <th>c</th>\n"<<
+    subheader<<
+    subheader<<
+    subheader<<
+    "  </tr>\n";
+
+  row<filters1bl< 6,  4,  5>>( 8);
+  row<filters1bl< 9,  5,  6>>(12);
+  row<filters1bl<11,  6,  7>>(16);
+  row<filters1bl<14,  7,  8>>(20);
+
+  std::cout<<
+    "  <tr><th colspan=\"19\">branchful</th></tr>\n"
     "  <tr>\n"
     "    <th></th>\n"
     "    <th colspan=\"6\"><code>filter&lt;int,1,multiblock&lt;uint64_t,K>></code></th>\n"
@@ -337,6 +390,27 @@ int main(int argc,char* argv[])
   row<filters2<13, 14, 13>>(20);
 
   std::cout<<
+    "  <tr><th colspan=\"19\">branchless</th></tr>\n"
+    "  <tr>\n"
+    "    <th></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,multiblock&lt;uint64_t,K>></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,multiblock&lt;uint64_t,K>,1></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,fast_multiblock32&lt;K>></code></th>\n"
+    "  </tr>\n"
+    "  <tr>\n"
+    "    <th>c</th>\n"<<
+    subheader<<
+    subheader<<
+    subheader<<
+    "  </tr>\n";
+
+  row<filters2bl< 5,  5,  5>>( 8);
+  row<filters2bl< 8,  8,  8>>(12);
+  row<filters2bl<11, 11, 11>>(16);
+  row<filters2bl<13, 14, 13>>(20);
+
+  std::cout<<
+    "  <tr><th colspan=\"19\">branchful</th></tr>\n"
     "  <tr>\n"
     "    <th></th>\n"
     "    <th colspan=\"6\"><code>filter&lt;int,1,fast_multiblock32&lt;K>,1></code></th>\n"
@@ -356,6 +430,27 @@ int main(int argc,char* argv[])
   row<filters3<13, 13, 14>>(20);
 
   std::cout<<
+    "  <tr><th colspan=\"19\">branchless</th></tr>\n"
+    "  <tr>\n"
+    "    <th></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,fast_multiblock32&lt;K>,1></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,fast_multiblock64&lt;K>></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,fast_multiblock64&lt;K>,1></code></th>\n"
+    "  </tr>\n"
+    "  <tr>\n"
+    "    <th>c</th>\n"<<
+    subheader<<
+    subheader<<
+    subheader<<
+    "  </tr>\n";
+
+  row<filters3bl< 5,  5,  5>>( 8);
+  row<filters3bl< 8,  8,  8>>(12);
+  row<filters3bl<11, 11, 11>>(16);
+  row<filters3bl<13, 13, 14>>(20);
+
+  std::cout<<
+    "  <tr><th colspan=\"19\">branchful</th></tr>\n"
     "  <tr>\n"
     "    <th></th>\n"
     "    <th colspan=\"6\"><code>filter&lt;int,1,block&lt;uint64_t[8],K>></code></th>\n"
@@ -373,6 +468,26 @@ int main(int argc,char* argv[])
   row<filters4< 7,  7, 10>>(12);
   row<filters4< 9, 10, 11>>(16);
   row<filters4<12, 12, 15>>(20);
+
+  std::cout<<
+    "  <tr><th colspan=\"19\">branchless</th></tr>\n"
+    "  <tr>\n"
+    "    <th></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,block&lt;uint64_t[8],K>></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,block&lt;uint64_t[8],K>,1></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,multiblock&lt;uint64_t[8],K>></code></th>\n"
+    "  </tr>\n"
+    "  <tr>\n"
+    "    <th>c</th>\n"<<
+    subheader<<
+    subheader<<
+    subheader<<
+    "  </tr>\n";
+
+  row<filters4bl< 5,  6,  7>>( 8);
+  row<filters4bl< 7,  7, 10>>(12);
+  row<filters4bl< 9, 10, 11>>(16);
+  row<filters4bl<12, 12, 15>>(20);
 
   std::cout<<"</table>\n";
 }
