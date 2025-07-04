@@ -172,7 +172,8 @@ template<bool B,typename T,typename std::enable_if<!B>::type* =nullptr>
 void swap_if(T&,T&){}
 
 template<
-  std::size_t K,typename Subfilter,std::size_t Stride,typename Allocator
+  std::size_t K,typename Subfilter,std::size_t Stride,typename Allocator,
+  bool Branchless
 >
 class filter_core:empty_value<Allocator,0>
 {
@@ -441,24 +442,7 @@ public:
 
   BOOST_FORCEINLINE bool may_contain(std::uint64_t hash)const
   {
-    hs.prepare_hash(hash);
-#if 1
-    auto p0=next_element(hash);
-    for(std::size_t n=k-1;n--;){
-      auto p=p0;
-      auto hash0=hash;
-      p0=next_element(hash);
-      if(!get(p,hash0))return false;
-    }
-    if(!get(p0,hash))return false;
-    return true;
-#else
-    for(auto n=k;n--;){
-      auto p=next_element(hash); /* modifies hash */
-      if(!get(p,hash))return false;
-    }
-    return true;
-#endif
+    return may_contain(hash,std::integral_constant<bool,Branchless>{});
   }
 
   friend bool operator==(const filter_core& x,const filter_core& y)
@@ -638,6 +622,45 @@ private:
     return (std::max)(
       std::pow((double)res,(double)k),
       std::pow(1.0-std::exp(-(double)k_total/c),(double)k_total));
+  }
+
+  BOOST_FORCEINLINE bool may_contain(
+    std::uint64_t hash,std::false_type /* branchful */)const
+  {
+    hs.prepare_hash(hash);
+#if 1
+    auto p0=next_element(hash);
+    for(std::size_t n=k-1;n--;){
+      auto p=p0;
+      auto hash0=hash;
+      p0=next_element(hash);
+      if(!get(p,hash0))return false;
+    }
+    if(!get(p0,hash))return false;
+    return true;
+#else
+    for(auto n=k;n--;){
+      auto p=next_element(hash); /* modifies hash */
+      if(!get(p,hash))return false;
+    }
+    return true;
+#endif
+  }
+
+  BOOST_FORCEINLINE bool may_contain(
+    std::uint64_t hash,std::true_type /* branchless */)const
+  {
+    bool res=true;
+    hs.prepare_hash(hash);
+    auto p0=next_element(hash);
+    for(std::size_t n=k-1;n--;){
+      auto p=p0;
+      auto hash0=hash;
+      p0=next_element(hash);
+      res&=get(p,hash0);
+    }
+    res&=get(p0,hash);
+    return res;
   }
 
   BOOST_FORCEINLINE bool get(const unsigned char* p,std::uint64_t hash)const

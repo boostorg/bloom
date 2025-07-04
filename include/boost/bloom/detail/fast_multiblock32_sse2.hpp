@@ -48,7 +48,7 @@ static inline int mm_testc_si128(__m128i x,__m128i y)
 
 } /* namespace detail */
 
-template<std::size_t K>
+template<std::size_t K,bool Branchless=false>
 struct fast_multiblock32:detail::multiblock_fpr_base<K>
 {
   static constexpr std::size_t k=K;
@@ -68,14 +68,7 @@ struct fast_multiblock32:detail::multiblock_fpr_base<K>
 
   static BOOST_FORCEINLINE bool check(const value_type& x,std::uint64_t hash)
   {
-    for(std::size_t i=0;i<k/8;++i){
-      if(!check_m128ix2(x[i],hash,8))return false;
-      hash=detail::mulx64(hash);
-    }
-    if(k%8){
-      if(!check_m128ix2(x[k/8],hash,k%8))return false;
-    }
-    return true;
+    return check(x,hash,std::integral_constant<bool,Branchless>{});
   }
 
 private:
@@ -140,6 +133,33 @@ private:
 #if BOOST_WORKAROUND(BOOST_MSVC,<=1900)
 #pragma warning(pop) /* C4800 */
 #endif
+
+  static BOOST_FORCEINLINE bool check(
+    const value_type& x,std::uint64_t hash,std::false_type /* branchful */)
+  {
+    for(std::size_t i=0;i<k/8;++i){
+      if(!check_m128ix2(x[i],hash,8))return false;
+      hash=detail::mulx64(hash);
+    }
+    if(k%8){
+      if(!check_m128ix2(x[k/8],hash,k%8))return false;
+    }
+    return true;
+  }
+
+  static BOOST_FORCEINLINE bool check(
+    const value_type& x,std::uint64_t hash,std::true_type /* branchless */)
+  {
+    bool res=true;
+    for(std::size_t i=0;i<k/8;++i){
+      res&=check_m128ix2(x[i],hash,8);
+      hash=detail::mulx64(hash);
+    }
+    if(k%8){
+      res&=check_m128ix2(x[k/8],hash,k%8);
+    }
+    return res;
+  }
 };
 
 #if defined(BOOST_MSVC)

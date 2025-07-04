@@ -38,7 +38,7 @@ namespace bloom{
 #define BOOST_BLOOM_INIT_U32X4X2(w0,x0,y0,z0,w1,x1,y1,z1) \
 {{BOOST_BLOOM_INIT_U32X4(w0,x0,y0,z0),BOOST_BLOOM_INIT_U32X4(w1,x1,y1,z1)}}
 
-template<std::size_t K>
+template<std::size_t K,bool Branchless=false>
 struct fast_multiblock32:detail::multiblock_fpr_base<K>
 {
   static constexpr std::size_t k=K;
@@ -58,14 +58,7 @@ struct fast_multiblock32:detail::multiblock_fpr_base<K>
 
   static BOOST_FORCEINLINE bool check(const value_type& x,std::uint64_t hash)
   {
-    for(std::size_t i=0;i<k/8;++i){
-      if(!check_uint32x4x2_t(x[i],hash,8))return false;
-      hash=detail::mulx64(hash);
-    }
-    if(k%8){
-      if(!check_uint32x4x2_t(x[k/8],hash,k%8))return false;
-    }
-    return true;
+    return check(x,hash,std::integral_constant<bool,Branchless>{});
   }
 
 private:
@@ -130,6 +123,33 @@ private:
     }
     int64x2_t res=vreinterpretq_s64_u32(vandq_u32(lo,hi));
     return (vgetq_lane_s64(res,0)&vgetq_lane_s64(res,1))==-1;
+  }
+
+  static BOOST_FORCEINLINE bool check(
+    const value_type& x,std::uint64_t hash,std::false_type /* branchful */)
+  {
+    for(std::size_t i=0;i<k/8;++i){
+      if(!check_uint32x4x2_t(x[i],hash,8))return false;
+      hash=detail::mulx64(hash);
+    }
+    if(k%8){
+      if(!check_uint32x4x2_t(x[k/8],hash,k%8))return false;
+    }
+    return true;
+  }
+
+  static BOOST_FORCEINLINE bool check(
+    const value_type& x,std::uint64_t hash,std::true_type /* branchless */)
+  {
+    bool res=true;
+    for(std::size_t i=0;i<k/8;++i){
+      res&=check_uint32x4x2_t(x[i],hash,8);
+      hash=detail::mulx64(hash);
+    }
+    if(k%8){
+      res&=check_uint32x4x2_t(x[k/8],hash,k%8);
+    }
+    return res;
   }
 };
 

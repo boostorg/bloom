@@ -18,7 +18,7 @@
 namespace boost{
 namespace bloom{
 
-template<typename Block,std::size_t K>
+template<typename Block,std::size_t K,bool Branchless=false>
 struct block:
   public detail::block_fpr_base<K>,
   private detail::block_base<Block,K>
@@ -61,9 +61,29 @@ private:
     const value_type& x,std::uint64_t hash,
     std::true_type /* extended block */)
   {
+    return check_extended(x,hash,std::integral_constant<bool,Branchless>{});
+  }
+
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  static inline bool check_extended(
+    const value_type& x,std::uint64_t hash,
+    std::false_type /* branchful */)
+  {
     return loop_while(hash,[&](std::uint64_t h){
       return block_ops::get_at_lsb(x,h&mask)&1;
     });
+  }
+
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  static inline bool check_extended(
+    const value_type& x,std::uint64_t hash,
+    std::true_type /* branchless */)
+  {
+    int res=1;
+    loop(hash,[&](std::uint64_t h){
+      res&=block_ops::get_at_lsb(x,h&mask);
+    });
+    return res;
   }
 };
 

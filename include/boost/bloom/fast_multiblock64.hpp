@@ -21,8 +21,8 @@
 namespace boost{
 namespace bloom{
 
-template<std::size_t K>
-using fast_multiblock64=multiblock<std::uint64_t,K>;
+template<std::size_t K,bool Branchless=false>
+using fast_multiblock64=multiblock<std::uint64_t,K,Branchless>;
 
 } /* namespace bloom */
 } /* namespace boost */

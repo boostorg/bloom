@@ -20,7 +20,7 @@
 namespace boost{
 namespace bloom{
 
-template<typename Block,std::size_t K>
+template<typename Block,std::size_t K,bool Branchless=false>
 struct multiblock:
   public detail::multiblock_fpr_base<K>,
   private detail::block_base<Block,K>
@@ -35,6 +35,20 @@ struct multiblock:
     loop(hash,[&](std::uint64_t h){block_ops::set(x[i++],h&mask);});
   }
 
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  static inline bool check(const value_type& x,std::uint64_t hash)
+  {
+    return check(x,hash,std::integral_constant<bool,Branchless>{});
+  }
+
+
+private:
+  using super=detail::block_base<Block,K>;
+  using super::mask;
+  using super::loop;
+  using super::loop_while;
+  using block_ops=detail::block_ops<Block>;
+
 #if BOOST_WORKAROUND(BOOST_MSVC,<=1900)
 /* 'int': forcing value to bool 'true' or 'false' */
 #pragma warning(push)
@@ -42,7 +56,18 @@ struct multiblock:
 #endif
 
   /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
-  static inline bool check(const value_type& x,std::uint64_t hash)
+  static inline bool check(
+    const value_type& x,std::uint64_t hash,std::false_type /* branchful */)
+  {
+    std::size_t i=0;
+    return loop_while(hash,[&](std::uint64_t h){
+      return block_ops::get_at_lsb(x[i++],h&mask)&1;
+    });
+  }
+
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  static inline bool check(
+    const value_type& x,std::uint64_t hash,std::true_type /* branchless */)
   {
     int res=1;
     std::size_t i=0;
@@ -53,12 +78,6 @@ struct multiblock:
 #if BOOST_WORKAROUND(BOOST_MSVC,<=1900)
 #pragma warning(pop) /* C4800 */
 #endif
-
-private:
-  using super=detail::block_base<Block,K>;
-  using super::mask;
-  using super::loop;
-  using block_ops=detail::block_ops<Block>;
 };
 
 } /* namespace bloom */
