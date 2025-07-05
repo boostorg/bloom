@@ -208,8 +208,12 @@ private:
     are_blocks_aligned?
       alignof(block_type)>cacheline?alignof(block_type):cacheline:
       1;
+#if 1
+  static constexpr std::size_t prefetched_cachelines=0;
+#else
   static constexpr std::size_t prefetched_cachelines=
     1+(block_size+cacheline-1-gcd_pow2(stride,cacheline))/cacheline;
+#endif
   using hash_strategy=detail::fastrange_and_mcg;
 
 public:
