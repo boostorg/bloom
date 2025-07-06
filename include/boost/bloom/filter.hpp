@@ -72,7 +72,7 @@ template<
   typename T,std::size_t K,
   typename Subfilter=block<unsigned char,1>,std::size_t Stride=0,
   typename Hash=boost::hash<T>,typename Allocator=std::allocator<unsigned char>,
-  bool Branchless=false
+  bool Branchless=false,bool Prefetch=true
 >
 class
 
@@ -82,7 +82,8 @@ __declspec(empty_bases) /* activate EBO with multiple inheritance */
 
 filter:
   detail::filter_core<
-    K,Subfilter,Stride,allocator_rebind_t<Allocator,unsigned char>,Branchless
+    K,Subfilter,Stride,allocator_rebind_t<Allocator,unsigned char>,
+    Branchless,Prefetch
   >,
   empty_value<Hash,0>
 {
@@ -90,7 +91,8 @@ filter:
   static_assert(
     std::is_same<unsigned char,allocator_value_type_t<Allocator>>::value,
     "Allocator's value_type must be unsigned char");
-  using super=detail::filter_core<K,Subfilter,Stride,Allocator,Branchless>;
+  using super=
+    detail::filter_core<K,Subfilter,Stride,Allocator,Branchless,Prefetch>;
   using mix_policy=typename std::conditional<
     boost::hash_is_avalanching<Hash>::value&&
     sizeof(std::size_t)>=sizeof(std::uint64_t),
@@ -302,10 +304,10 @@ public:
 private:
   template<
     typename T1,std::size_t K1,typename SF,std::size_t S,typename H,typename A,
-  bool B
+    bool B,bool P
   >
   bool friend operator==(
-    const filter<T1,K1,SF,S,H,A,B>& x,const filter<T1,K1,SF,S,H,A,B>& y);
+    const filter<T1,K1,SF,S,H,A,B,P>& x,const filter<T1,K1,SF,S,H,A,B,P>& y);
 
   using hash_base=empty_value<Hash,0>;
 
@@ -322,28 +324,30 @@ private:
 
 template<
   typename T,std::size_t K,typename SF,std::size_t S,typename H,typename A,
-  bool B
+  bool B,bool P
 >
-bool operator==(const filter<T,K,SF,S,H,A,B>& x,const filter<T,K,SF,S,H,A,B>& y)
+bool operator==(
+  const filter<T,K,SF,S,H,A,B,P>& x,const filter<T,K,SF,S,H,A,B,P>& y)
 {
-  using super=typename filter<T,K,SF,S,H,A>::super;
+  using super=typename filter<T,K,SF,S,H,A,B,P>::super;
   return static_cast<const super&>(x)==static_cast<const super&>(y);
 }
 
 template<
   typename T,std::size_t K,typename SF,std::size_t S,typename H,typename A,
-  bool B
+  bool B,bool P
 >
-bool operator!=(const filter<T,K,SF,S,H,A,B>& x,const filter<T,K,SF,S,H,A,B>& y)
+bool operator!=(
+  const filter<T,K,SF,S,H,A,B,P>& x,const filter<T,K,SF,S,H,A,B,P>& y)
 {
   return !(x==y);
 }
 
 template<
   typename T,std::size_t K,typename SF,std::size_t S,typename H,typename A,
-  bool B
+  bool B,bool P
 >
-void swap(filter<T,K,SF,S,H,A,B>& x,filter<T,K,SF,S,H,A,B>& y)
+void swap(filter<T,K,SF,S,H,A,B,P>& x,filter<T,K,SF,S,H,A,B,P>& y)
   noexcept(noexcept(x.swap(y)))
 {
   x.swap(y);

@@ -173,7 +173,7 @@ void swap_if(T&,T&){}
 
 template<
   std::size_t K,typename Subfilter,std::size_t Stride,typename Allocator,
-  bool Branchless
+  bool Branchless,bool Prefetch
 >
 class filter_core:empty_value<Allocator,0>
 {
@@ -208,12 +208,10 @@ private:
     are_blocks_aligned?
       alignof(block_type)>cacheline?alignof(block_type):cacheline:
       1;
-#if 1
-  static constexpr std::size_t prefetched_cachelines=0;
-#else
   static constexpr std::size_t prefetched_cachelines=
-    1+(block_size+cacheline-1-gcd_pow2(stride,cacheline))/cacheline;
-#endif
+    Prefetch?
+    1+(block_size+cacheline-1-gcd_pow2(stride,cacheline))/cacheline:
+    0;
   using hash_strategy=detail::fastrange_and_mcg;
 
 public:
