@@ -231,6 +231,24 @@ using namespace boost::bloom;
 static constexpr bool branchful=false;
 static constexpr bool branchless=true;
 
+template<typename Filter>
+struct no_prefetch_impl;
+
+template<
+  typename T,std::size_t K,typename SF,std::size_t S,typename H,typename A,
+  bool B,bool P
+>
+struct no_prefetch_impl<boost::bloom::filter<T,K,SF,S,H,A,B,P>>
+{
+  using type=boost::bloom::filter<T,K,SF,S,H,A,B,false>;
+};
+
+template<typename Filter>
+using no_prefetch=typename no_prefetch_impl<Filter>::type;
+
+template<typename L>
+using make_no_prefetch=boost::mp11::mp_transform<no_prefetch,L>;
+
 template<std::size_t K1,std::size_t K2,std::size_t K3>
 using filters1=boost::mp11::mp_list<
   filter<int,K1,block<unsigned char,1>,0,boost::hash<int>,std::allocator<unsigned char>,branchful>,
@@ -331,6 +349,8 @@ int main(int argc,char* argv[])
     "    <th>uns.<br/>lkp.</th>\n"
     "    <th>mixed<br/>lkp.</th>\n";
 
+  /* prefetch */
+
   std::cout<<
     "<table>\n"
     "  <tr><th colspan=\"19\">branchful</th></tr>\n"
@@ -372,6 +392,50 @@ int main(int argc,char* argv[])
   row<filters1bl<11,  6,  7>>(16);
   row<filters1bl<14,  7,  8>>(20);
 
+  /* no prefetch */
+
+  std::cout<<
+    "  <tr><th colspan=\"19\">branchful no prefetch</th></tr>\n"
+    "  <tr>\n"
+    "    <th></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,K></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,block&lt;uint64_t,K>></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,block&lt;uint64_t,K>,1></code></th>\n"
+    "  </tr>\n"
+    "  <tr>\n"
+    "    <th>c</th>\n"<<
+    subheader<<
+    subheader<<
+    subheader<<
+    "  </tr>\n";
+
+  row<make_no_prefetch<filters1< 6,  4,  5>>>( 8);
+  row<make_no_prefetch<filters1< 9,  5,  6>>>(12);
+  row<make_no_prefetch<filters1<11,  6,  7>>>(16);
+  row<make_no_prefetch<filters1<14,  7,  8>>>(20);
+
+  std::cout<<
+    "  <tr><th colspan=\"19\">branchless no prefetch</th></tr>\n"
+    "  <tr>\n"
+    "    <th></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,K></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,block&lt;uint64_t,K>></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,block&lt;uint64_t,K>,1></code></th>\n"
+    "  </tr>\n"
+    "  <tr>\n"
+    "    <th>c</th>\n"<<
+    subheader<<
+    subheader<<
+    subheader<<
+    "  </tr>\n";
+
+  row<make_no_prefetch<filters1bl< 6,  4,  5>>>( 8);
+  row<make_no_prefetch<filters1bl< 9,  5,  6>>>(12);
+  row<make_no_prefetch<filters1bl<11,  6,  7>>>(16);
+  row<make_no_prefetch<filters1bl<14,  7,  8>>>(20);
+
+  /* prefetch */
+
   std::cout<<
     "  <tr><th colspan=\"19\">branchful</th></tr>\n"
     "  <tr>\n"
@@ -411,6 +475,50 @@ int main(int argc,char* argv[])
   row<filters2bl< 8,  8,  8>>(12);
   row<filters2bl<11, 11, 11>>(16);
   row<filters2bl<13, 14, 13>>(20);
+
+  /* no prefetch */
+
+  std::cout<<
+    "  <tr><th colspan=\"19\">branchful no prefetch</th></tr>\n"
+    "  <tr>\n"
+    "    <th></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,multiblock&lt;uint64_t,K>></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,multiblock&lt;uint64_t,K>,1></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,fast_multiblock32&lt;K>></code></th>\n"
+    "  </tr>\n"
+    "  <tr>\n"
+    "    <th>c</th>\n"<<
+    subheader<<
+    subheader<<
+    subheader<<
+    "  </tr>\n";
+
+  row<make_no_prefetch<filters2< 5,  5,  5>>>( 8);
+  row<make_no_prefetch<filters2< 8,  8,  8>>>(12);
+  row<make_no_prefetch<filters2<11, 11, 11>>>(16);
+  row<make_no_prefetch<filters2<13, 14, 13>>>(20);
+
+  std::cout<<
+    "  <tr><th colspan=\"19\">branchless no prefetch</th></tr>\n"
+    "  <tr>\n"
+    "    <th></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,multiblock&lt;uint64_t,K>></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,multiblock&lt;uint64_t,K>,1></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,fast_multiblock32&lt;K>></code></th>\n"
+    "  </tr>\n"
+    "  <tr>\n"
+    "    <th>c</th>\n"<<
+    subheader<<
+    subheader<<
+    subheader<<
+    "  </tr>\n";
+
+  row<make_no_prefetch<filters2bl< 5,  5,  5>>>( 8);
+  row<make_no_prefetch<filters2bl< 8,  8,  8>>>(12);
+  row<make_no_prefetch<filters2bl<11, 11, 11>>>(16);
+  row<make_no_prefetch<filters2bl<13, 14, 13>>>(20);
+
+  /* prefetch */
 
   std::cout<<
     "  <tr><th colspan=\"19\">branchful</th></tr>\n"
@@ -452,6 +560,50 @@ int main(int argc,char* argv[])
   row<filters3bl<11, 11, 11>>(16);
   row<filters3bl<13, 13, 14>>(20);
 
+  /* no prefetch */
+
+  std::cout<<
+    "  <tr><th colspan=\"19\">branchful no prefetch</th></tr>\n"
+    "  <tr>\n"
+    "    <th></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,fast_multiblock32&lt;K>,1></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,fast_multiblock64&lt;K>></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,fast_multiblock64&lt;K>,1></code></th>\n"
+    "  </tr>\n"
+    "  <tr>\n"
+    "    <th>c</th>\n"<<
+    subheader<<
+    subheader<<
+    subheader<<
+    "  </tr>\n";
+
+  row<make_no_prefetch<filters3< 5,  5,  5>>>( 8);
+  row<make_no_prefetch<filters3< 8,  8,  8>>>(12);
+  row<make_no_prefetch<filters3<11, 11, 11>>>(16);
+  row<make_no_prefetch<filters3<13, 13, 14>>>(20);
+
+  std::cout<<
+    "  <tr><th colspan=\"19\">branchless no prefetch</th></tr>\n"
+    "  <tr>\n"
+    "    <th></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,fast_multiblock32&lt;K>,1></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,fast_multiblock64&lt;K>></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,fast_multiblock64&lt;K>,1></code></th>\n"
+    "  </tr>\n"
+    "  <tr>\n"
+    "    <th>c</th>\n"<<
+    subheader<<
+    subheader<<
+    subheader<<
+    "  </tr>\n";
+
+  row<make_no_prefetch<filters3bl< 5,  5,  5>>>( 8);
+  row<make_no_prefetch<filters3bl< 8,  8,  8>>>(12);
+  row<make_no_prefetch<filters3bl<11, 11, 11>>>(16);
+  row<make_no_prefetch<filters3bl<13, 13, 14>>>(20);
+
+  /* prefetch */
+
   std::cout<<
     "  <tr><th colspan=\"19\">branchful</th></tr>\n"
     "  <tr>\n"
@@ -491,6 +643,48 @@ int main(int argc,char* argv[])
   row<filters4bl< 7,  7, 10>>(12);
   row<filters4bl< 9, 10, 11>>(16);
   row<filters4bl<12, 12, 15>>(20);
+
+  /* no prefetch */
+
+  std::cout<<
+    "  <tr><th colspan=\"19\">branchful no prefetch</th></tr>\n"
+    "  <tr>\n"
+    "    <th></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,block&lt;uint64_t[8],K>></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,block&lt;uint64_t[8],K>,1></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,multiblock&lt;uint64_t[8],K>></code></th>\n"
+    "  </tr>\n"
+    "  <tr>\n"
+    "    <th>c</th>\n"<<
+    subheader<<
+    subheader<<
+    subheader<<
+    "  </tr>\n";
+
+  row<make_no_prefetch<filters4< 5,  6,  7>>>( 8);
+  row<make_no_prefetch<filters4< 7,  7, 10>>>(12);
+  row<make_no_prefetch<filters4< 9, 10, 11>>>(16);
+  row<make_no_prefetch<filters4<12, 12, 15>>>(20);
+
+  std::cout<<
+    "  <tr><th colspan=\"19\">branchless no prefetch</th></tr>\n"
+    "  <tr>\n"
+    "    <th></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,block&lt;uint64_t[8],K>></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,block&lt;uint64_t[8],K>,1></code></th>\n"
+    "    <th colspan=\"6\"><code>filter&lt;int,1,multiblock&lt;uint64_t[8],K>></code></th>\n"
+    "  </tr>\n"
+    "  <tr>\n"
+    "    <th>c</th>\n"<<
+    subheader<<
+    subheader<<
+    subheader<<
+    "  </tr>\n";
+
+  row<make_no_prefetch<filters4bl< 5,  6,  7>>>( 8);
+  row<make_no_prefetch<filters4bl< 7,  7, 10>>>(12);
+  row<make_no_prefetch<filters4bl< 9, 10, 11>>>(16);
+  row<make_no_prefetch<filters4bl<12, 12, 15>>>(20);
 
   std::cout<<"</table>\n";
 }
