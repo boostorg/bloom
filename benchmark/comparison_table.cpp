@@ -158,22 +158,19 @@ test_results test(std::size_t c)
     for(const auto& x:data_in)f.insert(x);
     double t=measure([&]{
       std::size_t res=0;
-      std::size_t i=0;
-      for(const auto& x:data_in)if(f.may_contain(x))res+=++i;
+      for(const auto& x:data_in)res+=f.may_contain(x);
       return res;
     });
     successful_lookup_time=t/num_elements*1E9;
     t=measure([&]{
       std::size_t res=0;
-      std::size_t i=0;
-      for(const auto& x:data_out)if(f.may_contain(x))res+=++i;
+      for(const auto& x:data_out)res+=f.may_contain(x);
       return res;
     });
     unsuccessful_lookup_time=t/num_elements*1E9;
     t=measure([&]{
       std::size_t res=0;
-      std::size_t i=0;
-      for(const auto& x:data_mixed)if(f.may_contain(x))res+=++i;
+      for(const auto& x:data_mixed)res+=f.may_contain(x);
       return res;
     });
     mixed_lookup_time=t/num_elements*1E9;
