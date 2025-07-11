@@ -217,6 +217,7 @@ public:
   using difference_type=std::ptrdiff_t;
   using pointer=unsigned char*;
   using const_pointer=const unsigned char*;
+  static constexpr std::size_t bulk_insert_size=64;
 
   explicit filter_core(std::size_t m=0):filter_core{m,allocator_type{}}{}
 
@@ -383,6 +384,15 @@ public:
       if(BOOST_UNLIKELY(n==k-1&&ar.data==nullptr))return;
 
       set(p,hash);
+    }
+  }
+
+  template<typename F> void bulk_insert(F f,std::size_t n)
+  {
+    while(n){
+      auto n0=n<2*bulk_insert_size?n:bulk_insert_size;
+      bulk_insert_impl(std::forward<F>(f),n0);
+      n-=n0;
     }
   }
 
@@ -701,6 +711,33 @@ private:
       BOOST_BLOOM_PREFETCH((unsigned char*)p+i*cacheline);
     }
     return p;
+  }
+
+  template<typename F> void bulk_insert_impl(F&& f,std::size_t n)
+  {
+    std::uint64_t  hashes[2*bulk_insert_size-1];
+    unsigned char* positions[2*bulk_insert_size-1];
+
+    for(auto i=n;i--;){
+      auto& hash=hashes[i]=f();
+      auto& p=positions[i];
+      hs.prepare_hash(hash);
+      p=next_element(hash);
+    }
+    if(BOOST_UNLIKELY(ar.data==nullptr))return;
+    for(auto j=k-1;j--;){
+      for(auto i=n;i--;){
+        auto& hash=hashes[i];
+        auto& p=positions[i];
+        set(p,hash);
+        p=next_element(hash);
+      }
+    }
+    for(auto i=n;i--;){
+      auto& hash=hashes[i];
+      auto& p=positions[i];
+      set(p,hash);
+    }
   }
 
   template<typename F>

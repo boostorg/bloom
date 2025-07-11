@@ -47,31 +47,44 @@ void test_insertion()
   >;
   using value_type=typename filter::value_type;
 
-  filter       f(10000);
   ValueFactory fac;
 
   {
+    filter     f(10000);
     value_type x{fac(),0};
     f.insert(const_cast<value_type&>(x));
     BOOST_TEST(f.may_contain(x));
   }
   {
+    filter     f(10000);
     value_type x{fac(),0};
     f.insert(std::move(x));
     BOOST_TEST(f.may_contain(x));
   }
   {
-    auto x=fac();
+    filter f(10000);
+    auto   x=fac();
     f.insert(x); /* transparent insert */
     BOOST_TEST(f.may_contain(x));
   }
   {
+    filter                    f(10000);
     std::array<value_type,10> input;
     for(auto& x:input)x={fac(),0};
     f.insert(input.begin(),input.end());
     BOOST_TEST(may_contain(f,input));
   }
   {
+    filter                      f1(10000),f2(f1);
+    std::array<value_type,1000> input;
+    for(auto& x:input)x={fac(),0};
+    f1.insert(input.begin(),input.end());
+    f2.insert(
+      make_input_iterator(input.begin()),make_input_iterator(input.end()));
+    BOOST_TEST(f1==f2);
+  }
+  {
+    filter                            f(10000);
     std::initializer_list<value_type> il={{fac(),0},{fac(),0},{fac(),0}};
     f.insert(il);
     BOOST_TEST(may_contain(f,il));

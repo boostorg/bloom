@@ -110,6 +110,7 @@ public:
   using const_reference=const value_type&;
   using pointer=value_type*;
   using const_pointer=const value_type*;
+  static constexpr std::size_t bulk_insert_size=super::bulk_insert_size;
 
   filter()=default;
 
@@ -243,10 +244,13 @@ public:
     super::insert(hash_for(x));
   }
 
-  template<typename InputIterator>
-  void insert(InputIterator first,InputIterator last)
+  template<typename Iterator>
+  void insert(Iterator first,Iterator last)
   {
-    while(first!=last)insert(*first++);
+    insert_impl(
+      first,last,
+      std::integral_constant<
+        bool,detail::is_forward_iterator<Iterator>::value>{});
   }
 
   void insert(std::initializer_list<value_type> il)
@@ -315,6 +319,22 @@ private:
   inline std::uint64_t hash_for(const U& x)const
   {
     return mix_policy::mix(h(),x);
+  }
+
+  template<typename Iterator>
+  void insert_impl(
+    Iterator first,Iterator last,std::false_type /* input iterator */)
+  {
+    while(first!=last)insert(*first++);
+  }
+
+  template<typename Iterator>
+  void insert_impl(
+    Iterator first,Iterator last,std::true_type /* forward iterator */)
+  {
+    super::bulk_insert(
+      [&,this]{return hash_for(*first++);},
+      static_cast<std::size_t>(std::distance(first,last)));
   }
 };
 
