@@ -630,7 +630,7 @@ private:
     std::uint64_t hash,std::false_type /* branchful */)const
   {
     hs.prepare_hash(hash);
-#if 1
+#if 0
     auto p0=next_element(hash);
     for(std::size_t n=k-1;n--;){
       auto p=p0;
