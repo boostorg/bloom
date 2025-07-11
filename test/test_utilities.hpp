@@ -10,6 +10,7 @@
 #define BOOST_BLOOM_TEST_TEST_UTILITIES_HPP
 
 #include <boost/bloom/filter.hpp>
+#include <iterator>
 #include <limits>
 #include <new>
 #include <string>
@@ -109,6 +110,31 @@ bool may_not_contain(const Filter& f,const Input& input)
   for(const auto& x:input)res+=f.may_contain(x);
   return res<input.size(); /* res should be 0 with high probability */
 }
+
+template<typename Iterator>
+class input_iterator
+{
+  using traits=std::iterator_traits<Iterator>;
+  Iterator it;
+
+public:
+  using iterator_category=std::input_iterator_tag;
+  using value_type=typename traits::value_type;
+  using difference_type=typename traits::value_type;
+  using pointer=typename traits::pointer;
+  using reference=typename traits::reference;
+
+  input_iterator(Iterator it_):it{it_}{}
+  reference operator*()const{return *it;}
+  pointer operator->()const{return it;}
+  input_iterator& operator++(){++it;return *this;}
+  input_iterator operator++(int){auto res=*this;++it;return res;}
+  bool operator==(const input_iterator& x)const{return it==x.it;}
+  bool operator!=(const input_iterator& x)const{return !(*this==x);}
+};
+
+template<typename Iterator>
+input_iterator<Iterator> make_input_iterator(Iterator it){return {it};}
 
 } /* namespace test_utilities */
 #endif
