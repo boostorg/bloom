@@ -311,7 +311,7 @@ public:
     BOOST_BLOOM_STATIC_ASSERT_IS_FORWARD_ITERATOR(ForwardIterator);
 
     super::bulk_may_contain(
-      [=,this]()mutable{return hash_for(*first++);},
+      [=]()mutable{return hash_for(*first++);},
       static_cast<std::size_t>(std::distance(first,last)),
       [=,&f](bool res)mutable{f(*first++,res);});
   }
@@ -347,7 +347,7 @@ private:
     Iterator first,Iterator last,std::true_type /* forward iterator */)
   {
     super::bulk_insert(
-      [=,this]()mutable{return hash_for(*first++);},
+      [=]()mutable{return hash_for(*first++);},
       static_cast<std::size_t>(std::distance(first,last)));
   }
 };
