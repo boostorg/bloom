@@ -151,6 +151,11 @@ using is_forward_iterator=std::integral_constant<
 >;
 #endif
 
+#define BOOST_BLOOM_STATIC_ASSERT_IS_FORWARD_ITERATOR(Iterator) \
+static_assert(                                                  \
+  boost::bloom::detail::is_forward_iterator< Iterator >::value, \
+  #Iterator " must be a forward iterator")
+
 } /* namespace detail */
 } /* namespace bloom */
 } /* namespace boost */

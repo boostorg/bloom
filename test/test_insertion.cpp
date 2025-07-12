@@ -6,8 +6,8 @@
  * See https://www.boost.org/libs/bloom for library home page.
  */
 
-#include <boost/core/lightweight_test.hpp>
 #include <array>
+#include <boost/core/lightweight_test.hpp>
 #include <boost/mp11/algorithm.hpp>
 #include <utility>
 #include "test_types.hpp"
@@ -73,15 +73,6 @@ void test_insertion()
     for(auto& x:input)x={fac(),0};
     f.insert(input.begin(),input.end());
     BOOST_TEST(may_contain(f,input));
-  }
-  {
-    filter                      f1(10000),f2(f1);
-    std::array<value_type,1000> input;
-    for(auto& x:input)x={fac(),0};
-    f1.insert(input.begin(),input.end());
-    f2.insert(
-      make_input_iterator(input.begin()),make_input_iterator(input.end()));
-    BOOST_TEST(f1==f2);
   }
   {
     filter                            f(10000);
