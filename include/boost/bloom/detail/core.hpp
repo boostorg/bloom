@@ -218,6 +218,7 @@ public:
   using pointer=unsigned char*;
   using const_pointer=const unsigned char*;
   static constexpr std::size_t bulk_insert_size=64;
+  static constexpr std::size_t bulk_lookup_size=64;
 
   explicit filter_core(std::size_t m=0):filter_core{m,allocator_type{}}{}
 
@@ -387,11 +388,21 @@ public:
     }
   }
 
-  template<typename F> void bulk_insert(F f,std::size_t n)
+  template<typename HashStream> void bulk_insert(HashStream h,std::size_t n)
   {
     while(n){
       auto n0=n<2*bulk_insert_size?n:bulk_insert_size;
-      bulk_insert_impl(std::forward<F>(f),n0);
+      bulk_insert_impl(std::forward<HashStream>(h),n0);
+      n-=n0;
+    }
+  }
+
+  template<typename HashStream,typename F>
+  void bulk_may_contain(HashStream h,std::size_t n,F f)const
+  {
+    while(n){
+      auto n0=n<2*bulk_lookup_size?n:bulk_lookup_size;
+      bulk_may_contain_impl(std::forward<HashStream>(h),n0,std::forward<F>(f));
       n-=n0;
     }
   }
@@ -713,13 +724,14 @@ private:
     return p;
   }
 
-  template<typename F> void bulk_insert_impl(F&& f,std::size_t n)
+  template<typename HashStream>
+  void bulk_insert_impl(HashStream&& h,std::size_t n)
   {
     std::uint64_t  hashes[2*bulk_insert_size-1];
     unsigned char* positions[2*bulk_insert_size-1];
 
     for(auto i=n;i--;){
-      auto& hash=hashes[i]=f();
+      auto& hash=hashes[i]=h();
       auto& p=positions[i];
       hs.prepare_hash(hash);
       p=next_element(hash);
@@ -737,6 +749,38 @@ private:
       auto& hash=hashes[i];
       auto& p=positions[i];
       set(p,hash);
+    }
+  }
+
+  template<typename HashStream,typename F>
+  void bulk_may_contain_impl(HashStream&& h,std::size_t n,F&& f)const
+  {
+    std::uint64_t        hashes[2*bulk_lookup_size-1];
+    const unsigned char* positions[2*bulk_lookup_size-1];
+    bool                 results[2*bulk_lookup_size-1];
+
+    for(auto i=n;i--;){
+      auto& hash=hashes[i]=h();
+      auto& p=positions[i];
+      results[i]=true;
+      hs.prepare_hash(hash);
+      p=next_element(hash);
+    }
+    for(auto j=k-1;j--;){
+      for(auto i=n;i--;){
+        auto& hash=hashes[i];
+        auto& p=positions[i];
+        auto& res=results[i];
+        res&=get(p,hash);
+        p=next_element(hash);
+      }
+    }
+    for(auto i=n;i--;){
+      auto& hash=hashes[i];
+      auto& p=positions[i];
+      auto& res=results[i];
+      res&=get(p,hash);
+      f(res);
     }
   }
 

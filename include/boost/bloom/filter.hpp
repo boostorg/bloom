@@ -23,6 +23,7 @@
 #include <boost/core/empty_value.hpp>
 #include <cstdint>
 #include <initializer_list>
+#include <iterator>
 #include <memory>
 #include <type_traits>
 #include <utility>
@@ -111,6 +112,7 @@ public:
   using pointer=value_type*;
   using const_pointer=const value_type*;
   static constexpr std::size_t bulk_insert_size=super::bulk_insert_size;
+  static constexpr std::size_t bulk_lookup_size=super::bulk_lookup_size;
 
   filter()=default;
 
@@ -302,6 +304,18 @@ public:
     return super::may_contain(hash_for(x));
   }
 
+
+  template<typename ForwardIterator,typename F>
+  void may_contain(ForwardIterator first,ForwardIterator last,F f)
+  {
+    BOOST_BLOOM_STATIC_ASSERT_IS_FORWARD_ITERATOR(ForwardIterator);
+
+    super::bulk_may_contain(
+      [=,this]()mutable{return hash_for(*first++);},
+      static_cast<std::size_t>(std::distance(first,last)),
+      [=,&f](bool res)mutable{f(*first++,res);});
+  }
+
 private:
   template<
     typename T1,std::size_t K1,typename SF,std::size_t S,typename H,typename A
@@ -333,7 +347,7 @@ private:
     Iterator first,Iterator last,std::true_type /* forward iterator */)
   {
     super::bulk_insert(
-      [&,this]{return hash_for(*first++);},
+      [=,this]()mutable{return hash_for(*first++);},
       static_cast<std::size_t>(std::distance(first,last)));
   }
 };
