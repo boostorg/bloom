@@ -218,7 +218,7 @@ public:
   using pointer=unsigned char*;
   using const_pointer=const unsigned char*;
   static constexpr std::size_t bulk_insert_size=64;
-  static constexpr std::size_t bulk_lookup_size=64;
+  static constexpr std::size_t bulk_may_contain_size=64;
 
   explicit filter_core(std::size_t m=0):filter_core{m,allocator_type{}}{}
 
@@ -401,7 +401,7 @@ public:
   void bulk_may_contain(HashStream h,std::size_t n,F f)const
   {
     while(n){
-      auto n0=n<2*bulk_lookup_size?n:bulk_lookup_size;
+      auto n0=n<2*bulk_may_contain_size?n:bulk_may_contain_size;
       bulk_may_contain_impl(std::forward<HashStream>(h),n0,std::forward<F>(f));
       n-=n0;
     }
@@ -755,9 +755,9 @@ private:
   template<typename HashStream,typename F>
   void bulk_may_contain_impl(HashStream&& h,std::size_t n,F&& f)const
   {
-    std::uint64_t        hashes[2*bulk_lookup_size-1];
-    const unsigned char* positions[2*bulk_lookup_size-1];
-    bool                 results[2*bulk_lookup_size-1];
+    std::uint64_t        hashes[2*bulk_may_contain_size-1];
+    const unsigned char* positions[2*bulk_may_contain_size-1];
+    bool                 results[2*bulk_may_contain_size-1];
 
     for(auto i=n;i--;){
       auto& hash=hashes[i]=h();

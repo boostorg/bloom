@@ -75,6 +75,13 @@ void test_insertion()
     BOOST_TEST(may_contain(f,input));
   }
   {
+    filter                         f(10000);
+    std::array<decltype(fac()),10> input;
+    for(auto& x:input)x=fac();
+    f.insert(input.begin(),input.end()); /* transparent insert */
+    BOOST_TEST(may_contain(f,input));
+  }
+  {
     filter                            f(10000);
     std::initializer_list<value_type> il={{fac(),0},{fac(),0},{fac(),0}};
     f.insert(il);

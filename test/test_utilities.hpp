@@ -96,19 +96,27 @@ void* capped_new(std::size_t n)
 }
 
 template<typename Filter,typename Input>
+std::size_t may_contain_count(const Filter& f,const Input& input)
+{
+  using input_value_type=typename Input::value_type;
+  std::size_t res=0;
+  f.may_contain(
+    input.begin(),input.end(),
+    [&](const input_value_type&,bool b){res+=b;});
+  return res;
+}
+
+template<typename Filter,typename Input>
 bool may_contain(const Filter& f,const Input& input)
 {
-  std::size_t res=0;
-  for(const auto& x:input)res+=f.may_contain(x);
-  return res==input.size();
+  return may_contain_count(f,input)==input.size();
 }
 
 template<typename Filter,typename Input>
 bool may_not_contain(const Filter& f,const Input& input)
 {
-  std::size_t res=0;
-  for(const auto& x:input)res+=f.may_contain(x);
-  return res<input.size(); /* res should be 0 with high probability */
+  /* may_contain_count should be 0 with high probability */
+  return may_contain_count(f,input)<input.size();
 }
 
 template<typename Iterator>
