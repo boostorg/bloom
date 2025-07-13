@@ -3,6 +3,10 @@
 
 :idprefix: release_notes_
 
+== Boost 1.90
+
+* Added bulk-mode insertion and lookup for increased performance.
+
 == Boost 1.89
 
 * Initial release.
