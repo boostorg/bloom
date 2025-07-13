@@ -129,7 +129,7 @@ public:
   using iterator_category=std::input_iterator_tag;
   using value_type=typename traits::value_type;
   using difference_type=typename traits::difference_type;
-  using pointer=typename traits::pointer;
+  using pointer=Iterator;
   using reference=typename traits::reference;
 
   input_iterator(Iterator it_):it{it_}{}
