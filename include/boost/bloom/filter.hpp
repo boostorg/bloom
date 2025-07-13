@@ -112,7 +112,8 @@ public:
   using pointer=value_type*;
   using const_pointer=const value_type*;
   static constexpr std::size_t bulk_insert_size=super::bulk_insert_size;
-  static constexpr std::size_t bulk_lookup_size=super::bulk_lookup_size;
+  static constexpr std::size_t bulk_may_contain_size=
+    super::bulk_may_contain_size;
 
   filter()=default;
 
@@ -246,13 +247,13 @@ public:
     super::insert(hash_for(x));
   }
 
-  template<typename Iterator>
-  void insert(Iterator first,Iterator last)
+  template<typename InputIterator>
+  void insert(InputIterator first,InputIterator last)
   {
     insert_impl(
       first,last,
       std::integral_constant<
-        bool,detail::is_forward_iterator<Iterator>::value>{});
+        bool,detail::is_forward_iterator<InputIterator>::value>{});
   }
 
   void insert(std::initializer_list<value_type> il)
@@ -304,14 +305,13 @@ public:
     return super::may_contain(hash_for(x));
   }
 
-
   template<typename ForwardIterator,typename F>
-  void may_contain(ForwardIterator first,ForwardIterator last,F f)
+  void may_contain(ForwardIterator first,ForwardIterator last,F f)const
   {
     BOOST_BLOOM_STATIC_ASSERT_IS_FORWARD_ITERATOR(ForwardIterator);
 
     super::bulk_may_contain(
-      [=]()mutable{return hash_for(*first++);},
+      [=]()mutable{return promoting_hash_for(*first++);},
       static_cast<std::size_t>(std::distance(first,last)),
       [=,&f](bool res)mutable{f(*first++,res);});
   }
@@ -335,6 +335,26 @@ private:
     return mix_policy::mix(h(),x);
   }
 
+  /* promoting_hash_for forces conversion to value_type unless Hash
+   * is transparent.
+   */
+
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  inline std::uint64_t promoting_hash_for(const T& x)const
+  {
+    return hash_for(x);
+  }
+
+  template<
+    typename U,
+    typename H=hasher,detail::enable_if_transparent_t<H>* =nullptr
+  >
+  /* NOLINTNEXTLINE(readability-redundant-inline-specifier) */
+  inline std::uint64_t promoting_hash_for(const U& x)const
+  {
+    return hash_for(x);
+  }
+
   template<typename Iterator>
   void insert_impl(
     Iterator first,Iterator last,std::false_type /* input iterator */)
@@ -347,7 +367,7 @@ private:
     Iterator first,Iterator last,std::true_type /* forward iterator */)
   {
     super::bulk_insert(
-      [=]()mutable{return hash_for(*first++);},
+      [=]()mutable{return promoting_hash_for(*first++);},
       static_cast<std::size_t>(std::distance(first,last)));
   }
 };
