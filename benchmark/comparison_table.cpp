@@ -163,6 +163,80 @@ test_results test(std::size_t c)
   return {fpr,insertion_time,successful_lookup_time,unsuccessful_lookup_time};
 }
 
+struct bulk_test_results
+{
+  double insertion_time;           /* ns per element */
+  double successful_lookup_time;   /* ns per element */
+  double unsuccessful_lookup_time; /* ns per element */
+};
+
+template<typename Filter>
+bulk_test_results bulk_test(std::size_t c)
+{
+  using value_type=typename Filter::value_type;
+
+  std::vector<value_type> data_in,data_out;
+  {
+    boost::detail::splitmix64             rng;
+    boost::unordered_flat_set<value_type> unique;
+    for(std::size_t i=0;i<num_elements;++i){
+      for(;;){
+        auto x=value_type(rng());
+        if(unique.insert(x).second){
+          data_in.push_back(x);
+          break;
+        }
+      }
+    }
+    for(std::size_t i=0;i<num_elements;++i){
+      for(;;){
+        auto x=value_type(rng());
+        if(!unique.contains(x)){
+          data_out.push_back(x);
+          break;
+        }
+      }
+    }
+  }
+
+  double insertion_time=0.0;
+  {
+    double t=measure([&]{
+      pause_timing();
+      {
+        Filter f(c*num_elements);
+        resume_timing();
+        f.insert(data_in.begin(),data_in.end());
+        pause_timing();
+      }
+      resume_timing();
+      return 0;
+    });
+    insertion_time=t/num_elements*1E9;
+  }
+
+  double successful_lookup_time=0.0;
+  double unsuccessful_lookup_time=0.0;
+  {
+    Filter f(c*num_elements);
+    for(const auto& x:data_in)f.insert(x);
+    double t=measure([&]{
+      std::size_t res=0;
+      f.may_contain(data_in.begin(),data_in.end(),[&](const auto&,bool b){res+=b;});
+      return res;
+    });
+    successful_lookup_time=t/num_elements*1E9;
+    t=measure([&]{
+      std::size_t res=0;
+      f.may_contain(data_out.begin(),data_out.end(),[&](const auto&,bool b){res+=b;});
+      return res;
+    });
+    unsuccessful_lookup_time=t/num_elements*1E9;
+  }
+
+  return {insertion_time,successful_lookup_time,unsuccessful_lookup_time};
+}
+
 struct print_double
 {
   print_double(double x_,int precision_=2):x{x_},precision{precision_}{}
@@ -191,12 +265,13 @@ template<typename Filters> void row(std::size_t c)
   >([&](auto i){
     using filter=typename decltype(i)::type;
     auto res=test<filter>(c);
+    auto bulk_res=bulk_test<filter>(c);
     std::cout<<
       "    <td align=\"center\">"<<filter::k*filter::subfilter::k<<"</td>\n"
       "    <td align=\"right\">"<<print_double(res.fpr,4)<<"</td>\n"
-      "    <td align=\"right\">"<<print_double(res.insertion_time)<<"</td>\n"
-      "    <td align=\"right\">"<<print_double(res.successful_lookup_time)<<"</td>\n"
-      "    <td align=\"right\">"<<print_double(res.unsuccessful_lookup_time)<<"</td>\n";
+      "    <td align=\"right\">"<<print_double(res.insertion_time/bulk_res.insertion_time)<<"</td>\n"
+      "    <td align=\"right\">"<<print_double(res.successful_lookup_time/bulk_res.successful_lookup_time)<<"</td>\n"
+      "    <td align=\"right\">"<<print_double(res.unsuccessful_lookup_time/bulk_res.unsuccessful_lookup_time)<<"</td>\n";
   });
 
   std::cout<<
