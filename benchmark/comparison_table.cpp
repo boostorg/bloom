@@ -73,7 +73,7 @@ struct unordered_flat_set_filter
 
   unordered_flat_set_filter(std::size_t){}
   void insert(const T& x){s.insert(x);}
-  bool may_contain(const T& x){return s.contains(x);}
+  bool may_contain(const T& x)const{return s.contains(x);}
 
   boost::unordered_flat_set<T> s;
 };
@@ -88,6 +88,20 @@ struct test_results
   double unsuccessful_lookup_time; /* ns per element */
   double mixed_lookup_time;        /* ns per element */
 };
+
+template<typename Filter,typename Input>
+std::size_t latency_lookup(const Filter& f,const Input& input)
+{
+  std::size_t n=input.size();
+  std::size_t res=0;
+  for(std::size_t i=0,j=0;i<n;++i){
+    bool b=f.may_contain(input[j]);
+    res+=b;
+    j+=1+(int)b;
+    j-=n*(j>=n);
+  }
+  return res;
+}
 
 template<typename Filter>
 test_results test(std::size_t c)
@@ -157,21 +171,24 @@ test_results test(std::size_t c)
     Filter f(c*num_elements);
     for(const auto& x:data_in)f.insert(x);
     double t=measure([&]{
-      std::size_t res=0;
-      for(const auto& x:data_in)res+=f.may_contain(x);
-      return res;
+      //std::size_t res=0;
+      //for(const auto& x:data_in)res+=f.may_contain(x);
+      //return res;
+      return latency_lookup(f,data_in);
     });
     successful_lookup_time=t/num_elements*1E9;
     t=measure([&]{
-      std::size_t res=0;
-      for(const auto& x:data_out)res+=f.may_contain(x);
-      return res;
+      //std::size_t res=0;
+      //for(const auto& x:data_out)res+=f.may_contain(x);
+      //return res;
+      return latency_lookup(f,data_out);
     });
     unsuccessful_lookup_time=t/num_elements*1E9;
     t=measure([&]{
-      std::size_t res=0;
-      for(const auto& x:data_mixed)res+=f.may_contain(x);
-      return res;
+      //std::size_t res=0;
+      //for(const auto& x:data_mixed)res+=f.may_contain(x);
+      //return res;
+      return latency_lookup(f,data_mixed);
     });
     mixed_lookup_time=t/num_elements*1E9;
   }
