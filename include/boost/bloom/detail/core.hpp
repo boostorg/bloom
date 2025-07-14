@@ -391,20 +391,24 @@ public:
   template<typename HashStream>
   BOOST_FORCEINLINE void bulk_insert(HashStream h,std::size_t n)
   {
-    while(n){
-      auto n0=n<2*bulk_insert_size?n:bulk_insert_size;
-      bulk_insert_impl(std::forward<HashStream>(h),n0);
-      n-=n0;
+    while(n>=2*bulk_insert_size){
+      bulk_insert_impl(h,bulk_insert_size);
+      n-=bulk_insert_size;
+    }
+    if(n){
+      bulk_insert_impl(h,n);
     }
   }
 
   template<typename HashStream,typename F>
   BOOST_FORCEINLINE void bulk_may_contain(HashStream h,std::size_t n,F f)const
   {
-    while(n){
-      auto n0=n<2*bulk_may_contain_size?n:bulk_may_contain_size;
-      bulk_may_contain_impl(std::forward<HashStream>(h),n0,std::forward<F>(f));
-      n-=n0;
+    while(n>=2*bulk_may_contain_size){
+      bulk_may_contain_impl(h,bulk_may_contain_size,f);
+      n-=bulk_may_contain_size;
+    }
+    if(n){
+      bulk_may_contain_impl(h,n,f);
     }
   }
 
