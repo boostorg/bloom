@@ -248,7 +248,7 @@ public:
   }
 
   template<typename InputIterator>
-  void insert(InputIterator first,InputIterator last)
+  BOOST_FORCEINLINE void insert(InputIterator first,InputIterator last)
   {
     insert_impl(
       first,last,
@@ -306,7 +306,8 @@ public:
   }
 
   template<typename ForwardIterator,typename F>
-  void may_contain(ForwardIterator first,ForwardIterator last,F f)const
+  BOOST_FORCEINLINE void may_contain(
+    ForwardIterator first,ForwardIterator last,F f)const
   {
     BOOST_BLOOM_STATIC_ASSERT_IS_FORWARD_ITERATOR(ForwardIterator);
 
@@ -356,14 +357,14 @@ private:
   }
 
   template<typename Iterator>
-  void insert_impl(
+  BOOST_FORCEINLINE void insert_impl(
     Iterator first,Iterator last,std::false_type /* input iterator */)
   {
     while(first!=last)insert(*first++);
   }
 
   template<typename Iterator>
-  void insert_impl(
+  BOOST_FORCEINLINE void insert_impl(
     Iterator first,Iterator last,std::true_type /* forward iterator */)
   {
     super::bulk_insert(

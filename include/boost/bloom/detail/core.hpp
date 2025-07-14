@@ -388,7 +388,8 @@ public:
     }
   }
 
-  template<typename HashStream> void bulk_insert(HashStream h,std::size_t n)
+  template<typename HashStream>
+  BOOST_FORCEINLINE void bulk_insert(HashStream h,std::size_t n)
   {
     while(n){
       auto n0=n<2*bulk_insert_size?n:bulk_insert_size;
@@ -398,7 +399,7 @@ public:
   }
 
   template<typename HashStream,typename F>
-  void bulk_may_contain(HashStream h,std::size_t n,F f)const
+  BOOST_FORCEINLINE void bulk_may_contain(HashStream h,std::size_t n,F f)const
   {
     while(n){
       auto n0=n<2*bulk_may_contain_size?n:bulk_may_contain_size;
@@ -725,7 +726,7 @@ private:
   }
 
   template<typename HashStream>
-  void bulk_insert_impl(HashStream&& h,std::size_t n)
+  BOOST_FORCEINLINE void bulk_insert_impl(HashStream&& h,std::size_t n)
   {
     std::uint64_t  hashes[2*bulk_insert_size-1];
     unsigned char* positions[2*bulk_insert_size-1];
@@ -753,7 +754,8 @@ private:
   }
 
   template<typename HashStream,typename F>
-  void bulk_may_contain_impl(HashStream&& h,std::size_t n,F&& f)const
+  BOOST_FORCEINLINE void bulk_may_contain_impl(
+    HashStream&& h,std::size_t n,F&& f)const
   {
     std::uint64_t        hashes[2*bulk_may_contain_size-1];
     const unsigned char* positions[2*bulk_may_contain_size-1];
