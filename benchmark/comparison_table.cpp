@@ -187,6 +187,7 @@ struct bulk_test_results
   double insertion_time;           /* ns per element */
   double successful_lookup_time;   /* ns per element */
   double unsuccessful_lookup_time; /* ns per element */
+  double mixed_lookup_time;        /* ns per element */
 };
 
 template<typename Filter>
@@ -194,7 +195,11 @@ bulk_test_results bulk_test(std::size_t c)
 {
   using value_type=typename Filter::value_type;
 
-  std::vector<value_type> data_in,data_out;
+  static constexpr double        lookup_mix=0.5;
+  static constexpr std::uint64_t mixed_lookup_cut=
+    (std::uint64_t)(
+      lookup_mix*(double)(std::numeric_limits<std::uint64_t>::max)());
+  std::vector<value_type> data_in,data_out,data_mixed;
   {
     boost::detail::splitmix64             rng;
     boost::unordered_flat_set<value_type> unique;
@@ -216,6 +221,9 @@ bulk_test_results bulk_test(std::size_t c)
         }
       }
     }
+    for(std::size_t i=0;i<num_elements;++i){
+      data_mixed.push_back(rng()<mixed_lookup_cut?data_in[i]:data_out[i]);
+    }
   }
 
   double insertion_time=0.0;
@@ -236,6 +244,7 @@ bulk_test_results bulk_test(std::size_t c)
 
   double successful_lookup_time=0.0;
   double unsuccessful_lookup_time=0.0;
+  double mixed_lookup_time=0.0;
   {
     Filter f(c*num_elements);
     for(const auto& x:data_in)f.insert(x);
@@ -251,9 +260,15 @@ bulk_test_results bulk_test(std::size_t c)
       return res;
     });
     unsuccessful_lookup_time=t/num_elements*1E9;
+    t=measure([&]{
+      std::size_t res=0;
+      f.may_contain(data_mixed.begin(),data_mixed.end(),[&](const auto&,bool b){res+=b;});
+      return res;
+    });
+    mixed_lookup_time=t/num_elements*1E9;
   }
 
-  return {insertion_time,successful_lookup_time,unsuccessful_lookup_time};
+  return {insertion_time,successful_lookup_time,unsuccessful_lookup_time,mixed_lookup_time};
 }
 
 struct print_double
