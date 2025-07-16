@@ -761,32 +761,50 @@ private:
   BOOST_FORCEINLINE void bulk_may_contain_impl(
     HashStream&& h,std::size_t n,F&& f)const
   {
-    std::uint64_t        hashes[2*bulk_may_contain_size-1];
-    const unsigned char* positions[2*bulk_may_contain_size-1];
-    bool                 results[2*bulk_may_contain_size-1];
+    if(k==1){
+      std::uint64_t        hashes[2*bulk_may_contain_size-1];
+      const unsigned char* positions[2*bulk_may_contain_size-1];
 
-    for(auto i=n;i--;){
-      auto& hash=hashes[i]=h();
-      auto& p=positions[i];
-      results[i]=true;
-      hs.prepare_hash(hash);
-      p=next_element(hash);
+      for(auto i=n;i--;){
+        auto& hash=hashes[i]=h();
+        auto& p=positions[i];
+        hs.prepare_hash(hash);
+        p=next_element(hash);
+      }
+      for(auto i=n;i--;){
+        auto& hash=hashes[i];
+        auto& p=positions[i];
+        f(get(p,hash));
+      }
     }
-    for(auto j=k-1;j--;){
+    else{
+      std::uint64_t        hashes[2*bulk_may_contain_size-1];
+      const unsigned char* positions[2*bulk_may_contain_size-1];
+      bool                 results[2*bulk_may_contain_size-1];
+
+      for(auto i=n;i--;){
+        auto& hash=hashes[i]=h();
+        auto& p=positions[i];
+        results[i]=true;
+        hs.prepare_hash(hash);
+        p=next_element(hash);
+      }
+      for(auto j=k-1;j--;){
+        for(auto i=n;i--;){
+          auto& hash=hashes[i];
+          auto& p=positions[i];
+          auto& res=results[i];
+          res&=get(p,hash);
+          p=next_element(hash);
+        }
+      }
       for(auto i=n;i--;){
         auto& hash=hashes[i];
         auto& p=positions[i];
         auto& res=results[i];
         res&=get(p,hash);
-        p=next_element(hash);
+        f(res);
       }
-    }
-    for(auto i=n;i--;){
-      auto& hash=hashes[i];
-      auto& p=positions[i];
-      auto& res=results[i];
-      res&=get(p,hash);
-      f(res);
     }
   }
 
