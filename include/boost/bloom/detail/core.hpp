@@ -217,8 +217,8 @@ public:
   using difference_type=std::ptrdiff_t;
   using pointer=unsigned char*;
   using const_pointer=const unsigned char*;
-  static constexpr std::size_t bulk_insert_size=64/prefetched_cachelines;
-  static constexpr std::size_t bulk_may_contain_size=64/prefetched_cachelines;
+  static constexpr std::size_t bulk_insert_size=16/prefetched_cachelines;
+  static constexpr std::size_t bulk_may_contain_size=16/prefetched_cachelines;
 
   explicit filter_core(std::size_t m=0):filter_core{m,allocator_type{}}{}
 
