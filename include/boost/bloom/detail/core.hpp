@@ -392,7 +392,7 @@ public:
   BOOST_FORCEINLINE void bulk_insert(HashStream h,std::size_t n)
   {
     while(n>=2*bulk_insert_size){
-      bulk_insert_impl<bulk_insert_size>(h);
+      bulk_insert_impl(h,bulk_insert_size);
       n-=bulk_insert_size;
     }
     if(n){
@@ -404,7 +404,7 @@ public:
   BOOST_FORCEINLINE void bulk_may_contain(HashStream h,std::size_t n,F f)const
   {
     while(n>=2*bulk_may_contain_size){
-      bulk_may_contain_impl<bulk_may_contain_size>(h,f);
+      bulk_may_contain_impl(h,bulk_may_contain_size,f);
       n-=bulk_may_contain_size;
     }
     if(n){
@@ -729,34 +729,6 @@ private:
     return p;
   }
 
-  template<std::size_t N,typename HashStream>
-  BOOST_FORCEINLINE void bulk_insert_impl(HashStream&& h)
-  {
-    std::uint64_t  hashes[N];
-    unsigned char* positions[N];
-
-    for(auto i=N;i--;){
-      auto& hash=hashes[i]=h();
-      auto& p=positions[i];
-      hs.prepare_hash(hash);
-      p=next_element(hash);
-    }
-    if(BOOST_UNLIKELY(ar.data==nullptr))return;
-    for(auto j=k-1;j--;){
-      for(auto i=N;i--;){
-        auto& hash=hashes[i];
-        auto& p=positions[i];
-        set(p,hash);
-        p=next_element(hash);
-      }
-    }
-    for(auto i=N;i--;){
-      auto& hash=hashes[i];
-      auto& p=positions[i];
-      set(p,hash);
-    }
-  }
-
   template<typename HashStream>
   BOOST_FORCEINLINE void bulk_insert_impl(HashStream&& h,std::size_t n)
   {
@@ -782,56 +754,6 @@ private:
       auto& hash=hashes[i];
       auto& p=positions[i];
       set(p,hash);
-    }
-  }
-
-  template<std::size_t N,typename HashStream,typename F>
-  BOOST_FORCEINLINE void bulk_may_contain_impl(HashStream&& h,F&& f)const
-  {
-    if(k==1){
-      std::uint64_t        hashes[N];
-      const unsigned char* positions[N];
-
-      for(auto i=N;i--;){
-        auto& hash=hashes[i]=h();
-        auto& p=positions[i];
-        hs.prepare_hash(hash);
-        p=next_element(hash);
-      }
-      for(auto i=N;i--;){
-        auto& hash=hashes[i];
-        auto& p=positions[i];
-        f(get(p,hash));
-      }
-    }
-    else{
-      std::uint64_t        hashes[N];
-      const unsigned char* positions[N];
-      bool                 results[N];
-
-      for(auto i=N;i--;){
-        auto& hash=hashes[i]=h();
-        auto& p=positions[i];
-        results[i]=true;
-        hs.prepare_hash(hash);
-        p=next_element(hash);
-      }
-      for(auto j=k-1;j--;){
-        for(auto i=N;i--;){
-          auto& hash=hashes[i];
-          auto& p=positions[i];
-          auto& res=results[i];
-          res&=get(p,hash);
-          p=next_element(hash);
-        }
-      }
-      for(auto i=N;i--;){
-        auto& hash=hashes[i];
-        auto& p=positions[i];
-        auto& res=results[i];
-        res&=get(p,hash);
-        f(res);
-      }
     }
   }
 
