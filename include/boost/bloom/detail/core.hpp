@@ -217,8 +217,11 @@ public:
   using difference_type=std::ptrdiff_t;
   using pointer=unsigned char*;
   using const_pointer=const unsigned char*;
-  static constexpr std::size_t bulk_insert_size=16;
-  static constexpr std::size_t bulk_may_contain_size=16;
+  static constexpr std::size_t bulk_insert_size=
+    (32+prefetched_cachelines-1)/prefetched_cachelines;
+  static constexpr std::size_t bulk_may_contain_size=
+    (32+prefetched_cachelines-1)/prefetched_cachelines;
+
 
   explicit filter_core(std::size_t m=0):filter_core{m,allocator_type{}}{}
 
@@ -391,18 +394,124 @@ public:
   template<typename HashStream>
   BOOST_FORCEINLINE void bulk_insert(HashStream h,std::size_t n)
   {
-    while(n>=2*bulk_insert_size){
+    std::uint64_t  hashes[bulk_insert_size];
+    unsigned char* positions[bulk_insert_size];
+
+    if(n>=2*bulk_insert_size){
+      for(auto i=bulk_insert_size;i--;){
+        auto& hash=hashes[i]=h();
+        auto& p=positions[i];
+        hs.prepare_hash(hash);
+        p=next_element(hash);
+      }
+      if(BOOST_UNLIKELY(ar.data==nullptr))return;
+      do{
+        for(auto j=k-1;j--;){
+          for(auto i=bulk_insert_size;i--;){
+            auto& hash=hashes[i];
+            auto& p=positions[i];
+            set(p,hash);
+            p=next_element(hash);
+          }
+        }
+        for(auto i=bulk_insert_size;i--;){
+          auto& hash=hashes[i];
+          auto& p=positions[i];
+          set(p,hash);
+          hash=h();
+          hs.prepare_hash(hash);
+          p=next_element(hash);
+        }
+        n-=bulk_insert_size;
+      }while(n>=2*bulk_insert_size);
+      for(auto j=k-1;j--;){
+        for(auto i=bulk_insert_size;i--;){
+          auto& hash=hashes[i];
+          auto& p=positions[i];
+          set(p,hash);
+          p=next_element(hash);
+        }
+      }
+      for(auto i=bulk_insert_size;i--;){
+        auto& hash=hashes[i];
+        auto& p=positions[i];
+        set(p,hash);
+      }
+      n-=bulk_insert_size;
+    }
+    while(n--)insert(h());
+
+#if 0
+      while(n>=2*bulk_insert_size){
       bulk_insert_impl(h,bulk_insert_size);
       n-=bulk_insert_size;
     }
     if(n){
       bulk_insert_impl(h,n);
     }
+#endif
   }
 
   template<typename HashStream,typename F>
   BOOST_FORCEINLINE void bulk_may_contain(HashStream h,std::size_t n,F f)const
   {
+    std::uint64_t        hashes[bulk_may_contain_size];
+    const unsigned char* positions[bulk_may_contain_size];
+    bool                 results[bulk_may_contain_size];
+
+    if(n>=2*bulk_may_contain_size){
+      for(auto i=bulk_may_contain_size;i--;){
+        auto& hash=hashes[i]=h();
+        auto& p=positions[i];
+        auto& res=results[i];
+        hs.prepare_hash(hash);
+        p=next_element(hash);
+        res=true;
+      }
+      do{
+        for(auto j=k-1;j--;){
+          for(auto i=bulk_may_contain_size;i--;){
+            auto& hash=hashes[i];
+            auto& p=positions[i];
+            auto& res=results[i];
+            res&=get(p,hash);
+            p=next_element(hash);
+          }
+        }
+        for(auto i=bulk_may_contain_size;i--;){
+          auto& hash=hashes[i];
+          auto& p=positions[i];
+          auto& res=results[i];
+          res&=get(p,hash);
+          f(res);
+          hash=h();
+          hs.prepare_hash(hash);
+          p=next_element(hash);
+          res=true;
+        }
+        n-=bulk_may_contain_size;
+      }while(n>=2*bulk_may_contain_size);
+      for(auto j=k-1;j--;){
+        for(auto i=bulk_may_contain_size;i--;){
+          auto& hash=hashes[i];
+          auto& p=positions[i];
+          auto& res=results[i];
+          res&=get(p,hash);
+          p=next_element(hash);
+        }
+      }
+      for(auto i=bulk_may_contain_size;i--;){
+        auto& hash=hashes[i];
+        auto& p=positions[i];
+        auto& res=results[i];
+        res&=get(p,hash);
+        f(res);
+      }
+      n-=bulk_may_contain_size;
+    }
+    while(n--)f(may_contain(h()));
+
+#if 0
     while(n>=2*bulk_may_contain_size){
       bulk_may_contain_impl(h,bulk_may_contain_size,f);
       n-=bulk_may_contain_size;
@@ -410,6 +519,7 @@ public:
     if(n){
       bulk_may_contain_impl(h,n,f);
     }
+#endif
   }
 
   void swap(filter_core& x)noexcept(
