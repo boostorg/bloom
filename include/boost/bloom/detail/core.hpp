@@ -455,20 +455,74 @@ public:
   template<typename HashStream,typename F>
   BOOST_FORCEINLINE void bulk_may_contain(HashStream h,std::size_t n,F f)const
   {
-    std::uint64_t        hashes[bulk_may_contain_size];
-    const unsigned char* positions[bulk_may_contain_size];
-    bool                 results[bulk_may_contain_size];
+    if(k==1){
+      std::uint64_t        hashes[bulk_may_contain_size];
+      const unsigned char* positions[bulk_may_contain_size];
 
-    if(n>=2*bulk_may_contain_size){
-      for(auto i=bulk_may_contain_size;i--;){
-        auto& hash=hashes[i]=h();
-        auto& p=positions[i];
-        auto& res=results[i];
-        hs.prepare_hash(hash);
-        p=next_element(hash);
-        res=true;
+      if(n>=2*bulk_may_contain_size){
+        for(auto i=bulk_may_contain_size;i--;){
+          auto& hash=hashes[i]=h();
+          auto& p=positions[i];
+          hs.prepare_hash(hash);
+          p=next_element(hash);
+        }
+        do{
+          for(auto i=bulk_may_contain_size;i--;){
+            auto& hash=hashes[i];
+            auto& p=positions[i];
+            f(get(p,hash));
+            hash=h();
+            hs.prepare_hash(hash);
+            p=next_element(hash);
+          }
+          n-=bulk_may_contain_size;
+        }while(n>=2*bulk_may_contain_size);
+        for(auto i=bulk_may_contain_size;i--;){
+          auto& hash=hashes[i];
+          auto& p=positions[i];
+          f(get(p,hash));
+        }
+        n-=bulk_may_contain_size;
       }
-      do{
+      while(n--)f(may_contain(h()));
+    }
+    else{
+      std::uint64_t        hashes[bulk_may_contain_size];
+      const unsigned char* positions[bulk_may_contain_size];
+      bool                 results[bulk_may_contain_size];
+
+      if(n>=2*bulk_may_contain_size){
+        for(auto i=bulk_may_contain_size;i--;){
+          auto& hash=hashes[i]=h();
+          auto& p=positions[i];
+          auto& res=results[i];
+          hs.prepare_hash(hash);
+          p=next_element(hash);
+          res=true;
+        }
+        do{
+          for(auto j=k-1;j--;){
+            for(auto i=bulk_may_contain_size;i--;){
+              auto& hash=hashes[i];
+              auto& p=positions[i];
+              auto& res=results[i];
+              res&=get(p,hash);
+              p=next_element(hash);
+            }
+          }
+          for(auto i=bulk_may_contain_size;i--;){
+            auto& hash=hashes[i];
+            auto& p=positions[i];
+            auto& res=results[i];
+            res&=get(p,hash);
+            f(res);
+            hash=h();
+            hs.prepare_hash(hash);
+            p=next_element(hash);
+            res=true;
+          }
+          n-=bulk_may_contain_size;
+        }while(n>=2*bulk_may_contain_size);
         for(auto j=k-1;j--;){
           for(auto i=bulk_may_contain_size;i--;){
             auto& hash=hashes[i];
@@ -484,33 +538,11 @@ public:
           auto& res=results[i];
           res&=get(p,hash);
           f(res);
-          hash=h();
-          hs.prepare_hash(hash);
-          p=next_element(hash);
-          res=true;
         }
         n-=bulk_may_contain_size;
-      }while(n>=2*bulk_may_contain_size);
-      for(auto j=k-1;j--;){
-        for(auto i=bulk_may_contain_size;i--;){
-          auto& hash=hashes[i];
-          auto& p=positions[i];
-          auto& res=results[i];
-          res&=get(p,hash);
-          p=next_element(hash);
-        }
       }
-      for(auto i=bulk_may_contain_size;i--;){
-        auto& hash=hashes[i];
-        auto& p=positions[i];
-        auto& res=results[i];
-        res&=get(p,hash);
-        f(res);
-      }
-      n-=bulk_may_contain_size;
+      while(n--)f(may_contain(h()));
     }
-    while(n--)f(may_contain(h()));
-
 #if 0
     while(n>=2*bulk_may_contain_size){
       bulk_may_contain_impl(h,bulk_may_contain_size,f);
