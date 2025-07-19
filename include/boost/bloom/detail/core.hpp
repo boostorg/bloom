@@ -470,10 +470,11 @@ public:
           for(auto i=bulk_may_contain_size;i--;){
             auto& hash=hashes[i];
             auto& p=positions[i];
-            f(get(p,hash));
+            auto  res=get(p,hash);
             hash=h();
             hs.prepare_hash(hash);
             p=next_element(hash);
+            f(res);
           }
           n-=bulk_may_contain_size;
         }while(n>=2*bulk_may_contain_size);
@@ -515,10 +516,10 @@ public:
             auto& p=positions[i];
             auto& res=results[i];
             res&=get(p,hash);
-            f(res);
             hash=h();
             hs.prepare_hash(hash);
             p=next_element(hash);
+            f(res);
             res=true;
           }
           n-=bulk_may_contain_size;
