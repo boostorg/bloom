@@ -218,9 +218,9 @@ public:
   using pointer=unsigned char*;
   using const_pointer=const unsigned char*;
   static constexpr std::size_t bulk_insert_size=
-    (128+prefetched_cachelines-1)/prefetched_cachelines;
+    (32+prefetched_cachelines-1)/prefetched_cachelines;
   static constexpr std::size_t bulk_may_contain_size=
-    (128+prefetched_cachelines-1)/prefetched_cachelines;
+    (32+prefetched_cachelines-1)/prefetched_cachelines;
 
   explicit filter_core(std::size_t m=0):filter_core{m,allocator_type{}}{}
 
@@ -391,7 +391,7 @@ public:
   }
 
   template<typename HashStream>
-  BOOST_FORCEINLINE void bulk_insert(HashStream h,std::size_t n)
+  void bulk_insert(HashStream h,std::size_t n)
   {
     std::uint64_t  hashes[bulk_insert_size];
     unsigned char* positions[bulk_insert_size];
@@ -439,20 +439,85 @@ public:
       n-=bulk_insert_size;
     }
     while(n--)insert(h());
+  }
 
-#if 0
-      while(n>=2*bulk_insert_size){
-      bulk_insert_impl(h,bulk_insert_size);
-      n-=bulk_insert_size;
+  void swap(filter_core& x)noexcept(
+    allocator_propagate_on_container_swap_t<allocator_type>::value||
+    allocator_is_always_equal_t<allocator_type>::value)
+  {
+    static constexpr auto pocs=
+      allocator_propagate_on_container_swap_t<allocator_type>::value;
+
+    if_constexpr<pocs>([&,this]{
+      swap_if<pocs>(al(),x.al());
+    },
+    [&,this]{ /* else */
+      BOOST_ASSERT(al()==x.al());
+      (void)this; /* makes sure captured this is used */
+    });
+    std::swap(hs,x.hs);
+    std::swap(ar,x.ar);
+  }
+
+  void clear()noexcept
+  {
+    clear_bytes();
+  }
+
+  void reset(std::size_t m=0)
+  {
+    hash_strategy new_hs{requested_range(m)};
+    std::size_t   rng=m?new_hs.range():0;
+    if(rng!=range()){
+      auto new_ar=new_array(al(),rng);
+      delete_array();
+      hs=new_hs;
+      ar=new_ar;
     }
-    if(n){
-      bulk_insert_impl(h,n);
+    clear_bytes();
+  }
+
+  void reset(std::size_t n,double fpr)
+  {
+    reset(capacity_for(n,fpr));
+  }
+
+  filter_core& operator&=(const filter_core& x)
+  {
+    combine(x,[](unsigned char& a,unsigned char b){a&=b;});
+    return *this;
+  }
+
+  filter_core& operator|=(const filter_core& x)
+  {
+    combine(x,[](unsigned char& a,unsigned char b){a|=b;});
+    return *this;
+  }
+
+  BOOST_FORCEINLINE bool may_contain(std::uint64_t hash)const
+  {
+    hs.prepare_hash(hash);
+#if 1
+    auto p0=next_element(hash);
+    for(std::size_t n=k-1;n--;){
+      auto p=p0;
+      auto hash0=hash;
+      p0=next_element(hash);
+      if(!get(p,hash0))return false;
     }
+    if(!get(p0,hash))return false;
+    return true;
+#else
+    for(auto n=k;n--;){
+      auto p=next_element(hash); /* modifies hash */
+      if(!get(p,hash))return false;
+    }
+    return true;
 #endif
   }
 
   template<typename HashStream,typename F>
-  BOOST_FORCEINLINE void bulk_may_contain(HashStream h,std::size_t n,F f)const
+  void bulk_may_contain(HashStream h,std::size_t n,F f)const
   {
     if(k==1){
       std::uint64_t        hashes[bulk_may_contain_size];
@@ -543,90 +608,6 @@ public:
       }
       while(n--)f(may_contain(h()));
     }
-#if 0
-    while(n>=2*bulk_may_contain_size){
-      bulk_may_contain_impl(h,bulk_may_contain_size,f);
-      n-=bulk_may_contain_size;
-    }
-    if(n){
-      bulk_may_contain_impl(h,n,f);
-    }
-#endif
-  }
-
-  void swap(filter_core& x)noexcept(
-    allocator_propagate_on_container_swap_t<allocator_type>::value||
-    allocator_is_always_equal_t<allocator_type>::value)
-  {
-    static constexpr auto pocs=
-      allocator_propagate_on_container_swap_t<allocator_type>::value;
-
-    if_constexpr<pocs>([&,this]{
-      swap_if<pocs>(al(),x.al());
-    },
-    [&,this]{ /* else */
-      BOOST_ASSERT(al()==x.al());
-      (void)this; /* makes sure captured this is used */
-    });
-    std::swap(hs,x.hs);
-    std::swap(ar,x.ar);
-  }
-
-  void clear()noexcept
-  {
-    clear_bytes();
-  }
-
-  void reset(std::size_t m=0)
-  {
-    hash_strategy new_hs{requested_range(m)};
-    std::size_t   rng=m?new_hs.range():0;
-    if(rng!=range()){
-      auto new_ar=new_array(al(),rng);
-      delete_array();
-      hs=new_hs;
-      ar=new_ar;
-    }
-    clear_bytes();
-  }
-
-  void reset(std::size_t n,double fpr)
-  {
-    reset(capacity_for(n,fpr));
-  }
-
-  filter_core& operator&=(const filter_core& x)
-  {
-    combine(x,[](unsigned char& a,unsigned char b){a&=b;});
-    return *this;
-  }
-
-  filter_core& operator|=(const filter_core& x)
-  {
-    combine(x,[](unsigned char& a,unsigned char b){a|=b;});
-    return *this;
-  }
-
-  BOOST_FORCEINLINE bool may_contain(std::uint64_t hash)const
-  {
-    hs.prepare_hash(hash);
-#if 1
-    auto p0=next_element(hash);
-    for(std::size_t n=k-1;n--;){
-      auto p=p0;
-      auto hash0=hash;
-      p0=next_element(hash);
-      if(!get(p,hash0))return false;
-    }
-    if(!get(p0,hash))return false;
-    return true;
-#else
-    for(auto n=k;n--;){
-      auto p=next_element(hash); /* modifies hash */
-      if(!get(p,hash))return false;
-    }
-    return true;
-#endif
   }
 
   friend bool operator==(const filter_core& x,const filter_core& y)
@@ -869,85 +850,6 @@ private:
       BOOST_BLOOM_PREFETCH((unsigned char*)p+i*cacheline);
     }
     return p;
-  }
-
-  template<typename HashStream>
-  BOOST_FORCEINLINE void bulk_insert_impl(HashStream&& h,std::size_t n)
-  {
-    std::uint64_t  hashes[2*bulk_insert_size-1];
-    unsigned char* positions[2*bulk_insert_size-1];
-
-    for(auto i=n;i--;){
-      auto& hash=hashes[i]=h();
-      auto& p=positions[i];
-      hs.prepare_hash(hash);
-      p=next_element(hash);
-    }
-    if(BOOST_UNLIKELY(ar.data==nullptr))return;
-    for(auto j=k-1;j--;){
-      for(auto i=n;i--;){
-        auto& hash=hashes[i];
-        auto& p=positions[i];
-        set(p,hash);
-        p=next_element(hash);
-      }
-    }
-    for(auto i=n;i--;){
-      auto& hash=hashes[i];
-      auto& p=positions[i];
-      set(p,hash);
-    }
-  }
-
-  template<typename HashStream,typename F>
-  BOOST_FORCEINLINE void bulk_may_contain_impl(
-    HashStream&& h,std::size_t n,F&& f)const
-  {
-    if(k==1){
-      std::uint64_t        hashes[2*bulk_may_contain_size-1];
-      const unsigned char* positions[2*bulk_may_contain_size-1];
-
-      for(auto i=n;i--;){
-        auto& hash=hashes[i]=h();
-        auto& p=positions[i];
-        hs.prepare_hash(hash);
-        p=next_element(hash);
-      }
-      for(auto i=n;i--;){
-        auto& hash=hashes[i];
-        auto& p=positions[i];
-        f(get(p,hash));
-      }
-    }
-    else{
-      std::uint64_t        hashes[2*bulk_may_contain_size-1];
-      const unsigned char* positions[2*bulk_may_contain_size-1];
-      bool                 results[2*bulk_may_contain_size-1];
-
-      for(auto i=n;i--;){
-        auto& hash=hashes[i]=h();
-        auto& p=positions[i];
-        results[i]=true;
-        hs.prepare_hash(hash);
-        p=next_element(hash);
-      }
-      for(auto j=k-1;j--;){
-        for(auto i=n;i--;){
-          auto& hash=hashes[i];
-          auto& p=positions[i];
-          auto& res=results[i];
-          res&=get(p,hash);
-          p=next_element(hash);
-        }
-      }
-      for(auto i=n;i--;){
-        auto& hash=hashes[i];
-        auto& p=positions[i];
-        auto& res=results[i];
-        res&=get(p,hash);
-        f(res);
-      }
-    }
   }
 
   template<typename F>
