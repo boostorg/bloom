@@ -218,9 +218,9 @@ public:
   using pointer=unsigned char*;
   using const_pointer=const unsigned char*;
   static constexpr std::size_t bulk_insert_size=
-    (32+prefetched_cachelines-1)/prefetched_cachelines;
+    (64+prefetched_cachelines-1)/prefetched_cachelines;
   static constexpr std::size_t bulk_may_contain_size=
-    (32+prefetched_cachelines-1)/prefetched_cachelines;
+    (64+prefetched_cachelines-1)/prefetched_cachelines;
 
   explicit filter_core(std::size_t m=0):filter_core{m,allocator_type{}}{}
 
