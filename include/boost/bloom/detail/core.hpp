@@ -409,17 +409,21 @@ public:
           for(auto i=bulk_insert_size;i--;){
             auto& hash=hashes[i];
             auto& p=positions[i];
-            set(p,hash);
+            auto  hash0=hash;
+            auto  p0=p;
             p=next_element(hash);
+            set(p0,hash0);
           }
         }
         for(auto i=bulk_insert_size;i--;){
           auto& hash=hashes[i];
           auto& p=positions[i];
-          set(p,hash);
+          auto  hash0=hash;
+          auto  p0=p;
           hash=h();
           hs.prepare_hash(hash);
           p=next_element(hash);
+          set(p0,hash0);
         }
         n-=bulk_insert_size;
       }while(n>=2*bulk_insert_size);
@@ -427,8 +431,10 @@ public:
         for(auto i=bulk_insert_size;i--;){
           auto& hash=hashes[i];
           auto& p=positions[i];
-          set(p,hash);
+          auto  hash0=hash;
+          auto  p0=p;
           p=next_element(hash);
+          set(p0,hash0);
         }
       }
       for(auto i=bulk_insert_size;i--;){
@@ -534,11 +540,12 @@ public:
           for(auto i=bulk_may_contain_size;i--;){
             auto& hash=hashes[i];
             auto& p=positions[i];
-            auto  res=get(p,hash);
+            auto  hash0=hash;
+            auto  p0=p;
             hash=h();
             hs.prepare_hash(hash);
             p=next_element(hash);
-            f(res);
+            f(get(p0,hash0));
           }
           n-=bulk_may_contain_size;
         }while(n>=2*bulk_may_contain_size);
@@ -571,18 +578,22 @@ public:
               auto& hash=hashes[i];
               auto& p=positions[i];
               auto& res=results[i];
-              res&=get(p,hash);
+              auto  hash0=hash;
+              auto  p0=p;
               p=next_element(hash);
+              res&=get(p0,hash0);
             }
           }
           for(auto i=bulk_may_contain_size;i--;){
             auto& hash=hashes[i];
             auto& p=positions[i];
             auto& res=results[i];
-            res&=get(p,hash);
+            auto  hash0=hash;
+            auto  p0=p;
             hash=h();
             hs.prepare_hash(hash);
             p=next_element(hash);
+            res&=get(p0,hash0);
             f(res);
             res=true;
           }
@@ -593,8 +604,10 @@ public:
             auto& hash=hashes[i];
             auto& p=positions[i];
             auto& res=results[i];
-            res&=get(p,hash);
+            auto  hash0=hash;
+            auto  p0=p;
             p=next_element(hash);
+            res&=get(p0,hash0);
           }
         }
         for(auto i=bulk_may_contain_size;i--;){
