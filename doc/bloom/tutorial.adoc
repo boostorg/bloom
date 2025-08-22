@@ -339,7 +339,7 @@ file):
 (gdb) add-auto-load-safe-path _<path-to-executable>_
 -----
 
-Alternatively, to the use of the embedded pretty-printer, you can explicitly
+As an alternative to the use of the embedded pretty-printer, you can explicitly
 load the link:../../extra/boost_bloom_printers.py[`boost_bloom_printers.py`^]
 script:
 
