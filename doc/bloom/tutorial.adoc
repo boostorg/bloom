@@ -81,7 +81,7 @@ an array of 2^`N`^ unsigned integrals (e.g. `uint64_t[8]`). In general,
 the wider `Block` is, the better (lower) the resulting FPR, but
 cache locality worsens and performance may suffer as a result.
 
-Note that the total number of of bits set/checked for a
+Note that the total number of bits set/checked for a
 `boost::bloom::filter<T, K, _subfilter_<..., K'>>` is `K * K'`. The
 default configuration `boost::bloom::filter<T, K>` = 
 `boost::bloom::filter<T, K, block<unsigned char, 1>>`, which corresponds to a
@@ -91,7 +91,7 @@ subarray is accessed for each bit set/checked. Consult the
 xref:benchmarks[benchmarks section] to see different tradeoffs between FPR and
 performance.
 
-Once a subfilter have been selected, the parameter `K'` can be tuned
+Once a subfilter has been selected, the parameter `K'` can be tuned
 to its optimum value (minimum FPR) if the number of elements that will be inserted is
 known in advance, as explained in a xref:configuration[dedicated section];
 otherwise, low values of `K'` will generally be faster and preferred to
@@ -254,7 +254,7 @@ f &= f3; // f and f3 must have exactly the same capacity
 
 For AND combination, be aware that the resulting FPR will be in general
 worse (higher) than if the filter had been constructed from scratch
-by inserting only the commom elements -- don't trust `fpr_for` in this
+by inserting only the common elements -- don't trust `fpr_for` in this
 case.
 
 == Direct Access to the Array
@@ -339,7 +339,7 @@ file):
 (gdb) add-auto-load-safe-path _<path-to-executable>_
 -----
 
-Alternatively to the use of the embedded pretty-printer, you can explicitly
+As an alternative to using the embedded pretty-printer, you can explicitly
 load the link:../../extra/boost_bloom_printers.py[`boost_bloom_printers.py`^]
 script:
 

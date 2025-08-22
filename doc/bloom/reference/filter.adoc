@@ -297,7 +297,7 @@ Postconditions:;; `*this == x`.
 filter(filter&& x);
 ----
 
-Constructs a filter tranferring `x`++'++s internal array to `*this` and using
+Constructs a filter transferring `x`++'++s internal array to `*this` and using
 a hash function and allocator move-constructed from `x`++'++s hash function
 and allocator, respectively.
 
@@ -355,7 +355,7 @@ Postconditions:;; `*this == x`.
 filter(filter&& x, const allocator_type& al);
 ----
 
-Constructs a filter tranferring `x`++'++s internal array to `*this` if
+Constructs a filter transferring `x`++'++s internal array to `*this` if
 `al == x.get_allocator()`, or using a copy of the array otherwise.
 The hash function of the new filter is move-constructed from `x`++'++s
 hash function and the allocator is a copy of `al`.
