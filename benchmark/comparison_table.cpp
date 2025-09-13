@@ -295,7 +295,7 @@ int main(int argc,char* argv[])
     "    <th>ins.</th>\n"
     "    <th>succ.<br/>lkp.</th>\n"
     "    <th>uns.<br/>lkp.</th>\n"
-    "    <th>mixed<br/>lpk.</th>\n";
+    "    <th>mixed<br/>lkp.</th>\n";
 
   std::cout<<
     "<table class=\"bordered_table\" style=\"font-size: 85%;\">\n"
