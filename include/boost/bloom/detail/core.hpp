@@ -561,69 +561,28 @@ public:
     else{
       std::uint64_t        hashes[bulk_may_contain_size];
       const unsigned char* positions[bulk_may_contain_size];
-      bool                 results[bulk_may_contain_size];
 
       if(n>=2*bulk_may_contain_size){
         for(auto i=bulk_may_contain_size;i--;){
           auto& hash=hashes[i]=h();
           auto& p=positions[i];
-          auto& res=results[i];
           hs.prepare_hash(hash);
           p=next_element(hash);
-          res=true;
-        }
-        do{
-          for(auto j=k-1;j--;){
-            for(auto i=bulk_may_contain_size;i--;){
-              auto& hash=hashes[i];
-              auto& p=positions[i];
-              auto& res=results[i];
-              auto  hash0=hash;
-              auto  p0=p;
-              if(res){
-                p=next_element(hash);
-                res&=get(p0,hash0);
-              }
-            }
-          }
-          for(auto i=bulk_may_contain_size;i--;){
-            auto& hash=hashes[i];
-            auto& p=positions[i];
-            auto& res=results[i];
-            auto  hash0=hash;
-            auto  p0=p;
-            hash=h();
-            hs.prepare_hash(hash);
-            p=next_element(hash);
-            if(res){
-              res&=get(p0,hash0);
-            }
-            f(res);
-            res=true;
-          }
-          n-=bulk_may_contain_size;
-        }while(n>=2*bulk_may_contain_size);
-        for(auto j=k-1;j--;){
-          for(auto i=bulk_may_contain_size;i--;){
-            auto& hash=hashes[i];
-            auto& p=positions[i];
-            auto& res=results[i];
-            auto  hash0=hash;
-            auto  p0=p;
-            if(res){
-              p=next_element(hash);
-              res&=get(p0,hash0);
-            }
-          }
         }
         for(auto i=bulk_may_contain_size;i--;){
-          auto& hash=hashes[i];
-          auto& p=positions[i];
-          auto& res=results[i];
-          if(res){
-            res&=get(p,hash);
+          auto hash=hashes[i];
+          auto p0=positions[i];
+          for(std::size_t n=k-2;n--;){
+            auto p=p0;
+            auto hash0=hash;
+            p0=next_element(hash);
+            if(!get(p,hash0)){
+              f(false);
+              goto next;
+            }
           }
-          f(res);
+          f(get(p0,hash));
+        next:;
         }
         n-=bulk_may_contain_size;
       }
