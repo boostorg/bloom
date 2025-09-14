@@ -580,8 +580,10 @@ public:
               auto& res=results[i];
               auto  hash0=hash;
               auto  p0=p;
-              p=next_element(hash);
-              res&=get(p0,hash0);
+              if(res){
+                p=next_element(hash);
+                res&=get(p0,hash0);
+              }
             }
           }
           for(auto i=bulk_may_contain_size;i--;){
@@ -593,7 +595,9 @@ public:
             hash=h();
             hs.prepare_hash(hash);
             p=next_element(hash);
-            res&=get(p0,hash0);
+            if(res){
+              res&=get(p0,hash0);
+            }
             f(res);
             res=true;
           }
@@ -606,15 +610,19 @@ public:
             auto& res=results[i];
             auto  hash0=hash;
             auto  p0=p;
-            p=next_element(hash);
-            res&=get(p0,hash0);
+            if(res){
+              p=next_element(hash);
+              res&=get(p0,hash0);
+            }
           }
         }
         for(auto i=bulk_may_contain_size;i--;){
           auto& hash=hashes[i];
           auto& p=positions[i];
           auto& res=results[i];
-          res&=get(p,hash);
+          if(res){
+            res&=get(p,hash);
+          }
           f(res);
         }
         n-=bulk_may_contain_size;
