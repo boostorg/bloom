@@ -235,6 +235,9 @@ public:
     (64+prefetched_cachelines-1)/prefetched_cachelines;
   static constexpr std::size_t bulk_may_contain_size=
     (64+prefetched_cachelines-1)/prefetched_cachelines;
+  static_assert(
+    bulk_may_contain_size<=64, /* see results in bulk_may_contain */
+    "internal check, bulk_may_contain_size must be <= 64");
 
   explicit filter_core(std::size_t m=0):filter_core{m,allocator_type{}}{}
 
@@ -575,9 +578,6 @@ public:
       while(n--)f(may_contain(h()));
     }
     else{
-      static_assert(
-        bulk_may_contain_size<=64,
-        "internal check, bulk_may_contain_size must be <= 64");
       static constexpr std::uint64_t initial_result_mask=
         ((std::uint64_t(1)<<(bulk_may_contain_size/2))<<
           ((bulk_may_contain_size+1)/2))-1;
