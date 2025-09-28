@@ -17,6 +17,7 @@
 #include <boost/bloom/detail/sse2.hpp>
 #include <boost/config.hpp>
 #include <boost/core/allocator_traits.hpp>
+#include <boost/core/bit.hpp>
 #include <boost/core/empty_value.hpp>
 #include <boost/core/span.hpp>
 #include <boost/throw_exception.hpp>
@@ -137,6 +138,19 @@ constexpr std::size_t gcd_pow2(std::size_t x,std::size_t p)
 constexpr double constexpr_ldexp_1_positive(int exp)
 {
   return exp==0?1.0:2.0*constexpr_ldexp_1_positive(exp-1);
+}
+
+inline unsigned int unchecked_countr_zero(std::uint64_t x)
+{
+#if defined(BOOST_MSVC)&&(defined(_M_X64)||defined(_M_ARM64))
+  unsigned long r;
+  _BitScanForward64(&r,x);
+  return (unsigned int)r;
+#elif defined(BOOST_GCC)||defined(BOOST_CLANG)
+  return (unsigned int)__builtin_ctzll(x);
+#else
+  return (unsigned int)boost::core::countr_zero(x);
+#endif
 }
 
 struct filter_array
@@ -549,6 +563,7 @@ public:
           }
           n-=bulk_may_contain_size;
         }while(n>=2*bulk_may_contain_size);
+
         for(auto i=bulk_may_contain_size;i--;){
           auto& hash=hashes[i];
           auto& p=positions[i];
@@ -556,69 +571,75 @@ public:
         }
         n-=bulk_may_contain_size;
       }
+
       while(n--)f(may_contain(h()));
     }
     else{
+      static_assert(
+        bulk_may_contain_size<=64,
+        "internal check, bulk_may_contain_size must be <= 64");
+      static constexpr std::uint64_t initial_result_mask=
+        ((std::uint64_t(1)<<(bulk_may_contain_size/2))<<
+          ((bulk_may_contain_size+1)/2))-1;
+
       std::uint64_t        hashes[bulk_may_contain_size];
       const unsigned char* positions[bulk_may_contain_size];
-      bool                 results[bulk_may_contain_size];
+      std::uint64_t        results=initial_result_mask;
 
       if(n>=2*bulk_may_contain_size){
-        for(auto i=bulk_may_contain_size;i--;){
+        for(std::size_t i=0;i<bulk_may_contain_size;++i){
           auto& hash=hashes[i]=h();
           auto& p=positions[i];
-          auto& res=results[i];
           hs.prepare_hash(hash);
           p=next_element(hash);
-          res=true;
         }
         do{
-          for(auto j=k-1;j--;){
-            for(auto i=bulk_may_contain_size;i--;){
+          for(auto j=k;j--;){
+            auto mask=results;
+            if(!mask)break;
+            do{
+              auto i=unchecked_countr_zero(mask);
               auto& hash=hashes[i];
               auto& p=positions[i];
-              auto& res=results[i];
-              auto  hash0=hash;
-              auto  p0=p;
+              auto  b=get(p,hash);
               p=next_element(hash);
-              res&=get(p0,hash0);
-            }
+              results&=~(std::uint64_t(!b)<<i);
+              mask&=mask-1;
+            }while(mask);
           }
-          for(auto i=bulk_may_contain_size;i--;){
+          for(std::size_t i=0;i<bulk_may_contain_size;++i){
             auto& hash=hashes[i];
             auto& p=positions[i];
-            auto& res=results[i];
-            auto  hash0=hash;
-            auto  p0=p;
             hash=h();
             hs.prepare_hash(hash);
             p=next_element(hash);
-            res&=get(p0,hash0);
-            f(res);
-            res=true;
+            f(results&1);
+            results>>=1;
           }
+          results=initial_result_mask;
           n-=bulk_may_contain_size;
         }while(n>=2*bulk_may_contain_size);
-        for(auto j=k-1;j--;){
-          for(auto i=bulk_may_contain_size;i--;){
+
+        for(auto j=k;j--;){
+          auto mask=results;
+          if(!mask)break;
+          do{
+            auto i=unchecked_countr_zero(mask);
             auto& hash=hashes[i];
             auto& p=positions[i];
-            auto& res=results[i];
-            auto  hash0=hash;
-            auto  p0=p;
+            auto  b=get(p,hash);
             p=next_element(hash);
-            res&=get(p0,hash0);
-          }
+            results&=~(std::uint64_t(!b)<<i);
+            mask&=mask-1;
+          }while(mask);
         }
-        for(auto i=bulk_may_contain_size;i--;){
-          auto& hash=hashes[i];
-          auto& p=positions[i];
-          auto& res=results[i];
-          res&=get(p,hash);
-          f(res);
+        for(std::size_t i=0;i<bulk_may_contain_size;++i){
+          f(results&1);
+          results>>=1;
         }
         n-=bulk_may_contain_size;
       }
+
       while(n--)f(may_contain(h()));
     }
   }
