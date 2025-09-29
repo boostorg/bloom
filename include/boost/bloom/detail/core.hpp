@@ -232,7 +232,7 @@ public:
   using pointer=unsigned char*;
   using const_pointer=const unsigned char*;
   static constexpr std::size_t bulk_insert_size=
-    (128+prefetched_cachelines-1)/prefetched_cachelines;
+    (64+prefetched_cachelines-1)/prefetched_cachelines;
   static constexpr std::size_t bulk_may_contain_size=
     (64+prefetched_cachelines-1)/prefetched_cachelines;
   static_assert(
