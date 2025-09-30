@@ -32,7 +32,31 @@
 #include <type_traits>
 #include <utility>
 
-/* We use BOOST_BLOOM_PREFETCH[_WRITE] macros rather than proper
+#ifdef __has_builtin
+#define BOOST_BLOOM_HAS_BUILTIN(x) __has_builtin(x)
+#else
+#define BOOST_BLOOM_HAS_BUILTIN(x) 0
+#endif
+
+#if !defined(NDEBUG)
+#define BOOST_BLOOM_ASSUME(cond) BOOST_ASSERT(cond)
+#elif BOOST_BLOOM_HAS_BUILTIN(__builtin_assume)
+#define BOOST_BLOOM_ASSUME(cond) __builtin_assume(cond)
+#elif defined(__GNUC__) || BOOST_BLOOM_HAS_BUILTIN(__builtin_unreachable)
+#define BOOST_BLOOM_ASSUME(cond)    \
+  do{                                   \
+    if(!(cond))__builtin_unreachable(); \
+  }while(0)
+#elif defined(_MSC_VER)
+#define BOOST_BLOOM_ASSUME(cond) __assume(cond)
+#else
+#define BOOST_BLOOM_ASSUME(cond)  \
+  do{                                 \
+    static_cast<void>(false&&(cond)); \
+  }while(0)
+#endif
+
+ /* We use BOOST_BLOOM_PREFETCH[_WRITE] macros rather than proper
  * functions because of https://gcc.gnu.org/bugzilla/show_bug.cgi?id=109985
  */
 
@@ -149,6 +173,7 @@ inline unsigned int unchecked_countr_zero(std::uint64_t x)
 #elif defined(BOOST_GCC)||defined(BOOST_CLANG)
   return (unsigned int)__builtin_ctzll(x);
 #else
+  BOOST_BLOOM_ASSUME(x!=0);
   return (unsigned int)boost::core::countr_zero(x);
 #endif
 }
