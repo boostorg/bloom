@@ -247,8 +247,8 @@ for(const auto& x: data) f.insert(x);
 
 This is so because the former processes the range in
 chunks of size xref:filter_bulk_insert_size[`bulk_insert_size`]
-using some internal streamlining techniques able to reduce execution
-times by around 30% to 50%. Similarly, `may_contain` can be executed
+using some internal streamlining techniques in order to reduce execution
+time. Similarly, `may_contain` can be executed
 in bulk mode as follows:
 
 [source]
@@ -262,10 +262,15 @@ f.may_contain(
 -----
 
 Bulk `may_contain` processes the range in chunks of
-xref:filter_bulk_may_contain_size[`bulk_may_contain_size`] elements. As with
-bulk insertion, execution times can decrease by 30% to 50% depending on
-the filter configuration and its capacity (the more memory the filter array
-takes, the larger the speed improvements).
+xref:filter_bulk_may_contain_size[`bulk_may_contain_size`] elements. 
+
+Bulk mode can increase performance by a factor of 2x or more, but this is
+very dependent on the filter configuration, the compiler used and the
+environment, and in some cases it results in a net performance loss.
+In general, the speedup is higher for larger array sizes.
+For more information, consult the dedicated
+xref:benchmarks_bulk_operations[benchmark section] and
+https://github.com/boostorg/boost_bloom_benchmarks/tree/bulk-operations[associated repo^].
 
 == Filter Combination
 
