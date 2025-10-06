@@ -622,6 +622,7 @@ public:
           for(auto j=k;j--;){
             auto mask=results;
             if(!mask)break;
+            auto pc=boost::core::popcount(mask);
             do{
               auto i=unchecked_countr_zero(mask);
               auto& hash=hashes[i];
@@ -630,7 +631,7 @@ public:
               p=next_element(hash);
               results&=~(std::uint64_t(!b)<<i);
               mask&=mask-1;
-            }while(mask);
+            }while(--pc);
           }
           for(std::size_t i=0;i<bulk_may_contain_size;++i){
             auto& hash=hashes[i];
@@ -648,6 +649,7 @@ public:
         for(auto j=k;j--;){
           auto mask=results;
           if(!mask)break;
+          auto pc=boost::core::popcount(mask);
           do{
             auto i=unchecked_countr_zero(mask);
             auto& hash=hashes[i];
@@ -656,7 +658,7 @@ public:
             p=next_element(hash);
             results&=~(std::uint64_t(!b)<<i);
             mask&=mask-1;
-          }while(mask);
+          }while(--pc);
         }
         for(std::size_t i=0;i<bulk_may_contain_size;++i){
           f(results&1);
