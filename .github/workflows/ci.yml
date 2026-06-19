@@ -323,7 +323,7 @@ jobs:
           - os: ubuntu-24.04
           - os: macos-14
           - os: macos-15
-          - os: macos-25
+          - os: macos-26
 
     runs-on: ${{matrix.os}}
 
