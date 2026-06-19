@@ -180,10 +180,19 @@ jobs:
             install: clang-18
           - toolset: clang
             cxxstd: "11,14,17,20,2b"
-            os: macos-13
-          - toolset: clang
-            cxxstd: "11,14,17,20,2b"
             os: macos-14
+          - toolset: clang
+            compiler: clang-16
+            cxxstd: "11,14,17,20,2b"
+            os: macos-15
+          - toolset: clang
+            compiler: clang-18
+            cxxstd: "11,14,17,20,2b"
+            os: macos-15
+          - toolset: clang
+            compiler: clang-20
+            cxxstd: "11,14,17,20,23,2c"
+            os: macos-26
 
     runs-on: ${{matrix.os}}
     container:
